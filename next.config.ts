@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   output: 'export',
-  basePath: process.env.NODE_ENV === 'production' ? '/ceh-docs' : '',
+  basePath: process.env.NODE_ENV === 'production' ? '/CEH-Docs' : '',
   images: {
     unoptimized: true,
     remotePatterns: [
