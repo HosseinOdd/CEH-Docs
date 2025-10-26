@@ -43,11 +43,19 @@ jobs:
       - name: Add .nojekyll file
         run: touch out/.nojekyll
       
-      - name: Copy index.html to out directory
+      - name: Fix language directory structure
         run: |
+          # Copy index.html to root
           if [ -f public/index.html ]; then
             cp public/index.html out/index.html
           fi
+          # Copy language HTML files to their directories
+          for lang in en fr ja; do
+            if [ -f "out/${lang}.html" ]; then
+              mkdir -p "out/${lang}"
+              cp "out/${lang}.html" "out/${lang}/index.html"
+            fi
+          done
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
