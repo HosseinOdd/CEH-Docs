@@ -1,0 +1,20 @@
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  /* config options here */
+  output: 'export',
+  basePath: process.env.NODE_ENV === 'production' ? '/ceh-docs' : '',
+  images: {
+    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "img.freepik.com/**",
+      },
+    ],
+  },
+  // if used turbopack
+  // transpilePackages: ["next-mdx-remote"],
+};
+
+export default nextConfig;
