@@ -13,14 +13,14 @@ export function Footer({ dict }: { dict: Dictionary }) {
             {dict.footer.built_by}{" "}
             <Link
               className="px-1 underline underline-offset-2"
-              href="https://github.com/nisabmohd"
+              href="https://github.com/HosseinOdd"
             >
-              nisabmohd
+              HosseinOdd
             </Link>
             . {dict.footer.source_code_available}{" "}
             <Link
               className="px-1 underline underline-offset-2"
-              href="https://github.com/nisabmohd/Aria-Docs"
+              href="https://github.com/HosseinOdd/CEH-Docs"
             >
               GitHub
             </Link>
@@ -47,7 +47,7 @@ export function FooterButtons({ dict }: { dict: Dictionary }) {
         {dict.footer.deploy}
       </Link>
       <Link
-        href="https://github.com/sponsors/nisabmohd"
+        href="https://github.com/sponsors/HosseinOdd"
         className={buttonVariants({ variant: "outline", size: "sm" })}
       >
         <HeartIcon className="h-4 w-4 mr-2 text-red-600 fill-current" />
