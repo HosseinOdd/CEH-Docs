@@ -27,7 +27,7 @@ export async function generateMetadata(params: LangProps): Promise<Metadata> {
   const dict = await getDictionary(lang);
   return {
     title: dict.metadata.title,
-    metadataBase: new URL("https://ariadocs.vercel.app/"),
+    metadataBase: new URL("https://ceh-docs.vercel.app/"),
     description: dict.metadata.description,
   };
 }

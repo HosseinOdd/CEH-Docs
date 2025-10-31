@@ -7,7 +7,7 @@ import { Metadata } from "next";
 import Image from "next/image";
 
 export const metadata: Metadata = {
-  title: "AriaDocs - Blog",
+  title: "CEH-Docs - Blog",
 };
 
 export default async function BlogIndexPage({ params }: LangProps) {
