@@ -1,0 +1,94 @@
+# Installing Metasploitable
+
+
+Metasploitable is an intentionally vulnerable virtual machine designed for practicing penetration testing and learning about vulnerabilities. It's meant to be run in an isolated VM environment.
+
+
+> ⚠️ Warning: Metasploitable is purposely insecure. **Do not** expose it directly to production networks or the public Internet. Use an isolated network (Host-Only) or NAT for lab use.
+
+
+---
+
+
+## Files extracted after unzip
+
+| File | Description |
+|---|---|
+| `metasploitable.vmdk` | Main virtual disk — **required** |
+| `metasploitable.vmx` | VMware configuration (for reference) |
+| `metasploitable.vmsd` | Snapshot metadata (optional) |
+| `metasploitable.nvram` | NVRAM/BIOS state (usually not needed) |
+| `metasploitable.vmxf` | Additional VMware metadata (non-essential) |
+
+
+> Summary: For **VirtualBox** the key file is `metasploitable.vmdk`. The rest are VMware artifacts; you can recreate equivalent settings in VirtualBox.
+
+
+---
+
+
+## Installing Metasploitable on VirtualBox
+
+
+### Method 1 — Use VMDK directly (simple)
+
+
+1. Open VirtualBox.
+2. Click **New**.
+- Name: `Metasploitable`
+- Type: `Linux`
+- Version: choose `Other Linux (32-bit)` or the closest match.
+3. RAM: around **512 MB** to **1 GB** (depends on the version).
+4. When asked for a hard disk choose **Use an existing virtual hard disk file** and select `metasploitable.vmdk`.
+5. Open VM Settings:
+- **System → Motherboard**: ensure Hard Disk is in Boot Order.
+- **System → Processor**: set at least 1 CPU.
+- **Network**: prefer **NAT** or **Host-Only Adapter**. For safe isolated labs use Host-Only or Internal Network.
+6. Start the VM. You should be able to log in (common default credentials for some builds are `msfadmin:msfadmin` — verify with your version).
+
+
+### Method 2 — Convert VMDK to VDI (optional, recommended for better compatibility)
+
+
+If you prefer VirtualBox native disk format:
+
+
+Run in terminal / command prompt where VBoxManage is available:
+
+
+```bash
+VBoxManage clonehd metasploitable.vmdk metasploitable.vdi --format VDI
+```
+
+
+Then when creating the VM, choose the existing `metasploitable.vdi`.
+
+
+### Recommended network settings for a lab
+
+
+- **Host-Only**: isolates the VM so only host and VMs can communicate — safest for practice.
+- **NAT + Port Forwarding**: use when you need host-to-VM access (e.g., SSH) while keeping VM non-public.
+- **Avoid Bridged** on public or production networks.
+
+
+---
+
+
+## Practical & security tips
+
+
+- Keep Metasploitable disconnected from the public Internet.
+- Take snapshots before major changes so you can revert.
+- Use Host-Only or Internal networks for multi-VM labs (Kali → target VM).
+- Default credentials are often part of the lab exercises; change them only if you understand the implications.
+
+
+---
+
+
+## References
+
+
+- The Metasploitable download you used
+- VirtualBox documentation (for `VBoxManage` & networking)
