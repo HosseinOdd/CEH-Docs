@@ -13,9 +13,7 @@
     },
     "footer": {
         "built_by": "Built by",
-        "source_code_available": "The source code is available on",
-        "deploy": "Deploy",
-        "sponsor": "Sponsor"
+        "source_code_available": "The source code is available on"
     },
     "navbar": {
         "links": {

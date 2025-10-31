@@ -13,9 +13,7 @@
     },
     "footer": {
         "built_by": "ساخته شده توسط",
-        "source_code_available": "کد منبع در دسترس است در",
-        "deploy": "استقرار",
-        "sponsor": "حمایت مالی"
+        "source_code_available": "کد منبع در دسترس است در"
     },
     "navbar": {
         "links": {
