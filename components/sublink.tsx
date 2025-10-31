@@ -6,11 +6,12 @@ import {
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { SheetClose } from "@/components/ui/sheet";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import LocalizedLink from "./localized-link";
 import { useDictionary } from "./contexts/dictionary-provider";
+import useLocale from "./hooks/useLocale";
 
 export default function SubLink({
   title,
@@ -23,6 +24,8 @@ export default function SubLink({
   const path = usePathname();
   const [isOpen, setIsOpen] = useState(level == 0);
   const dict = useDictionary();
+  const locale = useLocale();
+  const isRTL = locale === 'fa';
 
   useEffect(() => {
     if (path == href || path.includes(href)) setIsOpen(true);
@@ -56,12 +59,16 @@ export default function SubLink({
   return (
     <div className="flex flex-col gap-1 w-full">
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <CollapsibleTrigger className="w-full pr-5">
+        <CollapsibleTrigger className={isRTL ? 'w-full pl-5' : 'w-full pr-5'}>
           <div className="flex items-center justify-between cursor-pointer w-full">
             {titleOrLink}
             <span>
               {!isOpen ? (
-                <ChevronRight className="h-[0.9rem] w-[0.9rem]" />
+                isRTL ? (
+                  <ChevronLeft className="h-[0.9rem] w-[0.9rem]" />
+                ) : (
+                  <ChevronRight className="h-[0.9rem] w-[0.9rem]" />
+                )
               ) : (
                 <ChevronDown className="h-[0.9rem] w-[0.9rem]" />
               )}
@@ -71,8 +78,8 @@ export default function SubLink({
         <CollapsibleContent>
           <div
             className={cn(
-              "flex flex-col items-start sm:text-sm dark:text-stone-300/85 text-stone-800 ml-0.5 mt-2.5 gap-3",
-              level > 0 && "pl-4 border-l ml-1.5"
+              "flex flex-col items-start sm:text-sm dark:text-stone-300/85 text-stone-800 mt-2.5 gap-3",
+              level > 0 && (isRTL ? "pr-4 border-r mr-1.5 ml-0.5" : "pl-4 border-l ml-1.5 mr-0.5")
             )}
           >
             {items?.map((innerLink) => {

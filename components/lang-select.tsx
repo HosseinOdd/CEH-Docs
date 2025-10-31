@@ -17,12 +17,8 @@ const available_locales = [
     code: "en",
   },
   {
-    title: "Français",
-    code: "fr",
-  },
-  {
-    title: "日本語",
-    code: "ja",
+    title: "فارسی",
+    code: "fa",
   },
 ];
 
