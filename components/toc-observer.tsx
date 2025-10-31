@@ -56,8 +56,10 @@ export default function TocObserver({ data }: Props) {
           <Link
             key={href + text + level + index}
             href={href}
+            style={isRTL ? { unicodeBidi: 'plaintext', textAlign: 'right' } : {}}
             className={clsx(
               isRTL ? 'text-right' : 'text-left',
+              'break-words',
               {
                 "pr-0": isRTL && level == 2,
                 "pr-4": isRTL && level == 3,

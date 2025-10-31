@@ -172,6 +172,18 @@ pre > code {
   padding-left: 0;
 }
 
+/* TOC mixed content support (Persian + English) */
+[dir="rtl"] .toc a {
+  unicode-bidi: plaintext;
+  text-align: right !important;
+  display: block;
+}
+
+[dir="ltr"] .toc a {
+  text-align: left !important;
+  display: block;
+}
+
 /* Code blocks RTL Support */
 [dir="rtl"] .line-number::before {
   margin-right: -2px;
