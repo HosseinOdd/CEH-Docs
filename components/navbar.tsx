@@ -21,16 +21,8 @@ export const NAVLINKS = [
     href: "/blog",
   },
   {
-    title: "examples",
-    href: "#",
-  },
-  {
-    title: "guides",
-    href: "#",
-  },
-  {
     title: "community",
-    href: "https://github.com/nisabmohd/Aria-Docs/discussions",
+    href: "https://github.com/HosseinOdd/CEH-Docs/discussions",
   },
 ];
 
@@ -56,19 +48,10 @@ export function Navbar({ dict }: { dict: Dictionary }) {
             <div className="flex ml-2.5 sm:ml-0">
               <LangSelect />
               <Link
-                href="https://github.com/nisabmohd/NexDocs"
+                href="https://github.com/HosseinOdd/CEH-Docs"
                 className={buttonVariants({ variant: "ghost", size: "icon" })}
               >
                 <GithubIcon className="h-[1.1rem] w-[1.1rem]" />
-              </Link>
-              <Link
-                href="#"
-                className={buttonVariants({
-                  variant: "ghost",
-                  size: "icon",
-                })}
-              >
-                <TwitterIcon className="h-[1.1rem] w-[1.1rem]" />
               </Link>
               <ModeToggle dict={dict} />
             </div>
@@ -83,7 +66,7 @@ export function Logo() {
   return (
     <LocalizedLink href="/" className="flex items-center gap-2.5">
       <CommandIcon className="w-6 h-6 text-muted-foreground" strokeWidth={2} />
-      <h2 className="text-md font-bold font-code">AriaDocs</h2>
+      <h2 className="text-md font-bold font-code">CEH-Docs</h2>
     </LocalizedLink>
   );
 }
