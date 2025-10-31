@@ -11,7 +11,7 @@ export default async function Home({ params }: LangProps) {
   return (
     <div className="flex sm:min-h-[85.5vh] min-h-[85vh] flex-col items-center justify-center text-center px-2 sm:py-8 py-12">
       <Link
-        href="https://github.com/nisabmohd/Aria-Docs"
+        href="https://github.com/HosseinOdd/CEH-Docs"
         target="_blank"
         className="mb-5 sm:text-lg flex items-center gap-2 underline underline-offset-4 sm:-mt-12"
       >
@@ -42,10 +42,6 @@ export default async function Home({ params }: LangProps) {
           {dict.home.read_blog}
         </LocalizedLink>
       </div>
-      <span className="flex flex-row items-start sm:gap-2 gap-0.5 text-muted-foreground text-md mt-7 -mb-12 max-[800px]:mb-12 font-code sm:text-base text-sm font-medium">
-        <TerminalSquareIcon className="w-5 h-5 sm:mr-1 mt-0.5" />
-        {"npx create-aria-doc <project-directory>"}
-      </span>
     </div>
   );
 }
