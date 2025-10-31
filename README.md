@@ -1,58 +1,34 @@
-## AriaDocs - Documentation Template
+## CEH-Docs - Certified Ethical Hacker Documentation
 
-This feature-packed documentation template, built with Next.js, offers a sleek and responsive design, perfect for all your project documentation needs.
+Comprehensive documentation for the Certified Ethical Hacker (CEH) course, covering essential topics in ethical hacking, penetration testing, and cybersecurity.
 
 <br/>
 
 ### Quick Start
 
-You can create a new Ariadocs project using the command:
+Clone the repository and install dependencies:
 
-```plaintext
-npx create-aria-doc <project-directory>
-```
-
-### Expected Output
-
-When you run the CLI, you can expect an output similar to this:
-
-```
-Creating a new Ariadocs project in /path/to/your/project from the master branch...
-Cloning Master (Full Documentation)...
-Ariadocs project successfully created in /path/to/your/project!
-
-Next steps:
-1. Navigate to your project directory:
-   cd <project-directory>
-2. Install dependencies:
-   // To support React 19, package maintainers will need to test and update their packages to include React 19 as a peer dependency. This is already in progress.
-   npm install --force 
-3. Start the development server:
-   npm run dev
+```bash
+git clone https://github.com/HosseinOdd/CEH-Docs.git
+cd CEH-Docs/nextjs-i18n
+pnpm install
 ```
 
 ## Getting Started
 
-First, run the development server:
+Run the development server:
 
-```plaintext
-npm run dev
-# or
-yarn dev
-# or
+```bash
 pnpm dev
-# or
-bun dev
 ```
 
+Open [http://localhost:3000](http://localhost:3000) to view the documentation.
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/nisabmohd/Aria-Docs)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/HosseinOdd/CEH-Docs)
 
 ## Key Features
 
@@ -60,7 +36,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 |-------------------------------|----------------------------------------------------------|
 | MDX Support                   | Write interactive documentation with MDX.                |
 | Nested Pages                  | Organize content in a nested, hierarchical structure.    |
-| Blog Section                  | Include a dedicated blog section.                        |
+| Blog Section                  | Include a dedicated blog section for CEH articles.       |
 | Table of Contents             | Auto-generated TOC for easy navigation.                  |
 | Pagination                    | Split content across multiple pages.                     |
 | Syntax Highlighting           | Highlight code for better readability.                   |
@@ -69,13 +45,19 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 | Custom Components             | Embed custom, reusable components in your docs.          |
 | Light & Dark Mode             | Toggle between light and dark themes.                    |
 | Search Functionality          | Quickly find content with a built-in search.             |
-| Code Switcher                 | Switch between code languages or variations.             |
 | Code Copy                     | Copy code blocks with a single click.                    |
 | TOC Observer Highlight        | Highlight active sections in the TOC as you scroll.      |
 | Static Site Generation        | Generate a static, high-performance site.                |
 | SEO-Optimized                 | Structured for optimal search engine indexing.           |
-| Internationalisation               | Added support for i18n for multiple languages |
+| Internationalization          | Support for multiple languages (English & Persian).      |
 
-<img src="./public/home.png" alt="home" />
-<img src="./public/docs.png" alt="docs" />
-<img src="./public/blog.png" alt="blog" />
+## About
+
+This documentation covers comprehensive materials for the Certified Ethical Hacker (CEH) certification, including:
+
+- Ethical hacking fundamentals
+- Network security and penetration testing
+- System security and vulnerabilities
+- Web application security
+- Cryptography and security protocols
+- And much more...
