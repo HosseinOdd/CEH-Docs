@@ -50,7 +50,7 @@ jobs:
             cp public/index.html out/index.html
           fi
           # Copy language HTML files to their directories
-          for lang in en fr ja; do
+          for lang in en fa; do
             if [ -f "out/${lang}.html" ]; then
               mkdir -p "out/${lang}"
               cp "out/${lang}.html" "out/${lang}/index.html"

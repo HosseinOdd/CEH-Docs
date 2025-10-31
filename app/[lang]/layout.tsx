@@ -42,8 +42,10 @@ export default async function RootLayout({
 >) {
   const { lang } = await params;
   const dict = await getDictionary(lang);
+  const isRTL = lang === 'fa';
+  
   return (
-    <html lang={lang} suppressHydrationWarning>
+    <html lang={lang} dir={isRTL ? 'rtl' : 'ltr'} suppressHydrationWarning>
       <body
         className={`${sansFont.variable} ${monoFont.variable} font-regular antialiased tracking-wide`}
         suppressHydrationWarning

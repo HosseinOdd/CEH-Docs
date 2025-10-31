@@ -5,8 +5,7 @@ export type LangProps = { params: Promise<{ lang: Locale }> };
 
 const dictionaries = {
   en: () => import("@/dictionaries/en.json").then((module) => module.default),
-  ja: () => import("@/dictionaries/ja.json").then((module) => module.default),
-  fr: () => import("@/dictionaries/fr.json").then((module) => module.default),
+  fa: () => import("@/dictionaries/fa.json").then((module) => module.default),
 };
 
 const getDictionaryUncached = async (locale: Locale) => dictionaries[locale]();
