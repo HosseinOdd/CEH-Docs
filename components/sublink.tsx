@@ -47,13 +47,13 @@ export default function SubLink({
       Comp
     )
   ) : (
-    <h4 className="font-medium sm:text-sm text-primary">
+    <h4 className={`font-medium sm:text-sm text-primary ${isRTL ? 'text-right w-full' : 'text-left'}`}>
       {dict.leftbar[title as keyof typeof dict.leftbar]}
     </h4>
   );
 
   if (!items) {
-    return <div className="flex flex-col">{titleOrLink}</div>;
+    return <div className={`flex flex-col ${isRTL ? 'items-end' : 'items-start'}`}>{titleOrLink}</div>;
   }
 
   return (

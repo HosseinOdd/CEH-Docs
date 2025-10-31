@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Sheet,
   SheetClose,
@@ -13,6 +15,7 @@ import { DialogTitle } from "./ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import DocsMenu from "./docs-menu";
 import { Dictionary } from "@/lib/dictionaries";
+import useLocale from "./hooks/useLocale";
 
 export function Leftbar() {
   return (
@@ -25,6 +28,9 @@ export function Leftbar() {
 }
 
 export function SheetLeftbar({ dict }: { dict: Dictionary }) {
+  const locale = useLocale();
+  const isRTL = locale === 'fa';
+  
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -32,7 +38,7 @@ export function SheetLeftbar({ dict }: { dict: Dictionary }) {
           <AlignLeftIcon />
         </Button>
       </SheetTrigger>
-      <SheetContent className="flex flex-col gap-4 px-0" side="left">
+      <SheetContent className="flex flex-col gap-4 px-0" side={isRTL ? "right" : "left"}>
         <DialogTitle className="sr-only">Menu</DialogTitle>
         <SheetHeader>
           <SheetClose className="px-5" asChild>

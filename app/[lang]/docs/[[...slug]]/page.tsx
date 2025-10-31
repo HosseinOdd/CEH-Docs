@@ -2,7 +2,7 @@ import Pagination from "@/components/pagination";
 import Toc from "@/components/toc";
 import { page_routes } from "@/lib/routes-config";
 import { notFound } from "next/navigation";
-import { getDocsForSlug, getPreviousNext } from "@/lib/markdown";
+import { getDocsForSlug, getPreviousNext, getDocsTocs } from "@/lib/markdown";
 import { Typography } from "@/components/typography";
 import { getDictionary, LangProps } from "@/lib/dictionaries";
 
@@ -19,6 +19,7 @@ export default async function DocsPage(props: PageProps) {
   const pathName = slugWithLang.join("/");
   const res = await getDocsForSlug(pathName);
   const pagination = getPreviousNext(slug.join("/"));
+  const tocs = await getDocsTocs(pathName);
 
   if (!res) notFound();
   return (
@@ -33,7 +34,7 @@ export default async function DocsPage(props: PageProps) {
           <Pagination prev={pagination.prev} next={pagination.next} dict={dict} />
         </Typography>
       </div>
-      <Toc path={pathName} dict={dict} />
+      <Toc dict={dict} tocs={tocs} />
     </div>
   );
 }

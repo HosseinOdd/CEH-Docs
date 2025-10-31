@@ -166,14 +166,17 @@ pre > code {
   direction: rtl;
 }
 
+/* TOC RTL Support */
 [dir="rtl"] .toc {
   padding-right: 0.5rem;
   padding-left: 0;
 }
 
+/* Code blocks RTL Support */
 [dir="rtl"] .line-number::before {
   margin-right: -2px;
   margin-left: 22px;
+  text-align: left;
 }
 
 [dir="rtl"] .code-line {
@@ -184,4 +187,27 @@ pre > code {
 [dir="rtl"] .highlight-line {
   border-left: none;
   border-right: 2px solid;
+  @apply border-primary/30;
+}
+
+/* Typography RTL fixes */
+[dir="rtl"] .prose {
+  text-align: right;
+}
+
+[dir="rtl"] ul,
+[dir="rtl"] ol {
+  padding-right: 1.625em;
+  padding-left: 0;
+}
+
+/* Sheet RTL Support */
+[dir="rtl"] .sheet-content-left {
+  right: auto;
+  left: 0;
+}
+
+[dir="rtl"] .sheet-content-right {
+  left: auto;
+  right: 0;
 }
