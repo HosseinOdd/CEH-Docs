@@ -1,18 +1,18 @@
 {
     "metadata": {
-        "title": "AriaDocs - Template",
-        "description": "This comprehensive documentation template, crafted with Next.js and available as open-source, delivers a sleek and responsive design, tailored to meet all your project documentation requirements."
+        "title": "CEH Documentation",
+        "description": "Comprehensive documentation for Certified Ethical Hacker (CEH) course covering essential topics in ethical hacking and cybersecurity."
     },
     "home": {
         "follow_github": "Follow along on GitHub",
-        "main_header": "Effortlessly build stunning documentation sites with flexibility for diverse projects.",
-        "sub_header": "This feature-packed documentation template, built with multiple frameworks including Next.js, React Router, and TanStack Router, offers a sleek and responsive design, perfect for all your project documentation needs.",
-        "get_started": "Get Stared",
+        "main_header": "Complete CEH Course Documentation",
+        "sub_header": "Comprehensive guide and resources for Certified Ethical Hacker (CEH) certification covering all essential topics in ethical hacking, penetration testing, and cybersecurity.",
+        "get_started": "Get Started",
         "read_blog": "Read Blog",
-        "name": "AriaDocs"
+        "name": "CEH-Docs"
     },
     "footer": {
-        "built_by": "Build by",
+        "built_by": "Built by",
         "source_code_available": "The source code is available on",
         "deploy": "Deploy",
         "sponsor": "Sponsor"
@@ -21,8 +21,6 @@
         "links": {
             "documentation": "Documentation",
             "blog": "Blog",
-            "examples": "Examples",
-            "guides": "Guides",
             "community": "Community"
         },
         "search": {
@@ -54,8 +52,8 @@
         "installing_os": "Installing OS"
     },
     "blog": {
-        "title": "The latest blogs of this product",
-        "sub_title": "All the latest blogs and news, straight from the team.",
+        "title": "Latest CEH Articles and Updates",
+        "sub_title": "Stay updated with the latest articles, tutorials, and news about ethical hacking and cybersecurity.",
         "published_on": "Published on",
         "back_to_blog": "Back to blog",
         "posted_by": "Posted by"
