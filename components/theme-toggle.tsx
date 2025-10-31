@@ -13,10 +13,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Dictionary } from "@/lib/dictionaries";
 import { useDictionary } from "./contexts/dictionary-provider";
+import useLocale from "./hooks/useLocale";
 
 export function ModeToggle({}: { dict: Dictionary }) {
   const { setTheme } = useTheme();
   const dict = useDictionary();
+  const locale = useLocale();
+  const isRTL = locale === 'fa';
 
   return (
     <DropdownMenu>
@@ -27,14 +30,14 @@ export function ModeToggle({}: { dict: Dictionary }) {
           <span className="sr-only">Toggle theme</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")}>
+      <DropdownMenuContent align={isRTL ? "start" : "end"} className={isRTL ? "text-right" : ""}>
+        <DropdownMenuItem onClick={() => setTheme("light")} className={isRTL ? "justify-end" : ""}>
           {dict.navbar.theme.light}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>
+        <DropdownMenuItem onClick={() => setTheme("dark")} className={isRTL ? "justify-end" : ""}>
           {dict.navbar.theme.dark}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>
+        <DropdownMenuItem onClick={() => setTheme("system")} className={isRTL ? "justify-end" : ""}>
           {dict.navbar.theme.system}
         </DropdownMenuItem>
       </DropdownMenuContent>

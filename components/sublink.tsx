@@ -35,6 +35,9 @@ export default function SubLink({
     <LocalizedLink
       activeClassName="text-red-500 dark:font-medium font-semibold"
       href={href}
+      className={cn(
+        isSheet && isRTL && "w-full text-right"
+      )}
     >
       {dict.leftbar[title as keyof typeof dict.leftbar]}
     </LocalizedLink>
@@ -47,20 +50,35 @@ export default function SubLink({
       Comp
     )
   ) : (
-    <h4 className={`font-medium sm:text-sm text-primary ${isRTL ? 'text-right w-full' : 'text-left'}`}>
+    <h4 className={cn(
+      "font-medium sm:text-sm text-primary",
+      isRTL ? "text-right w-full" : "text-left"
+    )}>
       {dict.leftbar[title as keyof typeof dict.leftbar]}
     </h4>
   );
 
   if (!items) {
-    return <div className={`flex flex-col ${isRTL ? 'items-end' : 'items-start'}`}>{titleOrLink}</div>;
+    return (
+      <div className={cn(
+        "flex flex-col w-full",
+        isRTL ? "items-end" : "items-start"
+      )}>
+        {titleOrLink}
+      </div>
+    );
   }
 
   return (
     <div className="flex flex-col gap-1 w-full">
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CollapsibleTrigger className={isRTL ? 'w-full pl-5' : 'w-full pr-5'}>
-          <div className="flex items-center justify-between cursor-pointer w-full">
+          <div className={cn(
+            "flex items-center cursor-pointer w-full",
+            isRTL && !isSheet && "sm:flex-row-reverse sm:justify-between",
+            isRTL && isSheet && "justify-end gap-2",
+            !isRTL && "justify-between"
+          )}>
             {titleOrLink}
             <span>
               {!isOpen ? (
@@ -80,7 +98,8 @@ export default function SubLink({
             className={cn(
               "flex flex-col sm:text-sm dark:text-stone-300/85 text-stone-800 mt-2.5 gap-3",
               isRTL ? "items-end" : "items-start",
-              level > 0 && (isRTL ? "pr-4 border-r mr-1.5 ml-0.5" : "pl-4 border-l ml-1.5 mr-0.5")
+              level > 0 && (isRTL ? "pr-4 border-r mr-1.5 ml-0.5" : "pl-4 border-l ml-1.5 mr-0.5"),
+              isSheet && isRTL && "pr-4 border-r"
             )}
           >
             {items?.map((innerLink) => {

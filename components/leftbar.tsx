@@ -35,10 +35,10 @@ export function SheetLeftbar({ dict }: { dict: Dictionary }) {
     <Sheet>
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon" className="md:hidden flex">
-          <AlignLeftIcon />
+          <AlignLeftIcon className={isRTL ? "scale-x-[-1]" : ""} />
         </Button>
       </SheetTrigger>
-      <SheetContent className="flex flex-col gap-4 px-0" side={isRTL ? "right" : "left"}>
+      <SheetContent className="flex flex-col gap-4 px-0" side={isRTL ? "right" : "left"} isRTL={isRTL}>
         <DialogTitle className="sr-only">Menu</DialogTitle>
         <SheetHeader>
           <SheetClose className="px-5" asChild>

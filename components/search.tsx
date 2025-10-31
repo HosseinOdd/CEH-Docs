@@ -15,8 +15,11 @@ import { advanceSearch, cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dictionary } from "@/lib/dictionaries";
 import LocalizedLink from "./localized-link";
+import useLocale from "./hooks/useLocale";
 
 export default function Search({ dict }: { dict: Dictionary }) {
+  const locale = useLocale();
+  const isRTL = locale === 'fa';
   const [searchedInput, setSearchedInput] = useState("");
   const [isOpen, setIsOpen] = useState(false);
 
@@ -50,19 +53,28 @@ export default function Search({ dict }: { dict: Dictionary }) {
       >
         <DialogTrigger asChild>
           <div className="relative flex-1 max-w-md cursor-pointer">
-            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-500 dark:text-stone-400" />
+            <SearchIcon className={cn(
+              "absolute top-1/2 -translate-y-1/2 h-4 w-4 text-stone-500 dark:text-stone-400",
+              isRTL ? "right-3" : "left-3"
+            )} />
             <Input
-              className="md:w-full rounded-md dark:bg-background/95 bg-background border h-9 pl-10 pr-0 sm:pr-7 text-sm shadow-sm overflow-ellipsis"
+              className={cn(
+                "md:w-full rounded-md dark:bg-background/95 bg-background border h-9 text-sm shadow-sm overflow-ellipsis",
+                isRTL ? "pr-10 pl-0 sm:pl-7" : "pl-10 pr-0 sm:pr-7"
+              )}
               placeholder={dict.navbar.search.search_documentation}
               type="search"
             />
-            <div className="sm:flex hidden absolute top-1/2 -translate-y-1/2 right-2 text-xs font-medium font-mono items-center gap-0.5 dark:bg-stone-900 bg-stone-200/65 p-1 rounded-sm">
+            <div className={cn(
+              "sm:flex hidden absolute top-1/2 -translate-y-1/2 text-xs font-medium font-mono items-center gap-0.5 dark:bg-stone-900 bg-stone-200/65 p-1 rounded-sm",
+              isRTL ? "left-2" : "right-2"
+            )}>
               <CommandIcon className="w-3 h-3" />
               <span>k</span>
             </div>
           </div>
         </DialogTrigger>
-        <DialogContent className="p-0 max-w-[650px] sm:top-[38%] top-[45%] !rounded-md">
+        <DialogContent className="p-0 max-w-[650px] sm:top-[38%] top-[45%] !rounded-md" isRTL={isRTL}>
           <DialogTitle className="sr-only">Search</DialogTitle>
           <DialogHeader>
             <input
@@ -70,7 +82,10 @@ export default function Search({ dict }: { dict: Dictionary }) {
               onChange={(e) => setSearchedInput(e.target.value)}
               placeholder={dict.navbar.search.type_something}
               autoFocus
-              className="h-14 px-6 bg-transparent border-b text-[14px] outline-none"
+              className={cn(
+                "h-14 px-6 bg-transparent border-b text-[14px] outline-none",
+                isRTL ? "text-right" : "text-left"
+              )}
             />
           </DialogHeader>
           {filteredResults.length == 0 && searchedInput && (
@@ -98,10 +113,10 @@ export default function Search({ dict }: { dict: Dictionary }) {
                       <div
                         className={cn(
                           "flex items-center w-fit h-full py-3 gap-1.5 px-2",
-                          level > 1 && "border-l pl-4"
+                          level > 1 && (isRTL ? "border-r pr-4" : "border-l pl-4")
                         )}
                       >
-                        <FileIcon className="h-[1.1rem] w-[1.1rem] mr-1" />{" "}
+                        <FileIcon className={cn("h-[1.1rem] w-[1.1rem]", isRTL ? "ml-1" : "mr-1")} />{" "}
                         {dict.leftbar[item.title as keyof typeof dict.leftbar]}
                       </div>
                     </LocalizedLink>
