@@ -50,7 +50,8 @@
     "leftbar": {
         "getting_started": "شروع کار",
         "introduction": "معرفی",
-        "installation": "نصب"
+        "installation": "نصب",
+        "installing_os": "نصب سیستم‌عامل"
     },
     "blog": {
         "title": "آخرین مقالات بلاگ این محصول",

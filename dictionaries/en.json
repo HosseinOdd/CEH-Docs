@@ -50,7 +50,8 @@
     "leftbar": {
         "getting_started": "Getting Started",
         "introduction": "Introduction",
-        "installation": "Installation"
+        "installation": "Installation",
+        "installing_os": "Installing OS"
     },
     "blog": {
         "title": "The latest blogs of this product",

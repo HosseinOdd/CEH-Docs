@@ -16,6 +16,7 @@ export const ROUTES: EachRoute[] = [
     noLink: true,
     items: [
       { title: "introduction", href: "/introduction" },
+      { title: "installing_os", href: "/installing-os" },
     ],
   },
 ];
