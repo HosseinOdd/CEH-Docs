@@ -78,7 +78,8 @@ export default function SubLink({
         <CollapsibleContent>
           <div
             className={cn(
-              "flex flex-col items-start sm:text-sm dark:text-stone-300/85 text-stone-800 mt-2.5 gap-3",
+              "flex flex-col sm:text-sm dark:text-stone-300/85 text-stone-800 mt-2.5 gap-3",
+              isRTL ? "items-end" : "items-start",
               level > 0 && (isRTL ? "pr-4 border-r mr-1.5 ml-0.5" : "pl-4 border-l ml-1.5 mr-0.5")
             )}
           >
