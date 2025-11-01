@@ -38,6 +38,7 @@ export default function SubLink({
       className={cn(
         isSheet && isRTL && "w-full text-right"
       )}
+      style={isRTL ? { unicodeBidi: 'plaintext', textAlign: 'right' } : {}}
     >
       {dict.leftbar[title as keyof typeof dict.leftbar]}
     </LocalizedLink>
@@ -50,10 +51,13 @@ export default function SubLink({
       Comp
     )
   ) : (
-    <h4 className={cn(
-      "font-medium sm:text-sm text-primary",
-      isRTL ? "text-right w-full" : "text-left"
-    )}>
+    <h4 
+      className={cn(
+        "font-medium sm:text-sm text-primary",
+        isRTL ? "text-right w-full" : "text-left"
+      )}
+      style={isRTL ? { unicodeBidi: 'plaintext', textAlign: 'right' } : {}}
+    >
       {dict.leftbar[title as keyof typeof dict.leftbar]}
     </h4>
   );
