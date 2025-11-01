@@ -1,0 +1,164 @@
+# نصب OWASP BWA
+
+
+OWASP Broken Web Applications (BWA) یک مجموعه از برنامه‌های وب آسیب‌پذیر است که توسط پروژه OWASP برای آموزش و تمرین امنیت وب طراحی شده است. این ماشین مجازی شامل چندین برنامه وب با آسیب‌پذیری‌های مختلف است.
+
+
+> ⚠️ هشدار: OWASP BWA به صورت عمدی دارای آسیب‌پذیری‌های امنیتی است. آن را **هرگز** به شبکه‌های عمومی یا اینترنت متصل نکنید. فقط در محیط‌های آزمایشگاهی ایزوله استفاده کنید.
+
+
+---
+
+
+## درباره OWASP BWA
+
+
+OWASP BWA شامل برنامه‌های آسیب‌پذیر متعددی است از جمله:
+
+
+- **WebGoat** - محیط آموزشی OWASP
+- **DVWA (Damn Vulnerable Web Application)** - برنامه وب آسیب‌پذیر PHP/MySQL
+- **Mutillidae** - برنامه وب آسیب‌پذیر OWASP
+- **bWAPP** - برنامه وب آسیب‌پذیر buggy
+- **Hackxor** - بازی واقع‌گرایانه برای تمرین هک وب
+- و بسیاری دیگر...
+
+
+---
+
+
+## فایل‌های استخراج‌شده پس از unzip
+
+| فایل | توضیح |
+|---|---|
+| `OWASP_Broken_Web_Apps.vmdk` | دیسک مجازی اصلی — **ضروری** |
+| `OWASP_Broken_Web_Apps.vmx` | تنظیمات VMware (برای ارجاع) |
+| `OWASP_Broken_Web_Apps.vmsd` | متادیتای Snapshot (اختیاری) |
+| `OWASP_Broken_Web_Apps.nvram` | حالت NVRAM/BIOS (معمولاً لازم نیست) |
+| `OWASP_Broken_Web_Apps.vmxf` | متادیتای اضافی VMware (غیرضروری) |
+
+> خلاصه: فقط فایل `OWASP_Broken_Web_Apps.vmdk` برای اجرای ماشین در VirtualBox کافی است. بقیه فایل‌ها برای VMware استفاده می‌شوند.
+
+
+---
+
+
+## نصب OWASP BWA روی VirtualBox
+
+
+### روش ۱ — Import فایل OVA (توصیه می‌شود)
+
+
+اگر فایل `.ova` دارید:
+
+
+1. VirtualBox را باز کنید
+2. از منو **File → Import Appliance** را انتخاب کنید
+3. فایل `.ova` را انتخاب کرده و **Next** را کلیک کنید
+4. تنظیمات را بررسی کنید (می‌توانید RAM و CPU را تنظیم کنید)
+5. روی **Import** کلیک کنید و منتظر بمانید تا import کامل شود
+
+
+### روش ۲ — استفاده از VMDK مستقیم
+
+
+اگر فقط فایل `.vmdk` دارید:
+
+
+1. VirtualBox را باز کنید
+2. روی **New** کلیک کنید
+- Name: `OWASP-BWA`
+- Type: `Linux`
+- Version: `Ubuntu (32-bit)` یا `Ubuntu (64-bit)` بسته به نسخه
+3. مقدار RAM: حداقل **1 GB** (توصیه می‌شود **2 GB**)
+4. هنگام انتخاب hard disk: **Use an existing virtual hard disk file** و فایل `OWASP-BWA.vmdk` را انتخاب کنید
+5. VM را ایجاد کرده و تنظیمات را باز کنید:
+- **System → Motherboard**: Boot Order را بررسی کنید
+- **System → Processor**: حداقل 1-2 CPU
+- **Network**: از **Host-Only Adapter** یا **NAT** استفاده کنید
+
+
+### روش ۳ — تبدیل OVF به VirtualBox
+
+
+اگر فایل `.ovf` دارید:
+
+
+1. از منو **File → Import Appliance** در VirtualBox
+2. فایل `.ovf` را انتخاب کنید
+3. تنظیمات را بررسی و تایید کنید
+
+
+---
+
+
+## تنظیمات شبکه
+
+
+برای امنیت، حتماً از یکی از این موارد استفاده کنید:
+
+
+- **Host-Only Network**: برای دسترسی فقط از سیستم میزبان (امن‌ترین)
+- **NAT Network**: اگر نیاز به دسترسی اینترنت برای به‌روزرسانی دارید (با احتیاط)
+- **Internal Network**: برای اتصال با VM‌های دیگر در آزمایشگاه
+
+
+**هرگز** از Bridged Network استفاده نکنید!
+
+
+---
+
+
+## راه‌اندازی اولیه
+
+
+1. VM را استارت کنید
+2. منتظر بمانید تا سیستم boot شود
+3. اطلاعات ورود پیش‌فرض (معمولاً):
+   - نام کاربری: `root`
+   - رمز عبور: `owaspbwa`
+
+
+4. آدرس IP ماشین را پیدا کنید:
+```bash
+ifconfig
+# یا
+ip addr show
+```
+
+
+5. از مرورگر سیستم میزبان، به آدرس IP وارد شوید:
+```
+http://[IP_ADDRESS]
+```
+
+
+6. صفحه اصلی OWASP BWA با لیست تمام برنامه‌های آسیب‌پذیر نمایش داده می‌شود
+
+
+---
+
+
+## نکات امنیتی و کاربردی
+
+
+- **Snapshot**: قبل از شروع تمرین، یک snapshot بگیرید تا بتوانید سیستم را به حالت اولیه بازگردانید
+- **Network Isolation**: همیشه مطمئن شوید VM در شبکه ایزوله است
+- **Updates**: از به‌روزرسانی سیستم‌عامل VM خودداری کنید چون ممکن است آسیب‌پذیری‌ها را patch کند
+- **Documentation**: هر برنامه دارای documentation خاص خود است که باید مطالعه کنید
+- **Practice Ethically**: فقط روی این VM‌ها تمرین کنید، نه سیستم‌های واقعی
+
+
+---
+
+
+## مراجع
+
+
+- [OWASP BWA Project Page](https://www.owasp.org/index.php/OWASP_Broken_Web_Applications_Project)
+- [SourceForge Download Page](https://sourceforge.net/projects/owaspbwa/)
+- [OWASP Testing Guide](https://owasp.org/www-project-web-security-testing-guide/)
+- VirtualBox Documentation
+
+
+---

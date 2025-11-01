@@ -1,0 +1,222 @@
+# Installing OWASP BWA
+
+
+OWASP Broken Web Applications (BWA) is a collection of vulnerable web applications compiled by the OWASP project for educational purposes and practicing web security. This virtual machine contains multiple web applications with various vulnerabilities.
+
+
+> ⚠️ Warning: OWASP BWA is intentionally insecure. **Never** connect it to public networks or the Internet. Use only in isolated lab environments.
+
+
+---
+
+
+## About OWASP BWA
+
+
+OWASP BWA includes numerous vulnerable applications such as:
+
+
+- **WebGoat** - OWASP's learning environment
+- **DVWA (Damn Vulnerable Web Application)** - Vulnerable PHP/MySQL web app
+- **Mutillidae** - OWASP vulnerable web application
+- **bWAPP** - A buggy web application
+- **Hackxor** - Realistic game for practicing web hacking
+- And many more...
+
+
+---
+
+
+## Downloading OWASP BWA
+
+
+1. Visit the official OWASP page: [https://sourceforge.net/projects/owaspbwa/](https://sourceforge.net/projects/owaspbwa/)
+2. Download the latest version (usually a ZIP file or VMDK/OVA file)
+3. Extract the downloaded file
+
+
+---
+
+
+## Extracted Files
+
+
+Depending on the version downloaded, you may have:
+
+
+| File | Description |
+|---|---|
+| `OWASP-BWA.vmdk` | Main virtual disk — **required** |
+| `OWASP-BWA.vmx` | VMware configuration file |
+| `OWASP-BWA.ovf` | Open Virtualization Format (for import in VirtualBox) |
+| `OWASP-BWA.ova` | Single OVA package (contains all necessary files) |
+
+
+---
+
+
+## Installing OWASP BWA on VirtualBox
+
+
+### Method 1 — Import OVA File (Recommended)
+
+
+If you have an `.ova` file:
+
+
+1. Open VirtualBox
+2. Go to **File → Import Appliance**
+3. Select the `.ova` file and click **Next**
+4. Review settings (you can adjust RAM and CPU)
+5. Click **Import** and wait for the process to complete
+
+
+### Method 2 — Use VMDK Directly
+
+
+If you only have a `.vmdk` file:
+
+
+1. Open VirtualBox
+2. Click **New**
+- Name: `OWASP-BWA`
+- Type: `Linux`
+- Version: `Ubuntu (32-bit)` or `Ubuntu (64-bit)` depending on version
+3. RAM: at least **1 GB** (recommended **2 GB**)
+4. When selecting hard disk: choose **Use an existing virtual hard disk file** and select `OWASP-BWA.vmdk`
+5. Create the VM and open Settings:
+- **System → Motherboard**: verify Boot Order
+- **System → Processor**: at least 1-2 CPUs
+- **Network**: use **Host-Only Adapter** or **NAT**
+
+
+### Method 3 — Convert OVF to VirtualBox
+
+
+If you have an `.ovf` file:
+
+
+1. Go to **File → Import Appliance** in VirtualBox
+2. Select the `.ovf` file
+3. Review and confirm settings
+
+
+---
+
+
+## Network Configuration
+
+
+For security, always use one of these:
+
+
+- **Host-Only Network**: for access only from host system (most secure)
+- **NAT Network**: if you need internet access for updates (use cautiously)
+- **Internal Network**: for connecting with other VMs in the lab
+
+
+**Never** use Bridged Network!
+
+
+---
+
+
+## Initial Setup
+
+
+1. Start the VM
+2. Wait for the system to boot
+3. Default credentials (typically):
+   - Username: `root`
+   - Password: `owaspbwa`
+
+
+4. Find the machine's IP address:
+```bash
+ifconfig
+# or
+ip addr show
+```
+
+
+5. From your host browser, navigate to the IP address:
+```
+http://[IP_ADDRESS]
+```
+
+
+6. The OWASP BWA main page will display with a list of all vulnerable applications
+
+
+---
+
+
+## Available Applications and Access
+
+
+After accessing the main page (`http://[IP]`), you can select different applications:
+
+
+- **WebGoat**: for learning OWASP Top 10 vulnerabilities
+- **DVWA**: for practicing various web penetration testing techniques
+- **Mutillidae**: includes SQL Injection, XSS, CSRF, etc.
+- **bWAPP**: over 100 web vulnerabilities
+
+
+Each application has its own link and documentation.
+
+
+---
+
+
+## Security and Practical Tips
+
+
+- **Snapshot**: take a snapshot before starting practice so you can restore to initial state
+- **Network Isolation**: always ensure the VM is on an isolated network
+- **Updates**: avoid updating the VM's OS as it may patch vulnerabilities
+- **Documentation**: each application has its own documentation that you should read
+- **Practice Ethically**: only practice on these VMs, not on real systems
+
+
+---
+
+
+## Troubleshooting Common Issues
+
+
+### Cannot Access Web Server
+
+- Verify the VM is running
+- Ensure Apache service is running:
+```bash
+sudo service apache2 status
+```
+
+
+### Network Issues
+
+- Check Network Adapter settings in VirtualBox
+- Ensure Host-Only Adapter is enabled
+- Re-check IP with `ifconfig`
+
+
+### Login Issues
+
+- Default credentials: `root` / `owaspbwa`
+- If changed, refer to your version's documentation
+
+
+---
+
+
+## References
+
+
+- [OWASP BWA Project Page](https://www.owasp.org/index.php/OWASP_Broken_Web_Applications_Project)
+- [SourceForge Download Page](https://sourceforge.net/projects/owaspbwa/)
+- [OWASP Testing Guide](https://owasp.org/www-project-web-security-testing-guide/)
+- VirtualBox Documentation
+
+
+---
