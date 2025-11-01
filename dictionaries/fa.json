@@ -47,7 +47,9 @@
         "getting_started": "شروع کار",
         "introduction": "معرفی",
         "installation": "نصب",
-        "installing_os": "نصب سیستم‌عامل"
+        "installing_os": "نصب سیستم‌عامل",
+        "metasploitable": "نصب Metasploitable",
+        "owaspbwa": "نصب OWASP BWA"
     },
     "blog": {
         "title": "آخرین مقالات و به‌روزرسانی‌های CEH",

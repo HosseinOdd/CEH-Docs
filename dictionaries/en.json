@@ -47,7 +47,9 @@
         "getting_started": "Getting Started",
         "introduction": "Introduction",
         "installation": "Installation",
-        "installing_os": "Installing OS"
+        "installing_os": "Installing OS",
+        "metasploitable": "Installing Metasploitable",
+        "owaspbwa": "Installing OWASP BWA"
     },
     "blog": {
         "title": "Latest CEH Articles and Updates",
