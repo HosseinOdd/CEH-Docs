@@ -1,6 +1,6 @@
 "use client";
 
-import { CommandIcon, FileIcon, SearchIcon } from "lucide-react";
+import { FileIcon, SearchIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Dialog,
@@ -60,18 +60,11 @@ export default function Search({ dict }: { dict: Dictionary }) {
             <Input
               className={cn(
                 "md:w-full rounded-md dark:bg-background/95 bg-background border h-9 text-sm shadow-sm overflow-ellipsis",
-                isRTL ? "pr-10 pl-0 sm:pl-7" : "pl-10 pr-0 sm:pr-7"
+                isRTL ? "pr-10 pl-10" : "pl-10 pr-10"
               )}
               placeholder={dict.navbar.search.search_documentation}
               type="search"
             />
-            <div className={cn(
-              "sm:flex hidden absolute top-1/2 -translate-y-1/2 text-xs font-medium font-mono items-center gap-0.5 dark:bg-stone-900 bg-stone-200/65 p-1 rounded-sm",
-              isRTL ? "left-2" : "right-2"
-            )}>
-              <CommandIcon className="w-3 h-3" />
-              <span>k</span>
-            </div>
           </div>
         </DialogTrigger>
         <DialogContent className="p-0 max-w-[650px] sm:top-[38%] top-[45%] !rounded-md" isRTL={isRTL}>
