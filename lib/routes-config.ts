@@ -115,6 +115,7 @@ export const ROUTES: EachRoute[] = [
       { title: "social_engineering_introduction", href: "/social-engineering-introduction" },
       { title: "social_engineering_phases", href: "/social-engineering-phases" },
       { title: "social_engineering_attack", href: "/social-engineering-attack" },
+      { title: "social_engineering_prevention", href: "/social-engineering-prevention" },
 
     ],
   },
