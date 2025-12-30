@@ -1,0 +1,118 @@
+---
+title: Hacking with Google
+description: Using Google search operators and techniques for information gathering
+---
+
+## Google Dorking
+
+Google Dorking (Google Hacking) is the practice of using advanced search operators to find sensitive information that is publicly available but difficult to find through normal searches.
+
+## Google Search Operators
+
+### Basic Operators
+
+**site:** - Search within a specific domain
+```
+site:example.com
+```
+
+**filetype:** - Search for specific file types
+```
+filetype:pdf confidential
+site:example.com filetype:xlsx
+```
+
+**intitle:** - Search for terms in page title
+```
+intitle:"index of" password
+intitle:login admin
+```
+
+**inurl:** - Search for terms in URL
+```
+inurl:admin
+inurl:login site:example.com
+```
+
+**intext:** - Search for terms in page content
+```
+intext:"password" filetype:log
+```
+
+**cache:** - View Google's cached version
+```
+cache:example.com
+```
+
+**link:** - Find pages linking to a URL
+```
+link:example.com
+```
+
+**related:** - Find similar websites
+```
+related:example.com
+```
+
+## Advanced Google Dorks
+
+### Finding Sensitive Files
+```
+site:example.com filetype:pdf "confidential"
+site:example.com filetype:xls "password"
+site:example.com filetype:doc "internal use only"
+```
+
+### Finding Login Pages
+```
+intitle:"Login" inurl:admin
+intitle:"Admin Panel" inurl:login
+inurl:wp-admin site:example.com
+```
+
+### Finding Directory Listings
+```
+intitle:"index of" "parent directory"
+intitle:"index of" passwd
+intitle:"index of" "backup"
+```
+
+### Finding Database Information
+```
+filetype:sql "password" site:example.com
+inurl:phpmyadmin site:example.com
+"Index of" mysql.conf
+```
+
+### Finding Network Information
+```
+intitle:"Network Configuration"
+filetype:cfg cisco
+inurl:config.php site:example.com
+```
+
+## Google Hacking Database (GHDB)
+
+A database of Google dorks maintained by the security community. Categories include:
+- Sensitive Directories
+- Files Containing Passwords
+- Vulnerable Files
+- Vulnerable Servers
+- Error Messages
+- Files Containing Juicy Info
+
+## Best Practices
+
+- Always have authorization before testing
+- Respect privacy and legal boundaries
+- Document findings properly
+- Report vulnerabilities responsibly
+
+## Prevention
+
+### For Website Owners
+- Use robots.txt to block sensitive areas
+- Implement proper access controls
+- Remove sensitive information from public areas
+- Regular security audits
+- Monitor for exposed information

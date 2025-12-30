@@ -1,0 +1,118 @@
+---
+title: هک با استفاده از گوگل
+description: استفاده از عملگرهای جستجوی گوگل و تکنیک‌ها برای جمع‌آوری اطلاعات
+---
+
+## Google Dorking
+
+Google Dorking (هک گوگل) روشی است که از عملگرهای جستجوی پیشرفته برای یافتن اطلاعات حساسی که به صورت عمومی در دسترس است اما یافتن آن با جستجوهای عادی دشوار است، استفاده می‌کند.
+
+## عملگرهای جستجوی گوگل
+
+### عملگرهای پایه
+
+**site:** - جستجو در دامنه خاص
+```
+site:example.com
+```
+
+**filetype:** - جستجو برای نوع فایل خاص
+```
+filetype:pdf confidential
+site:example.com filetype:xlsx
+```
+
+**intitle:** - جستجو برای عبارات در عنوان صفحه
+```
+intitle:"index of" password
+intitle:login admin
+```
+
+**inurl:** - جستجو برای عبارات در URL
+```
+inurl:admin
+inurl:login site:example.com
+```
+
+**intext:** - جستجو برای عبارات در محتوای صفحه
+```
+intext:"password" filetype:log
+```
+
+**cache:** - مشاهده نسخه کش شده گوگل
+```
+cache:example.com
+```
+
+**link:** - یافتن صفحاتی که به یک URL لینک می‌دهند
+```
+link:example.com
+```
+
+**related:** - یافتن وب‌سایت‌های مشابه
+```
+related:example.com
+```
+
+## Google Dorks پیشرفته
+
+### یافتن فایل‌های حساس
+```
+site:example.com filetype:pdf "confidential"
+site:example.com filetype:xls "password"
+site:example.com filetype:doc "internal use only"
+```
+
+### یافتن صفحات ورود
+```
+intitle:"Login" inurl:admin
+intitle:"Admin Panel" inurl:login
+inurl:wp-admin site:example.com
+```
+
+### یافتن لیست دایرکتوری‌ها
+```
+intitle:"index of" "parent directory"
+intitle:"index of" passwd
+intitle:"index of" "backup"
+```
+
+### یافتن اطلاعات پایگاه داده
+```
+filetype:sql "password" site:example.com
+inurl:phpmyadmin site:example.com
+"Index of" mysql.conf
+```
+
+### یافتن اطلاعات شبکه
+```
+intitle:"Network Configuration"
+filetype:cfg cisco
+inurl:config.php site:example.com
+```
+
+## پایگاه داده Google Hacking (GHDB)
+
+پایگاه داده‌ای از Google dorks که توسط جامعه امنیتی نگهداری می‌شود. دسته‌بندی‌ها شامل:
+- دایرکتوری‌های حساس
+- فایل‌های حاوی رمز عبور
+- فایل‌های آسیب‌پذیر
+- سرورهای آسیب‌پذیر
+- پیام‌های خطا
+- فایل‌های حاوی اطلاعات مهم
+
+## بهترین روش‌ها
+
+- همیشه قبل از تست مجوز داشته باشید
+- به حریم خصوصی و مرزهای قانونی احترام بگذارید
+- یافته‌ها را به درستی مستند کنید
+- آسیب‌پذیری‌ها را مسئولانه گزارش دهید
+
+## پیشگیری
+
+### برای صاحبان وب‌سایت
+- از robots.txt برای مسدود کردن مناطق حساس استفاده کنید
+- کنترل دسترسی مناسب پیاده‌سازی کنید
+- اطلاعات حساس را از مناطق عمومی حذف کنید
+- ممیزی امنیتی منظم
+- نظارت بر اطلاعات افشا شده
