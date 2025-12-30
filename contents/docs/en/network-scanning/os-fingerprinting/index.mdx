@@ -1,0 +1,323 @@
+---
+title: OS Fingerprinting
+description: Techniques for identifying operating systems through network analysis
+---
+
+## What is OS Fingerprinting?
+
+OS fingerprinting is the process of determining the operating system running on a target host by analyzing network traffic characteristics and responses. This information is crucial for tailoring attacks and understanding the target environment.
+
+## Types of OS Fingerprinting
+
+### Active Fingerprinting
+Sends specially crafted packets to the target and analyzes responses.
+
+**Characteristics:**
+- More accurate
+- Faster results
+- Easily detected
+- Requires target interaction
+
+### Passive Fingerprinting
+Monitors network traffic without direct interaction.
+
+**Characteristics:**
+- Stealthier
+- Slower
+- Less accurate
+- No target interaction
+
+## How OS Fingerprinting Works
+
+### TCP/IP Stack Differences
+
+Different operating systems implement TCP/IP stacks differently:
+
+**TTL (Time To Live) Values:**
+- Linux/Unix: 64
+- Windows: 128
+- Cisco/Network: 255
+
+**Window Size:**
+- Different OS use different default window sizes
+- Can indicate OS family and version
+
+**TCP Options:**
+- MSS (Maximum Segment Size)
+- Window scaling
+- Timestamps
+- SACK (Selective Acknowledgment)
+
+### IP ID Sequence
+- Incremental (Linux/Unix)
+- Random (Windows, modern systems)
+- Per-destination (some systems)
+
+## Active OS Fingerprinting
+
+### Using Nmap
+
+**Basic OS Detection:**
+```bash
+sudo nmap -O target.com
+```
+
+**Aggressive OS Detection:**
+```bash
+sudo nmap -O --osscan-guess target.com
+```
+
+**Limit OS Detection:**
+```bash
+sudo nmap -O --osscan-limit target.com
+# Only scan hosts with at least one open and one closed port
+```
+
+**Maximum OS Detection:**
+```bash
+sudo nmap -O --max-os-tries 5 target.com
+```
+
+### Techniques Used by Nmap
+
+**FIN Probe:**
+- Sends FIN packet to open port
+- Analyzes response
+
+**Bogus Flag Probe:**
+- Sets undefined TCP flags
+- Checks how OS handles it
+
+**TCP Options:**
+- Tests various TCP option combinations
+- Analyzes responses
+
+**ICMP Probes:**
+- Sends different ICMP messages
+- Analyzes responses and error messages
+
+## Passive OS Fingerprinting
+
+### Using p0f
+
+```bash
+# Listen on interface
+sudo p0f -i eth0
+
+# Read from pcap file
+p0f -r capture.pcap
+
+# Filter by host
+sudo p0f -i eth0 host target.com
+```
+
+### What p0f Analyzes
+
+**SYN Packets:**
+- Initial window size
+- TCP options order
+- Maximum segment size
+- Window scaling factor
+
+**SYN+ACK Packets:**
+- Server responses
+- TCP options
+
+**HTTP Traffic:**
+- User-Agent strings
+- Server headers
+- Application signatures
+
+## Banner Grabbing for OS Detection
+
+### Netcat
+```bash
+nc target.com 22
+nc target.com 80
+```
+
+### Telnet
+```bash
+telnet target.com 22
+telnet target.com 25
+```
+
+### Nmap Service Detection
+```bash
+nmap -sV target.com
+```
+
+## Common OS Signatures
+
+### Linux
+- TTL: 64
+- Window size: 5840
+- Don't Fragment bit: Set
+- TCP options: MSS, SACK, Timestamps, Window Scale
+
+### Windows
+- TTL: 128
+- Window size: 8192 or 65535
+- Don't Fragment bit: Set
+- TCP options: MSS, SACK, Window Scale
+
+### macOS
+- TTL: 64
+- Window size: 65535
+- Similar to BSD systems
+
+### Cisco IOS
+- TTL: 255
+- Specific TCP/IP stack behaviors
+
+## Advanced Techniques
+
+### ICMP Analysis
+```bash
+# Send ICMP echo request
+ping -c 1 target.com
+
+# Analyze TTL and other ICMP responses
+hping3 -1 target.com
+```
+
+### Protocol-Specific Probes
+
+**SSH Banner:**
+```bash
+nc target.com 22
+# Response: SSH-2.0-OpenSSH_7.4 (indicates Linux)
+```
+
+**HTTP Server Header:**
+```bash
+curl -I target.com
+# Server: Microsoft-IIS/10.0 (indicates Windows)
+```
+
+**SMTP Banner:**
+```bash
+nc target.com 25
+# 220 mail.example.com ESMTP Postfix
+```
+
+## Using Xprobe2
+
+```bash
+# Basic OS fingerprinting
+sudo xprobe2 target.com
+
+# Verbose mode
+sudo xprobe2 -v target.com
+
+# Specific port range
+sudo xprobe2 -p 1-1000 target.com
+```
+
+## Detecting OS Fingerprinting
+
+### Network Level
+- Monitor for unusual packet patterns
+- Detect malformed packets
+- Identify sequential probes
+- Track ICMP anomalies
+
+### Using IDS/IPS
+- Snort rules for OS fingerprinting
+- Suricata signatures
+- Custom detection rules
+
+## Evading OS Fingerprinting
+
+### For Defenders
+
+**Modify TCP/IP Stack:**
+- Change TTL values
+- Randomize window sizes
+- Alter TCP options
+
+**Use Firewalls:**
+- Block fingerprinting probes
+- Filter ICMP messages
+- Rate limit connections
+
+**OS Obfuscation Tools:**
+- IP Personality (ippersonality)
+- Honeyd
+- Morph
+
+**Network Security:**
+- Deploy IPS systems
+- Use application proxies
+- Implement network segmentation
+
+## Practical Examples
+
+### Complete OS Detection
+```bash
+# Nmap comprehensive scan
+sudo nmap -O -sV -T4 --osscan-guess target.com
+
+# With additional scripts
+sudo nmap -O -sV --script=smb-os-discovery target.com
+```
+
+### Passive Monitoring
+```bash
+# Start p0f in background
+sudo p0f -i eth0 -o /var/log/p0f.log &
+
+# Monitor specific subnet
+sudo p0f -i eth0 'net 192.168.1.0/24'
+```
+
+### Multiple Techniques Combined
+```bash
+# 1. Active scanning
+sudo nmap -O target.com
+
+# 2. Banner grabbing
+nc target.com 80
+
+# 3. Service detection
+nmap -sV -p- target.com
+```
+
+## Limitations
+
+### Accuracy Issues
+- Firewalls can alter responses
+- Load balancers affect detection
+- Virtual machines may show hypervisor
+- NAT can mask real OS
+
+### Detection Challenges
+- Modern OS randomize many values
+- Security tools modify stack behavior
+- Encrypted traffic hides signatures
+- Cloud environments complicate detection
+
+## Best Practices
+
+1. **Use Multiple Methods**: Combine active and passive techniques
+2. **Verify Results**: Cross-reference different tools
+3. **Consider Context**: Network topology, firewall rules
+4. **Document Findings**: Keep detailed records
+5. **Legal Compliance**: Always get authorization
+
+## Common OS Fingerprinting Tools
+
+- **Nmap**: Most popular, very accurate
+- **p0f**: Passive fingerprinting
+- **Xprobe2**: Advanced active fingerprinting
+- **hping3**: Custom packet crafting
+- **Nessus**: Vulnerability scanner with OS detection
+- **OpenVAS**: Open-source vulnerability scanner
+
+## Use Cases in Penetration Testing
+
+1. **Target Profiling**: Understanding environment
+2. **Exploit Selection**: Choosing appropriate exploits
+3. **Evasion Planning**: Tailoring evasion techniques
+4. **Vulnerability Assessment**: Identifying OS-specific flaws
+5. **Network Mapping**: Creating infrastructure map
