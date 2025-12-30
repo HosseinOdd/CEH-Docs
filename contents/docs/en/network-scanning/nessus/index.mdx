@@ -1,0 +1,333 @@
+---
+title: Nessus
+description: Professional vulnerability scanner for comprehensive security assessment
+---
+
+## What is Nessus?
+
+Nessus is one of the most popular vulnerability scanners developed by Tenable. It provides comprehensive vulnerability scanning, configuration auditing, and compliance checking for networks and systems.
+
+## Key Features
+
+- Comprehensive vulnerability database
+- Network scanning and discovery
+- Web application scanning
+- Configuration auditing
+- Compliance checking
+- Patch management
+- Credentialed scanning
+- Extensive reporting
+
+## Nessus Editions
+
+### Nessus Essentials (Free)
+- Limited to 16 IP addresses
+- Basic vulnerability scanning
+- Good for home labs and learning
+
+### Nessus Professional
+- Unlimited IP addresses
+- Advanced scanning features
+- Live results
+- Unlimited scans
+
+### Nessus Expert
+- Includes Professional features
+- Cloud infrastructure scanning
+- Container security
+
+## Installation
+
+### Linux
+```bash
+# Download from https://www.tenable.com/downloads/nessus
+sudo dpkg -i Nessus-<version>-debian6_amd64.deb
+sudo systemctl start nessusd
+```
+
+### Windows
+Download installer and follow GUI setup.
+
+### Access Web Interface
+```
+https://localhost:8834
+```
+
+## Basic Usage
+
+### 1. Initial Setup
+- Create admin account
+- Get activation code
+- Download plugins
+
+### 2. Creating a Scan
+- Click "New Scan"
+- Choose scan template
+- Configure targets
+- Set scan settings
+- Launch scan
+
+### 3. Scan Templates
+
+**Basic Network Scan**
+- General purpose scanning
+- Identifies live hosts and open ports
+- Detects services and vulnerabilities
+
+**Web Application Scan**
+- Specifically for web applications
+- Tests for common web vulnerabilities
+- OWASP Top 10 coverage
+
+**Advanced Scan**
+- Fully customizable
+- Granular control over plugins
+- Advanced options
+
+**Credentialed Scan**
+- Uses credentials to access systems
+- More accurate results
+- Can detect missing patches
+
+## Scan Configuration
+
+### Target Specification
+```
+Single IP: 192.168.1.1
+IP Range: 192.168.1.1-254
+CIDR: 192.168.1.0/24
+Hostname: target.example.com
+```
+
+### Discovery Settings
+- Ping methods
+- Port scanning options
+- Service detection
+
+### Assessment Settings
+- Plugin selection
+- Scan speed
+- Thoroughness level
+
+### Credentials
+- SSH for Linux/Unix
+- WMI/SMB for Windows
+- SNMP for network devices
+- Database credentials
+
+## Understanding Results
+
+### Vulnerability Severity
+
+**Critical**
+- Severe vulnerabilities
+- Immediate action required
+- Remote code execution likely
+
+**High**
+- Significant vulnerabilities
+- Should be addressed quickly
+- Potential for compromise
+
+**Medium**
+- Moderate risk
+- Should be addressed
+- May aid in attacks
+
+**Low**
+- Minor issues
+- Informational
+- Low risk
+
+**Info**
+- Informational only
+- No direct vulnerability
+- Useful for inventory
+
+## Common Scan Types
+
+### Network Discovery
+```
+Discovers live hosts
+Identifies open ports
+Maps network topology
+```
+
+### Vulnerability Assessment
+```
+Identifies known vulnerabilities
+Checks for misconfigurations
+Detects outdated software
+```
+
+### Compliance Audit
+```
+PCI DSS
+HIPAA
+CIS Benchmarks
+NIST frameworks
+```
+
+### Patch Audit
+```
+Missing Windows updates
+Linux package updates
+Application patches
+```
+
+## Advanced Features
+
+### Custom Policies
+Create tailored scan configurations:
+- Select specific plugins
+- Define scan parameters
+- Set performance options
+
+### Plugin Families
+- Backdoors
+- Brute force attacks
+- CGI abuses
+- Databases
+- Denial of Service
+- FTP
+- Firewalls
+- Gain shell remotely
+- General
+- Netware
+- Policy Compliance
+- Remote file access
+- SCADA
+- SMTP problems
+- SNMP
+- Service detection
+- Settings
+- Web Servers
+- Windows
+
+### Scheduled Scans
+- Recurring scans
+- Specific date/time
+- Automatic reporting
+
+### Scan Zones
+- Logical grouping of scanners
+- Distributed scanning
+- Large network management
+
+## Report Generation
+
+### Report Formats
+- HTML
+- PDF
+- CSV
+- Nessus DB
+
+### Report Contents
+- Executive summary
+- Vulnerability details
+- Remediation guidance
+- Technical information
+- Affected hosts
+
+### Custom Reports
+- Filter by severity
+- Group by host or plugin
+- Include/exclude specific findings
+
+## Best Practices
+
+### Before Scanning
+1. Get proper authorization
+2. Notify network team
+3. Schedule during maintenance window
+4. Test on small subnet first
+
+### During Scanning
+1. Monitor scan progress
+2. Watch for network impact
+3. Adjust scan speed if needed
+4. Pause if issues occur
+
+### After Scanning
+1. Review all findings
+2. Verify critical vulnerabilities
+3. Prioritize remediation
+4. Document actions taken
+
+## Integration
+
+### API Access
+- RESTful API
+- Programmatic scan control
+- Automated reporting
+- Integration with SIEM
+
+### Third-Party Integration
+- ServiceNow
+- Splunk
+- IBM QRadar
+- Jira
+
+## Limitations
+
+- Resource intensive
+- Can be expensive
+- Requires regular updates
+- May cause network disruption
+- False positives possible
+
+## Alternatives
+
+- **OpenVAS**: Open-source alternative
+- **Qualys**: Cloud-based scanning
+- **Rapid7 Nexpose**: Similar commercial product
+- **Acunetix**: Web application focus
+- **Burp Suite**: Web app security
+
+## Compliance Scanning
+
+### PCI DSS
+```
+Payment card industry compliance
+Quarterly scanning required
+ASV approved scanning
+```
+
+### HIPAA
+```
+Healthcare compliance
+PHI protection
+Regular assessments
+```
+
+### CIS Benchmarks
+```
+Configuration best practices
+Multiple platforms
+Detailed checks
+```
+
+## Troubleshooting
+
+### Common Issues
+
+**Plugins Not Updating:**
+- Check internet connection
+- Verify activation code
+- Restart Nessus service
+
+**Scan Hanging:**
+- Reduce scan speed
+- Check target connectivity
+- Review firewall rules
+
+**False Positives:**
+- Enable safe checks
+- Use credentials
+- Verify manually
+
+## Resources
+
+- Official Documentation: https://docs.tenable.com/
+- Community Forum: https://community.tenable.com/
+- Plugin Database: https://www.tenable.com/plugins/
