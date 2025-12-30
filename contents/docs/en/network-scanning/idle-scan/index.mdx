@@ -1,0 +1,296 @@
+---
+title: Idle Scan
+description: Advanced stealth scanning technique using zombie hosts for anonymous port scanning
+---
+
+## What is Idle Scan?
+
+Idle scan (also known as zombie scan) is one of the stealthiest port scanning techniques. It allows you to scan a target without sending any packets from your real IP address, using an intermediary "zombie" host instead.
+
+## How Idle Scan Works
+
+### The IP ID Sequence
+
+Every IP packet has an ID field that typically increments by 1 for each packet sent. Idle scan exploits this predictable behavior.
+
+### Three-Step Process
+
+1. **Probe the Zombie**: Check the zombie's current IP ID
+2. **Spoof the Zombie**: Send SYN packet to target, spoofed as coming from zombie
+3. **Probe Again**: Check if zombie's IP ID increased
+
+### Response Analysis
+
+**If port is open:**
+- Target sends SYN-ACK to zombie
+- Zombie responds with RST (incrementing IP ID)
+- IP ID increases by 2
+
+**If port is closed:**
+- Target sends RST to zombie
+- Zombie ignores it (no response)
+- IP ID increases by 1
+
+## Requirements for Zombie Host
+
+### Characteristics
+- Must be idle (not sending much traffic)
+- Must have predictable IP ID sequence
+- Must be online and responsive
+- Should not be behind a firewall that blocks responses
+
+### Finding Zombie Hosts
+
+```bash
+# Test for predictable IP ID
+nmap -O -v zombie_candidate
+
+# Look for "IP ID Sequence Generation: Incremental"
+```
+
+## Performing Idle Scan with Nmap
+
+### Basic Syntax
+```bash
+nmap -sI zombie_host:port target
+```
+
+### Examples
+
+**Simple Idle Scan:**
+```bash
+nmap -sI 192.168.1.100 target.com
+```
+
+**Scan Specific Ports:**
+```bash
+nmap -sI 192.168.1.100 -p 80,443 target.com
+```
+
+**Full Port Scan:**
+```bash
+nmap -sI 192.168.1.100 -p- target.com
+```
+
+**Verbose Mode:**
+```bash
+nmap -sI 192.168.1.100 -v target.com
+```
+
+## Step-by-Step Process
+
+### 1. Find a Suitable Zombie
+```bash
+# Scan for potential zombies
+nmap -O -v 192.168.1.0/24
+
+# Test zombie reliability
+hping3 -S -r zombie_host
+```
+
+### 2. Verify Zombie is Idle
+```bash
+# Check IP ID increments
+hping3 -1 -c 5 zombie_host
+```
+
+### 3. Perform the Scan
+```bash
+nmap -sI zombie_host target.com
+```
+
+### 4. Analyze Results
+Check which ports are reported as open.
+
+## Advantages
+
+### Complete Anonymity
+- Your IP never appears in target logs
+- All packets appear from zombie host
+- Difficult to trace back to attacker
+
+### Firewall Evasion
+- May bypass IP-based access controls
+- Can appear as legitimate traffic from zombie
+- Useful when your IP is blocked
+
+### Stealth
+- One of the stealthiest scan methods
+- Hard to detect even with IDS/IPS
+- Doesn't complete TCP handshake
+
+## Disadvantages
+
+### Slow Performance
+- Requires multiple probes per port
+- Much slower than direct scans
+- Not suitable for large-scale scanning
+
+### Zombie Dependency
+- Requires finding suitable zombie
+- Zombie must remain idle
+- Zombie must be reachable
+
+### Limited Reliability
+- Results can be affected by zombie activity
+- Network conditions impact accuracy
+- May produce false results
+
+### Complexity
+- More complex than other methods
+- Requires understanding of IP ID behavior
+- Troubleshooting can be difficult
+
+## Advanced Techniques
+
+### Using Multiple Zombies
+```bash
+# Test multiple zombies to verify results
+nmap -sI zombie1 target.com
+nmap -sI zombie2 target.com
+```
+
+### Combining with Other Options
+```bash
+# Idle scan with service detection
+nmap -sI zombie_host -sV target.com
+
+# Idle scan with OS detection
+nmap -sI zombie_host -O target.com
+```
+
+### Slow Scanning
+```bash
+# Use slower timing for stealth
+nmap -sI zombie_host -T1 target.com
+```
+
+## Detecting Idle Scans
+
+### Network Level
+
+**Unusual Traffic Patterns:**
+- SYN packets from unexpected sources
+- RST packets to hosts that didn't initiate connections
+- Correlated traffic from zombie hosts
+
+**IDS Signatures:**
+- Look for IP ID probe patterns
+- Monitor for spoofed packets
+- Detect unusual SYN-ACK responses
+
+### Host Level
+
+**Zombie Indicators:**
+- Unexpected RST packets sent
+- IP ID incrementing without local traffic
+- Connection attempts to unknown hosts
+
+## Defense Against Idle Scans
+
+### Network Measures
+- Randomize IP ID generation
+- Implement egress filtering
+- Monitor for spoofed packets
+- Use stateful firewalls
+
+### Host Hardening
+- Configure hosts with random IP IDs
+- Disable unnecessary services
+- Implement rate limiting
+- Monitor outgoing traffic
+
+### Detection Systems
+- Deploy IDS/IPS with idle scan signatures
+- Monitor for IP ID probing
+- Correlate traffic patterns
+- Alert on spoofed packets
+
+## Practical Example
+
+### Complete Idle Scan Workflow
+
+```bash
+# 1. Find zombie candidates
+nmap -O --open 192.168.1.0/24 | grep "Incremental"
+
+# 2. Test zombie
+zombie="192.168.1.50"
+hping3 -1 -c 10 -i u10000 $zombie
+
+# 3. Perform scan
+nmap -sI $zombie -p 1-1000 target.com
+
+# 4. Verify results with different zombie
+nmap -sI 192.168.1.51 -p 1-1000 target.com
+```
+
+## IP ID Generation Types
+
+### Incremental
+- Best for idle scanning
+- ID increases by 1 for each packet
+- Predictable and reliable
+
+### Random
+- Cannot be used for idle scanning
+- ID is randomized
+- Common in modern systems
+
+### Broken
+- Constant or zero IP ID
+- Cannot be used for idle scanning
+
+### Per-Host
+- ID counter per destination
+- May work for idle scanning
+- Less reliable
+
+## Legal and Ethical Considerations
+
+### Authorization Required
+- Idle scan still requires permission
+- Using zombie without consent may be illegal
+- Target scanning requires authorization
+
+### Responsible Use
+- Only use on authorized systems
+- Document all activities
+- Follow engagement rules
+- Consider zombie owner's liability
+
+## Alternative Stealth Techniques
+
+### FTP Bounce Scan
+- Uses FTP servers as intermediary
+- Similar concept to idle scan
+- Now largely obsolete
+
+### Proxy Scanning
+- Routes through proxy servers
+- Less stealthy but more reliable
+- Easier to implement
+
+## Common Issues and Solutions
+
+### Zombie Not Incremental
+**Solution:** Find different zombie with predictable IP ID
+
+### Zombie Too Active
+**Solution:** Wait for quieter period or find different zombie
+
+### Inconsistent Results
+**Solution:** Perform multiple scans, use slower timing
+
+### Target Not Responding
+**Solution:** Verify target is up, try different ports
+
+## Best Practices
+
+1. Always obtain proper authorization
+2. Test zombie reliability thoroughly
+3. Use multiple zombies to verify results
+4. Document all scanning activities
+5. Be aware of legal implications
+6. Consider impact on zombie host
+7. Use appropriate timing and frequency
