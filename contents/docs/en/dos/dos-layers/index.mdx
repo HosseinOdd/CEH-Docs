@@ -1,0 +1,62 @@
+---
+title: DoS Attack Layers
+description: Detailed explanation of layers targeted by Denial of Service attacks
+---
+
+## Introduction
+
+Denial of Service (DoS) attacks can target different layers of a system, from low-level network infrastructure to high-level applications. Each layer has its own weaknesses, attack techniques, and mitigation methods.
+
+Understanding these layers is essential in CEH to correctly analyze attacks and design effective defenses.
+
+## Network Layer Attacks
+
+Network layer DoS attacks focus on overwhelming network bandwidth or network devices. These attacks generate a massive amount of traffic, making it impossible for legitimate users to reach the target system.
+
+Common characteristics:
+- High volume of packets
+- Bandwidth exhaustion
+- Targeting routers, firewalls, or network links
+
+Examples include ICMP flood and UDP flood attacks.
+
+## Transport Layer Attacks
+
+Transport layer attacks exploit weaknesses in transport protocols such as TCP. These attacks attempt to exhaust connection tables or system resources by creating incomplete or excessive connections.
+
+Key points:
+- Exploits protocol behavior
+- Consumes server connection resources
+- Difficult to detect without traffic analysis
+
+A common example is the TCP SYN flood attack.
+
+## Application Layer Attacks
+
+Application layer DoS attacks target specific services or applications rather than the network itself. These attacks mimic legitimate user behavior, making them harder to detect.
+
+Characteristics:
+- Low traffic volume
+- High processing cost on the server
+- Targets web servers, DNS, or APIs
+
+Examples include HTTP flood and Slowloris attacks.
+
+## Physical Layer Attacks
+
+Although less common, physical layer DoS attacks involve disrupting hardware or physical infrastructure. These attacks require physical access but can cause complete service outages.
+
+Examples include power disruption, cable damage, or hardware tampering.
+
+## Summary of DoS Layers
+
+| Layer | Target | Impact |
+|------|------|-------|
+| Network | Bandwidth and devices | Service unreachable |
+| Transport | Connections and sessions | Resource exhaustion |
+| Application | Services and applications | Service crash or slowdown |
+| Physical | Hardware and facilities | Total service outage |
+
+## CEH Perspective
+
+CEH emphasizes identifying the targeted layer of a DoS attack to apply appropriate detection and mitigation techniques. Each layer requires different monitoring and defense strategies.

@@ -106,7 +106,8 @@
         "social_engineering_attack": "حمله",
         "social_engineering_prevention": "جلوگیری",
         "dos": "DoS",
-        "dos_introduction": "مقدمه DoS"
+        "dos_introduction": "مقدمه DoS",
+        "dos_layers": "لایه‌ها"
         
 
     },
