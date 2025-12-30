@@ -73,7 +73,17 @@
         "nessus": "Nessus",
         "solar_winds": "SolarWinds Network Mapper",
         "scapy": "Scapy",
-        "proxies": "Proxies"
+        "proxies": "Proxies",
+        "malware": "Malware",
+        "malware_intro": "Introduction to Malware",
+        "spyware": "Spyware",
+        "trojans": "Trojans",
+        "viruses": "Viruses",
+        "malware_detection": "Malware Detection",
+        "malware_lifecycle": "Malware Lifecycle",
+        "file_verification": "File Verification",
+        "malware_analyze": "Malware Analysis",
+        "buffer_overflow": "Buffer Overflow"
     },
     "blog": {
         "title": "Latest CEH Articles and Updates",

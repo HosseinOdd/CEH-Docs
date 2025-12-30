@@ -62,6 +62,22 @@ export const ROUTES: EachRoute[] = [
       { title: "proxies", href: "/proxies" },
     ],
   },
+  {
+    title: "malware",
+    href: "/malware",
+    noLink: true,
+    items: [
+      { title: "malware_intro", href: "/malware-intro" },
+      { title: "spyware", href: "/spyware" },
+      { title: "trojans", href: "/trojans" },
+      { title: "viruses", href: "/viruses" },
+      { title: "malware_detection", href: "/malware-detection" },
+      { title: "malware_lifecycle", href: "/malware-lifecycle" },
+      { title: "file_verification", href: "/file-verification" },
+      { title: "malware_analyze", href: "/malware-analyze" },
+      { title: "buffer_overflow", href: "/buffer-overflow" },
+    ],
+  },
 ];
 
 type Page = { title: string; href: string };

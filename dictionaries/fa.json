@@ -73,7 +73,17 @@
         "nessus": "Nessus",
         "solar_winds": "SolarWinds Network Mapper",
         "scapy": "Scapy",
-        "proxies": "پروکسی‌ها"
+        "proxies": "پروکسی‌ها",
+        "malware": "بدافزار",
+        "malware_intro": "مقدمه بدافزار",
+        "spyware": "جاسوس‌افزار",
+        "trojans": "تروجان",
+        "viruses": "ویروس",
+        "malware_detection": "تشخیص بدافزار",
+        "malware_lifecycle": "چرخه حیات بدافزار",
+        "file_verification": "تایید فایل",
+        "malware_analyze": "آنالیز بدافزار",
+        "buffer_overflow": "سرریز بافر"
     },
     "blog": {
         "title": "آخرین مقالات و به‌روزرسانی‌های CEH",
