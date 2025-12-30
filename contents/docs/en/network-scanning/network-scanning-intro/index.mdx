@@ -1,0 +1,135 @@
+---
+title: Introduction to Network Scanning
+description: Understanding network scanning fundamentals and methodologies in ethical hacking
+---
+
+## What is Network Scanning?
+
+Network scanning is the second phase of ethical hacking that involves actively probing a target network to identify live hosts, open ports, services, and vulnerabilities. This phase provides crucial information for penetration testing.
+
+## Objectives of Network Scanning
+
+- **Discover Live Hosts**: Identify active devices on the network
+- **Identify Open Ports**: Find accessible network ports on target systems
+- **Detect Services**: Determine services running on open ports
+- **OS Detection**: Identify operating systems of target hosts
+- **Find Vulnerabilities**: Discover potential security weaknesses
+
+## Types of Network Scanning
+
+### Port Scanning
+Checking which ports are open, closed, or filtered on target systems.
+
+**Port States:**
+- **Open**: Port is accepting connections
+- **Closed**: Port is accessible but no service listening
+- **Filtered**: Port blocked by firewall or filtering device
+
+### Network Scanning
+Identifying live hosts and their network addresses.
+
+**Techniques:**
+- ICMP Echo Requests (Ping)
+- ARP Scanning
+- TCP/UDP Scanning
+
+### Vulnerability Scanning
+Automated scanning to identify known vulnerabilities.
+
+## TCP Three-Way Handshake
+
+Understanding TCP handshake is crucial for port scanning:
+
+1. **SYN**: Client sends SYN packet to server
+2. **SYN-ACK**: Server responds with SYN-ACK
+3. **ACK**: Client sends ACK to complete connection
+
+## Common Port Scanning Techniques
+
+### TCP Connect Scan
+Completes full TCP three-way handshake. Most reliable but easily detected.
+
+### SYN Scan (Half-Open)
+Sends SYN packet and analyzes response without completing handshake. Stealthier than connect scan.
+
+### FIN Scan
+Sends FIN packet to check if port is open. Works against systems that follow RFC 793.
+
+### NULL Scan
+Sends packet with no flags set. Used to bypass simple firewalls.
+
+### XMAS Scan
+Sends packet with FIN, PSH, and URG flags. Called "XMAS" because flags light up like Christmas tree.
+
+### ACK Scan
+Used to map firewall rules and determine if ports are filtered.
+
+### UDP Scan
+Scans UDP ports which are connectionless. Slower and less reliable than TCP scans.
+
+### Idle Scan
+Uses a zombie host to scan target, making scan appear from different source.
+
+## Scanning Methodology
+
+### 1. Check for Live Systems
+Identify which hosts are active on the network.
+
+### 2. Check for Open Ports
+Determine which ports are accessible on live hosts.
+
+### 3. Banner Grabbing
+Capture service banners to identify software versions.
+
+### 4. Scan for Vulnerabilities
+Use vulnerability scanners to find security weaknesses.
+
+### 5. Draw Network Diagrams
+Map the network topology and relationships.
+
+### 6. Prepare Proxies
+Use proxies to hide scanning origin and avoid detection.
+
+## Common Network Scanning Tools
+
+- **Nmap**: Most popular port scanner
+- **Hping3**: Packet crafting and analysis tool
+- **Masscan**: Fast port scanner for large networks
+- **Nessus**: Vulnerability scanner
+- **OpenVAS**: Open-source vulnerability scanner
+- **Angry IP Scanner**: Fast IP and port scanner
+
+## Scanning Considerations
+
+### Legal and Ethical
+- Always obtain proper authorization
+- Stay within scope of engagement
+- Follow responsible disclosure practices
+
+### Technical
+- Respect network bandwidth
+- Avoid denial of service
+- Use appropriate timing and intensity
+- Consider IDS/IPS detection
+
+### Stealth Techniques
+- Use slow scanning rates
+- Randomize scan order
+- Fragment packets
+- Use proxies or VPNs
+- Spoof source addresses (with caution)
+
+## Defense Against Scanning
+
+### Network Level
+- Configure firewalls properly
+- Implement IDS/IPS systems
+- Use network segmentation
+- Rate limiting and throttling
+
+### System Level
+- Close unnecessary ports
+- Disable unused services
+- Keep systems patched
+- Use host-based firewalls
+- Monitor system logs
