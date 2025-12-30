@@ -98,7 +98,8 @@
         "DNS_enumeration": "DNS",
         "SNMP_enumeration": "SNMP",
         "LDAP_enumeration": "LDAP",
-        "NTP_enumeration": "NTP"
+        "NTP_enumeration": "NTP",
+        "SMTP_enumeration": "SMTP"
     },
     "blog": {
         "title": "آخرین مقالات و به‌روزرسانی‌های CEH",

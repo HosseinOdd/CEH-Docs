@@ -1,0 +1,41 @@
+---
+title: SMTP Enumeration
+description: Enumeration of SMTP services to identify valid users and mail server configurations
+---
+
+## Overview
+
+SMTP Enumeration is the process of extracting information from mail servers using the Simple Mail Transfer Protocol (SMTP). SMTP is responsible for sending and relaying emails across networks and is commonly exposed to the internet.
+
+Misconfigured SMTP servers can reveal valid user accounts and internal mail server details, making SMTP enumeration a valuable technique in ethical hacking.
+
+## What is SMTP
+
+SMTP (Simple Mail Transfer Protocol) is an application-layer protocol used for sending email messages between servers. It typically operates over TCP ports 25, 465, and 587.
+
+Because email services must be publicly accessible, SMTP servers are frequent targets for information gathering and enumeration.
+
+## Information Gathered via SMTP Enumeration
+
+Through SMTP enumeration, an attacker or penetration tester may identify:
+- Valid email users and mailboxes
+- Mail server hostnames and IP addresses
+- Email routing and relay configurations
+- Authentication requirements
+- Domain naming conventions for email accounts
+
+SMTP commands such as user verification requests can sometimes be abused to confirm the existence of users.
+
+## Security Impact
+
+Successful SMTP enumeration can:
+- Enable targeted phishing and social engineering attacks
+- Assist in brute-force or credential-stuffing attacks
+- Reveal internal email infrastructure
+- Support further reconnaissance and exploitation phases
+
+From a defensive perspective, SMTP user enumeration is a common precursor to email-based attacks.
+
+## Role in Ethical Hacking and CEH
+
+In CEH, SMTP enumeration is taught as a practical technique for discovering valid users. Ethical hackers must understand SMTP behavior, command responses, and common misconfigurations to properly assess mail server security.

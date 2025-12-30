@@ -75,6 +75,7 @@ export const ROUTES: EachRoute[] = [
       { title: "SNMP_enumeration", href: "/SNMP-enumeration" },
       { title: "LDAP_enumeration", href: "/LDAP-enumeration" },
       { title: "NTP_enumeration", href: "/NTP-enumeration" },
+      { title: "SMTP_enumeration", href: "/SMTP-enumeration" },
     ],
   },
   {
@@ -91,6 +92,7 @@ export const ROUTES: EachRoute[] = [
       { title: "file_verification", href: "/file-verification" },
       { title: "malware_analyze", href: "/malware-analyze" },
       { title: "buffer_overflow", href: "/buffer-overflow" },
+      
     ],
   },
   {
