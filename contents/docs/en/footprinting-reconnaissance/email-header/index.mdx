@@ -1,0 +1,174 @@
+---
+title: Email Header Analysis
+description: Understanding and analyzing email headers for tracking and investigation
+---
+
+## What is an Email Header?
+
+An email header contains metadata about the email's journey from sender to recipient. It includes routing information, timestamps, authentication results, and technical details that are normally hidden from users.
+
+## Components of Email Headers
+
+### From Field
+The sender's email address (can be spoofed).
+
+### To Field
+The recipient's email address.
+
+### Subject
+The email subject line.
+
+### Date
+Timestamp when the email was sent.
+
+### Return-Path
+The email address where bounces should be sent.
+
+### Received
+Chain of mail servers that handled the email, showing the complete path.
+
+### Message-ID
+Unique identifier for the email.
+
+### MIME-Version
+Multipurpose Internet Mail Extensions version.
+
+### Content-Type
+Format of the email content (text, HTML, etc.).
+
+### X-Headers
+Custom headers added by mail servers or clients.
+
+## Important Header Fields for Analysis
+
+### Received Headers
+Shows the path the email took through various mail servers:
+```
+Received: from server1.example.com
+    by server2.example.com
+    with SMTP id xyz123
+    for <recipient@example.com>;
+    Mon, 1 Jan 2024 12:00:00 +0000
+```
+
+### Authentication Results
+- **SPF**: Sender Policy Framework validation
+- **DKIM**: DomainKeys Identified Mail signature
+- **DMARC**: Domain-based Message Authentication
+
+### X-Originating-IP
+Original IP address of the sender.
+
+### X-Mailer
+Email client software used to send the message.
+
+## How to View Email Headers
+
+### Gmail
+1. Open the email
+2. Click three dots menu
+3. Select "Show original"
+
+### Outlook
+1. Open the email
+2. File → Properties
+3. View headers in "Internet headers" box
+
+### Apple Mail
+1. Open the email
+2. View → Message → Raw Source
+
+## Email Header Analysis Process
+
+### 1. Identify the Sender
+- Check the "From" address
+- Verify against Return-Path
+- Look for X-Originating-IP
+
+### 2. Trace the Route
+- Read Received headers from bottom to top
+- Identify each mail server hop
+- Note timestamps for each hop
+
+### 3. Check Authentication
+- Verify SPF results
+- Check DKIM signature
+- Review DMARC policy
+
+### 4. Detect Anomalies
+- Time zone inconsistencies
+- Suspicious IP addresses
+- Mismatched domains
+- Missing authentication
+
+## Common Email Threats
+
+### Email Spoofing
+Forging sender address to appear from a trusted source.
+
+### Phishing
+Fraudulent emails attempting to steal credentials or information.
+
+### Business Email Compromise (BEC)
+Impersonating executives to authorize fraudulent transactions.
+
+### Malware Distribution
+Emails containing malicious attachments or links.
+
+## Email Header Analysis Tools
+
+### Online Tools
+
+**MXToolbox Email Header Analyzer**
+Parse and analyze email headers with visual representation.
+
+**Google Admin Toolbox Message Header**
+Google's tool for analyzing email routing and authentication.
+
+**Mail Header Analyzer**
+Detailed analysis of email headers with spam score.
+
+### Command-Line Tools
+
+**emlAnalyzer**
+Python tool for parsing and analyzing EML files.
+
+**Email Header Analyzer**
+Open-source tool for forensic email analysis.
+
+## Red Flags in Email Headers
+
+- Multiple "Received" lines from suspicious servers
+- Mismatched sender domains
+- Failed SPF/DKIM/DMARC checks
+- Unusual X-Originating-IP locations
+- Missing or suspicious Message-ID
+- Time discrepancies
+- Suspicious X-Mailer values
+
+## Investigation Use Cases
+
+### Spam Investigation
+Identify source of spam emails and report to ISPs.
+
+### Phishing Detection
+Verify authenticity of suspicious emails.
+
+### Email Forgery
+Detect spoofed or fraudulent emails.
+
+### Legal Evidence
+Preserve email headers as forensic evidence.
+
+### Troubleshooting
+Diagnose email delivery issues.
+
+## Best Practices
+
+- Always check headers for suspicious emails
+- Verify sender authentication results
+- Document header information for investigations
+- Use multiple analysis tools for verification
+- Report phishing attempts to appropriate authorities
+- Never trust the "From" field alone
+- Look for SSL/TLS encryption in transit
