@@ -92,7 +92,8 @@
         "arp_attacks": "ARP Attacks",
         "enumeration": "Enumeration",
         "enumeration_introduction": "Enumeration Introduction",
-        "windows_enumeration": "Windows"
+        "windows_enumeration": "Windows",
+        "linux_enumeration": "Linux"
     },
     "blog": {
         "title": "Latest CEH Articles and Updates",

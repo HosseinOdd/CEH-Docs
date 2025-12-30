@@ -68,7 +68,8 @@ export const ROUTES: EachRoute[] = [
     noLink: true,
     items: [
       { title: "enumeration_introduction", href: "/enumeration-introduction" },
-      { title: "windows_enumeration", href: "/windows-enumeration" }
+      { title: "windows_enumeration", href: "/windows-enumeration" },
+      { title: "linux_enumeration", href: "/linux-enumeration" },
     ],
   },
   {

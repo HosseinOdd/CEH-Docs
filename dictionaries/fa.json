@@ -92,7 +92,8 @@
         "arp_attacks": "حملات ARP",
         "enumeration": "سرشماری",
         "enumeration_introduction": "مقدمه سرشماری",
-        "windows_enumeration": "ویندوز"
+        "windows_enumeration": "ویندوز",
+        "linux_enumeration": "لینوکس"
     },
     "blog": {
         "title": "آخرین مقالات و به‌روزرسانی‌های CEH",

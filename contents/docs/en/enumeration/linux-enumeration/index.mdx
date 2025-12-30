@@ -1,0 +1,48 @@
+---
+title: Linux Enumeration
+description: Comprehensive enumeration of users, services, and configurations in Linux systems
+---
+
+## Overview
+
+Linux Enumeration is the process of actively gathering detailed information from Linux-based systems after initial access or during information-gathering phases. This step helps attackers and penetration testers understand system configurations, user privileges, and potential paths for privilege escalation.
+
+Linux systems often expose valuable information through configuration files, running services, and file permissions, making enumeration a crucial phase in ethical hacking.
+
+## What is Enumerated in Linux Systems
+
+During Linux enumeration, the following information is commonly targeted:
+- Local users and groups
+- User privilege levels and sudo permissions
+- Running processes and active services
+- Installed applications and versions
+- File and directory permissions
+- Scheduled tasks such as cron jobs
+- Network configurations and open connections
+
+This information can often be accessed due to weak permissions or misconfigurations.
+
+## Common Linux Enumeration Targets
+
+Linux enumeration typically focuses on:
+- User account files and authentication mechanisms
+- System and service configuration files
+- Background services and daemons
+- Log files and system information
+- Network interfaces and routing tables
+
+Each of these targets may reveal sensitive data that can be leveraged in later attack stages.
+
+## Security Impact
+
+Successful Linux enumeration enables attackers to:
+- Identify privilege escalation opportunities
+- Exploit weak file permissions
+- Abuse misconfigured services
+- Maintain persistence within the system
+
+For defenders, understanding Linux enumeration is essential to reduce information leakage and enforce the principle of least privilege.
+
+## Role in Ethical Hacking and CEH
+
+In the CEH framework, Linux enumeration is considered a fundamental skill. Ethical hackers use enumeration techniques to assess system hardening, identify misconfigurations, and evaluate the overall security posture of Linux environments.
