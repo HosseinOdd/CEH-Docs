@@ -1,0 +1,402 @@
+---
+title: Proxies and Anonymizers
+description: Using proxies to hide identity and evade detection during network scanning
+---
+
+## What are Proxies?
+
+A proxy server acts as an intermediary between your system and the target, masking your real IP address and providing anonymity during network reconnaissance and scanning activities.
+
+## Why Use Proxies?
+
+- **Hide real IP address**
+- **Bypass IP-based restrictions**
+- **Evade IDS/IPS detection**
+- **Distribute scan traffic**
+- **Access geo-restricted content**
+- **Avoid rate limiting**
+- **Protect identity**
+
+## Types of Proxies
+
+### HTTP/HTTPS Proxies
+- Web traffic only
+- Can inspect/modify HTTP requests
+- Often used for web scraping
+- May cache content
+
+### SOCKS Proxies
+- Protocol-agnostic
+- Supports TCP/UDP
+- More versatile than HTTP
+- Better for various scanning tools
+
+**SOCKS4**
+- No authentication
+- No UDP support
+- IPv4 only
+
+**SOCKS5**
+- Authentication support
+- UDP and IPv4/IPv6
+- Better security
+
+### Transparent Proxies
+- Client unaware of proxy
+- Often used by ISPs
+- Can be detected
+- Limited anonymity
+
+### Anonymous Proxies
+- Hide your IP
+- Identify themselves as proxies
+- Don't pass client IP in headers
+
+### Elite/High Anonymous Proxies
+- Hide your IP
+- Don't identify as proxies
+- Best anonymity
+- Most expensive/rare
+
+## Proxy Chains
+
+### What is Proxy Chaining?
+Route traffic through multiple proxies in sequence to increase anonymity and make tracing difficult.
+
+```
+Your System → Proxy1 → Proxy2 → Proxy3 → Target
+```
+
+### Benefits
+- Multiple layers of anonymity
+- Harder to trace
+- Geographic diversity
+- Redundancy
+
+### Drawbacks
+- Slower connection
+- More points of failure
+- Complex setup
+- Increased latency
+
+## ProxyChains
+
+### Installation
+```bash
+# Debian/Ubuntu
+sudo apt-get install proxychains
+
+# or proxychains4 (newer version)
+sudo apt-get install proxychains4
+```
+
+### Configuration
+```bash
+# Edit config file
+sudo nano /etc/proxychains.conf
+
+# or for proxychains4
+sudo nano /etc/proxychains4.conf
+```
+
+### Configuration Options
+
+**Dynamic Chain**
+```
+dynamic_chain
+# Skips dead proxies, uses available ones
+```
+
+**Strict Chain**
+```
+strict_chain
+# Uses all proxies in order, fails if one is down
+```
+
+**Random Chain**
+```
+random_chain
+chain_len = 3  # Number of proxies to use
+# Random selection from proxy list
+```
+
+### Adding Proxies
+```bash
+# At end of /etc/proxychains.conf
+[ProxyList]
+socks5  127.0.0.1  9050    # Tor
+socks4  proxy1.com  1080
+http    proxy2.com  8080    username  password
+```
+
+### Usage
+```bash
+# Run any command through proxychains
+proxychains <command>
+
+# Examples
+proxychains nmap -sT target.com
+proxychains curl http://ifconfig.me
+proxychains firefox
+proxychains ssh user@target.com
+```
+
+## Tor Network
+
+### What is Tor?
+The Onion Router - provides anonymous communication by routing through multiple relays.
+
+### Installation
+```bash
+# Debian/Ubuntu
+sudo apt-get install tor
+
+# Start service
+sudo systemctl start tor
+sudo systemctl enable tor
+```
+
+### Using Tor with ProxyChains
+```bash
+# Tor runs on localhost:9050 by default
+# Add to proxychains.conf:
+socks5  127.0.0.1  9050
+
+# Use with tools
+proxychains nmap -sT target.com
+proxychains wget http://example.com
+```
+
+### Tor Browser
+- Pre-configured browser
+- Easy to use
+- Built-in privacy features
+- Access .onion sites
+
+### Torsocks
+```bash
+# Install
+sudo apt-get install torsocks
+
+# Usage
+torsocks <command>
+torsocks curl http://check.torproject.org
+```
+
+## HTTP Proxies with Tools
+
+### Curl
+```bash
+# HTTP proxy
+curl -x http://proxy:8080 http://target.com
+
+# SOCKS proxy
+curl --socks5 proxy:1080 http://target.com
+
+# With authentication
+curl -x http://user:pass@proxy:8080 http://target.com
+```
+
+### Wget
+```bash
+# Set proxy in environment
+export http_proxy=http://proxy:8080
+export https_proxy=http://proxy:8080
+
+# Or use .wgetrc
+echo "http_proxy = http://proxy:8080" >> ~/.wgetrc
+
+# Usage
+wget http://target.com
+```
+
+### Nmap through Proxy
+```bash
+# SOCKS proxy (with proxychains)
+proxychains nmap -sT target.com
+
+# HTTP proxy (limited support)
+nmap --proxies http://proxy:8080 target.com
+```
+
+## VPN vs Proxy
+
+### VPN (Virtual Private Network)
+**Advantages:**
+- Encrypts all traffic
+- System-wide protection
+- Better security
+- Stable connection
+
+**Disadvantages:**
+- More expensive
+- Slower speeds
+- Logs may be kept
+- Single exit point
+
+### Proxy
+**Advantages:**
+- Faster than VPN
+- Application-specific
+- Chain multiple proxies
+- Often free options
+
+**Disadvantages:**
+- No encryption (usually)
+- Per-application setup
+- Less secure
+- May log activity
+
+## SSH Tunneling
+
+### Dynamic Port Forwarding (SOCKS Proxy)
+```bash
+# Create SOCKS proxy on localhost:1080
+ssh -D 1080 user@remote-server
+
+# Use with proxychains
+socks5  127.0.0.1  1080
+
+# Now route traffic through SSH tunnel
+proxychains firefox
+```
+
+### Local Port Forwarding
+```bash
+# Forward local port to remote service
+ssh -L 8080:target.com:80 user@jump-server
+
+# Access via localhost
+curl http://localhost:8080
+```
+
+### Remote Port Forwarding
+```bash
+# Forward remote port to local service
+ssh -R 8080:localhost:80 user@remote-server
+```
+
+## Finding Public Proxies
+
+### Proxy Lists
+- **Free Proxy Lists**: 
+  - https://free-proxy-list.net
+  - https://www.proxy-list.download
+  - https://spys.one
+  
+- **Paid Services**:
+  - Bright Data (Luminati)
+  - Smartproxy
+  - Oxylabs
+
+### Testing Proxies
+```bash
+# Test proxy with curl
+curl -x http://proxy:port http://ifconfig.me
+
+# Check anonymity
+curl -x http://proxy:port http://www.whatismyip.com
+```
+
+## Proxy Tools
+
+### Burp Suite
+- Intercept HTTP/HTTPS
+- Modify requests
+- Built-in proxy
+- Web app testing
+
+### Proxifier
+- Windows/Mac application
+- Route any application through proxy
+- Support for SOCKS and HTTP
+
+### FoxyProxy
+- Browser extension
+- Easy proxy switching
+- Pattern matching
+- Multiple profiles
+
+## Anonymity Testing
+
+### Check Your IP
+```bash
+# Without proxy
+curl http://ifconfig.me
+
+# With proxy
+proxychains curl http://ifconfig.me
+```
+
+### DNS Leak Test
+- Visit https://dnsleaktest.com
+- Ensure DNS requests go through proxy/VPN
+
+### WebRTC Leak Test
+- WebRTC can reveal real IP
+- Test at https://browserleaks.com/webrtc
+
+## Best Practices
+
+1. **Use Multiple Proxies**: Chain proxies for better anonymity
+2. **Verify Anonymity**: Always test before actual operations
+3. **Use SOCKS5**: More versatile than HTTP proxies
+4. **Combine Methods**: Use Tor + VPN + Proxies
+5. **Check for Leaks**: DNS, WebRTC, IPv6 leaks
+6. **Rotate Proxies**: Change proxies regularly
+7. **Use Paid Services**: Free proxies are often unreliable
+8. **Monitor Logs**: Check if proxy logs activity
+
+## Scanning with Proxies
+
+### Nmap
+```bash
+# Through SOCKS proxy
+proxychains nmap -sT -Pn target.com
+
+# Note: -sT (TCP connect) required, SYN scan won't work
+```
+
+### Nikto (Web Scanner)
+```bash
+# HTTP proxy
+nikto -h target.com -useproxy http://proxy:8080
+
+# Through proxychains
+proxychains nikto -h target.com
+```
+
+### Metasploit
+```msfconsole
+# Set proxy in Metasploit
+setg Proxies http://proxy:8080
+setg ReverseAllowProxy true
+
+# Or use proxychains
+proxychains msfconsole
+```
+
+## Legal and Ethical Considerations
+
+⚠️ **Warning**: 
+- Proxies don't guarantee complete anonymity
+- Law enforcement can trace sophisticated operations
+- Using proxies for illegal activities is still illegal
+- Always get authorization before testing
+- Respect proxy provider terms of service
+
+## Limitations of Proxies
+
+- **Speed**: Added latency
+- **Reliability**: Proxies can go down
+- **Logs**: Many proxies log activity
+- **Detection**: Can still be detected
+- **Compatibility**: Not all tools work through proxies
+- **DNS Leaks**: DNS requests may bypass proxy
+
+## Resources
+
+- Tor Project: https://www.torproject.org
+- ProxyChains Documentation
+- Free Proxy Lists (use with caution)
+- Privacy testing tools: browserleaks.com
