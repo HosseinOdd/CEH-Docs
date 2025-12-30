@@ -119,6 +119,17 @@ export const ROUTES: EachRoute[] = [
 
     ],
   },
+  
+    {
+    title: "dos",
+    href: "/dos",
+    noLink: true,
+    items: [
+      { title: "dos_introduction", href: "/dos-introduction" },
+      
+
+    ],
+  },
 ];
 
 type Page = { title: string; href: string };

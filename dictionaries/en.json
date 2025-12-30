@@ -104,7 +104,9 @@
         "social_engineering_introduction": "Social Engineering Introduction",
         "social_engineering_phases": "Social Engineering Phases",
         "social_engineering_attack": "Attack",
-        "social_engineering_prevention": "Prevention"
+        "social_engineering_prevention": "Prevention",
+        "dos": "DoS",
+        "dos_introduction": "DoS Introduction"
 
     },
     "blog": {
