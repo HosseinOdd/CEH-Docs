@@ -1,0 +1,515 @@
+---
+title: DHCP Snooping
+description: DHCP attacks and snooping protection mechanisms
+---
+
+## DHCP Overview
+
+**DHCP (Dynamic Host Configuration Protocol)** automatically assigns IP addresses and network configuration to devices. It operates on UDP ports 67 (server) and 68 (client).
+
+### DHCP Process (DORA)
+
+1. **Discover**: Client broadcasts to find DHCP server
+2. **Offer**: Server offers IP configuration
+3. **Request**: Client requests the offered configuration
+4. **Acknowledgment**: Server confirms assignment
+
+```
+Client (0.0.0.0)  →  DHCP Discover  →  Broadcast
+Server             →  DHCP Offer     →  Client
+Client             →  DHCP Request   →  Broadcast
+Server             →  DHCP ACK       →  Client (assigned IP)
+```
+
+## DHCP Attacks
+
+### DHCP Starvation
+
+The attacker exhausts the DHCP server's IP address pool by requesting all available addresses.
+
+#### Attack Process
+```
+1. Attacker sends DHCP Discover with fake MAC addresses
+2. Server offers IP addresses to fake clients
+3. Attacker accepts all offers (DHCP Request)
+4. Server acknowledges and assigns IPs
+5. DHCP pool becomes exhausted
+6. Legitimate clients cannot obtain IP addresses
+```
+
+#### Tools: Yersinia
+
+```bash
+# Install Yersinia
+sudo apt install yersinia
+
+# GUI Mode
+sudo yersinia -G
+# Select DHCP protocol
+# Choose "DHCP Starvation" attack
+
+# CLI Mode
+sudo yersinia dhcp -attack 1
+
+# Gobbler attack (exhaust DHCP)
+sudo yersinia dhcp -attack 1 -interface eth0
+```
+
+#### Tools: DHCPig
+
+```bash
+# Install
+git clone https://github.com/kamorin/DHCPig.git
+cd DHCPig
+chmod +x pig.py
+
+# Run attack
+sudo ./pig.py eth0
+
+# Advanced options
+sudo ./pig.py eth0 --timeout 10 --count 100
+```
+
+### Rogue DHCP Server
+
+The attacker sets up a fake DHCP server to provide malicious network configuration.
+
+#### Attack Scenario
+```
+1. Attacker deploys rogue DHCP server
+2. Client broadcasts DHCP Discover
+3. Both legitimate and rogue servers respond
+4. Client accepts first response (often rogue)
+5. Rogue server provides:
+   - Valid IP address
+   - Attacker as default gateway
+   - Attacker as DNS server
+6. All client traffic routed through attacker (MITM)
+```
+
+#### Setting Up Rogue DHCP Server
+
+**Using dnsmasq**
+```bash
+# Install
+sudo apt install dnsmasq
+
+# Configuration (/etc/dnsmasq.conf)
+interface=eth0
+dhcp-range=192.168.1.100,192.168.1.200,12h
+dhcp-option=3,192.168.1.10    # Gateway (attacker)
+dhcp-option=6,192.168.1.10    # DNS (attacker)
+dhcp-authoritative
+
+# Start service
+sudo systemctl start dnsmasq
+```
+
+**Using dhcpd (ISC DHCP Server)**
+```bash
+# Install
+sudo apt install isc-dhcp-server
+
+# Configuration (/etc/dhcp/dhcpd.conf)
+subnet 192.168.1.0 netmask 255.255.255.0 {
+    range 192.168.1.100 192.168.1.200;
+    option routers 192.168.1.10;          # Attacker
+    option domain-name-servers 192.168.1.10;  # Attacker
+    default-lease-time 600;
+    max-lease-time 7200;
+}
+
+# Specify interface (/etc/default/isc-dhcp-server)
+INTERFACESv4="eth0"
+
+# Start service
+sudo systemctl start isc-dhcp-server
+```
+
+#### Impact of Rogue DHCP
+- **Man-in-the-Middle**: All traffic intercepted
+- **DNS Spoofing**: Redirect to malicious sites
+- **Credential Harvesting**: Capture login credentials
+- **Network Isolation**: Wrong subnet configuration
+- **Service Disruption**: Invalid gateway causes connectivity loss
+
+### DHCP Snooping Evasion
+
+Attackers may try to bypass DHCP snooping protection.
+
+## DHCP Snooping
+
+**DHCP Snooping** is a security feature that acts as a firewall between untrusted hosts and DHCP servers.
+
+### How It Works
+
+1. **Builds binding database**: Maps IP, MAC, port, VLAN
+2. **Validates DHCP messages**: Checks against binding table
+3. **Rate limits**: Prevents flooding
+4. **Drops malicious packets**: Blocks rogue servers
+
+### Trusted vs Untrusted Ports
+
+- **Trusted Ports**: Allow DHCP server messages (Offer, ACK)
+  - Uplink ports to legitimate DHCP servers
+  - Typically configured on trunk ports
+
+- **Untrusted Ports**: Only allow client messages (Discover, Request)
+  - Access ports connected to end devices
+  - Block server messages from these ports
+
+### Configuration (Cisco)
+
+#### Basic DHCP Snooping
+```cisco
+# Enable DHCP snooping globally
+ip dhcp snooping
+
+# Enable for specific VLANs
+ip dhcp snooping vlan 10
+ip dhcp snooping vlan 20,30,40-50
+
+# Configure trusted ports (uplink to DHCP server)
+interface GigabitEthernet0/1
+  description Uplink to DHCP Server
+  ip dhcp snooping trust
+
+# Untrusted ports (default - no configuration needed)
+interface range FastEthernet0/1-24
+  description Access Ports
+  # Untrusted by default
+```
+
+#### Rate Limiting
+```cisco
+# Limit DHCP packets per second (prevents starvation)
+interface range FastEthernet0/1-24
+  ip dhcp snooping limit rate 10
+
+# Higher limit for wireless APs
+interface FastEthernet0/10
+  ip dhcp snooping limit rate 50
+```
+
+#### Information Option 82
+```cisco
+# Insert option 82 (relay information)
+ip dhcp snooping information option
+
+# Allow option 82 from untrusted sources (if needed)
+ip dhcp snooping information option allow-untrusted
+
+# Format for option 82
+ip dhcp snooping information option format remote-id hostname
+```
+
+#### Verify Configuration
+```cisco
+# Show DHCP snooping status
+show ip dhcp snooping
+
+# Show binding database
+show ip dhcp snooping binding
+
+# Show statistics
+show ip dhcp snooping statistics
+
+# Show trusted interfaces
+show ip dhcp snooping trust
+```
+
+### Binding Database
+
+The binding database stores:
+- **MAC Address**: Client hardware address
+- **IP Address**: Assigned IP
+- **VLAN**: Client VLAN
+- **Interface**: Switch port
+- **Lease Time**: Expiration time
+
+#### Example Binding Table
+```
+MacAddress         IpAddress    Lease(sec) Type      VLAN Interface
+------------------ ------------ ---------- --------- ---- ----------
+00:11:22:33:44:55  192.168.1.10 86400      dhcp-snooping 10   Fa0/5
+AA:BB:CC:DD:EE:FF  192.168.1.11 86400      dhcp-snooping 10   Fa0/8
+```
+
+#### Saving Binding Database
+```cisco
+# Save to file (survives reboot)
+ip dhcp snooping database flash:dhcp-snooping.db
+
+# Save to TFTP server
+ip dhcp snooping database tftp://192.168.1.100/dhcp-snooping.db
+
+# Set write delay (seconds)
+ip dhcp snooping database write-delay 300
+```
+
+### Integration with DAI
+
+DHCP Snooping binding database is used by **Dynamic ARP Inspection**.
+
+```cisco
+# Enable DHCP snooping (prerequisite)
+ip dhcp snooping
+ip dhcp snooping vlan 10
+
+# Enable Dynamic ARP Inspection
+ip arp inspection vlan 10
+
+# Trust uplink ports for both
+interface GigabitEthernet0/1
+  ip dhcp snooping trust
+  ip arp inspection trust
+```
+
+## Detection Methods
+
+### Monitor DHCP Traffic
+
+#### Using tcpdump
+```bash
+# Capture DHCP traffic
+sudo tcpdump -i eth0 -n port 67 or port 68
+
+# Detailed output
+sudo tcpdump -i eth0 -vv -n port 67 or port 68
+
+# Save to file
+sudo tcpdump -i eth0 -w dhcp.pcap port 67 or port 68
+```
+
+#### Using Wireshark
+```
+# Display filter
+bootp
+
+# Filter DHCP Discover
+bootp.option.dhcp == 1
+
+# Filter DHCP Offer
+bootp.option.dhcp == 2
+
+# Filter DHCP Request
+bootp.option.dhcp == 3
+
+# Filter DHCP ACK
+bootp.option.dhcp == 5
+```
+
+### Indicators of Attack
+
+#### DHCP Starvation
+- Multiple DHCP Discovers with different MACs
+- High rate of DHCP transactions
+- DHCP pool exhaustion alerts
+- Legitimate clients failing to get addresses
+
+#### Rogue DHCP Server
+- Multiple DHCP Offers for same Discover
+- Unknown IP responding with DHCP Offers
+- DHCP responses from untrusted ports
+- Clients receiving unexpected configuration
+
+### Network Monitoring
+
+#### Snort Rules
+```snort
+# Detect DHCP starvation
+alert udp any 68 -> any 67 (msg:"DHCP Starvation Attack"; \
+  threshold:type threshold, track by_src, count 50, seconds 60; \
+  sid:1000010;)
+
+# Detect rogue DHCP server
+alert udp any 67 -> any 68 (msg:"Rogue DHCP Server Detected"; \
+  content:"|02|"; offset:0; depth:1; \
+  sid:1000011;)
+```
+
+#### Logging
+```cisco
+# Enable logging for DHCP snooping
+logging buffered informational
+logging trap notifications
+
+# Log to syslog server
+logging host 192.168.1.100
+
+# View logs
+show logging | include DHCP
+```
+
+## Additional Protection Measures
+
+### IP Source Guard
+
+Prevents IP spoofing by validating source IP against DHCP binding.
+
+```cisco
+# Enable IP Source Guard on interface
+interface FastEthernet0/5
+  ip verify source
+
+# With MAC address verification
+interface FastEthernet0/5
+  ip verify source port-security
+
+# Verify configuration
+show ip verify source
+```
+
+### Static Bindings
+
+Manually configure bindings for critical devices.
+
+```cisco
+# Add static binding
+ip dhcp snooping binding 0011.2233.4455 vlan 10 192.168.1.50 interface FastEthernet0/10 expiry 86400
+
+# Verify
+show ip dhcp snooping binding
+```
+
+### MAC Address Filtering
+
+Allow only known MAC addresses to obtain DHCP.
+
+```cisco
+# Configure DHCP server with MAC filtering
+ip dhcp pool RESTRICTED
+  host 192.168.1.100 hardware-address 0011.2233.4455
+  default-router 192.168.1.1
+  dns-server 8.8.8.8
+```
+
+### Network Segmentation
+
+- Isolate DHCP servers in management VLAN
+- Use VLANs to segment user populations
+- Implement Private VLANs for guest networks
+
+## Recovery from Attack
+
+### After DHCP Starvation
+
+1. **Identify attack source**
+   ```cisco
+   show ip dhcp snooping binding
+   show ip dhcp snooping statistics
+   ```
+
+2. **Clear bogus bindings**
+   ```cisco
+   clear ip dhcp snooping binding
+   # Or specific entry
+   clear ip dhcp snooping binding vlan 10 0011.2233.4455
+   ```
+
+3. **Restart DHCP service** (on server)
+   ```bash
+   sudo systemctl restart isc-dhcp-server
+   ```
+
+4. **Enable rate limiting**
+   ```cisco
+   interface range FastEthernet0/1-24
+     ip dhcp snooping limit rate 10
+   ```
+
+### After Rogue DHCP Detection
+
+1. **Locate rogue server**
+   ```cisco
+   show ip dhcp snooping binding
+   # Identify untrusted port with server responses
+   ```
+
+2. **Shutdown malicious port**
+   ```cisco
+   interface FastEthernet0/12
+     shutdown
+   ```
+
+3. **Release and renew client leases**
+   ```bash
+   # Linux
+   sudo dhclient -r eth0
+   sudo dhclient eth0
+
+   # Windows
+   ipconfig /release
+   ipconfig /renew
+   ```
+
+4. **Verify legitimate DHCP functioning**
+   ```cisco
+   show ip dhcp binding
+   show ip dhcp snooping binding
+   ```
+
+## Best Practices
+
+1. **Enable DHCP snooping** on all access switches
+2. **Configure trusted ports** only for legitimate DHCP servers
+3. **Implement rate limiting** on untrusted ports
+4. **Save binding database** to persistent storage
+5. **Integrate with DAI and IP Source Guard**
+6. **Monitor DHCP traffic** for anomalies
+7. **Use static bindings** for critical infrastructure
+8. **Regular audits** of DHCP snooping configuration
+9. **Centralized DHCP servers** with redundancy
+10. **Educate users** about risks of unauthorized DHCP servers
+
+## Testing Configuration
+
+```bash
+# Test DHCP functionality
+# Client machine
+sudo dhclient -r eth0
+sudo dhclient -v eth0
+
+# Should receive valid IP from legitimate server
+
+# Test protection (requires lab environment)
+# Try to run rogue DHCP server
+sudo dnsmasq -d -C /tmp/rogue-dhcp.conf
+# Should be blocked by DHCP snooping
+
+# Verify switch logs
+# On switch
+show logging | include DHCP
+```
+
+## Advanced Configuration
+
+### Option 82 Circuit ID
+```cisco
+# Configure option 82 with custom format
+ip dhcp snooping information option format remote-id string MySwitch01
+
+# Per-interface circuit ID
+interface FastEthernet0/5
+  ip dhcp snooping information option format-type circuit-id string "Building-A-Floor-3"
+```
+
+### DHCP Relay with Snooping
+```cisco
+# Configure DHCP relay
+interface Vlan10
+  ip helper-address 192.168.100.10
+
+# Enable snooping on relay
+ip dhcp snooping
+ip dhcp snooping vlan 10
+ip dhcp snooping information option
+```
+
+## Resources
+
+- RFC 2131: Dynamic Host Configuration Protocol
+- RFC 3046: DHCP Relay Agent Information Option
+- Cisco DHCP Snooping Configuration Guide
+- DHCP Security Best Practices
+- DHCPig Tool: https://github.com/kamorin/DHCPig
