@@ -1,0 +1,245 @@
+---
+title: DNS Footprinting
+description: Using DNS queries and analysis for information gathering and reconnaissance
+---
+
+## What is DNS Footprinting?
+
+DNS (Domain Name System) footprinting is the process of gathering information about a target organization's DNS infrastructure, including domain names, IP addresses, mail servers, and name servers.
+
+## DNS Record Types
+
+### A Record (Address)
+Maps domain name to IPv4 address.
+```
+example.com → 192.168.1.1
+```
+
+### AAAA Record
+Maps domain name to IPv6 address.
+```
+example.com → 2001:0db8:85a3::8a2e:0370:7334
+```
+
+### MX Record (Mail Exchange)
+Specifies mail servers for the domain.
+```
+example.com → mail.example.com (Priority: 10)
+```
+
+### NS Record (Name Server)
+Identifies authoritative name servers for the domain.
+```
+example.com → ns1.example.com
+```
+
+### CNAME Record (Canonical Name)
+Creates an alias for another domain name.
+```
+www.example.com → example.com
+```
+
+### TXT Record
+Stores text information, often for verification and security.
+```
+SPF, DKIM, DMARC policies
+```
+
+### SOA Record (Start of Authority)
+Contains administrative information about the domain.
+
+### PTR Record (Pointer)
+Reverse DNS lookup - maps IP to domain name.
+
+## DNS Footprinting Techniques
+
+### DNS Zone Transfer
+Attempting to retrieve entire DNS zone file from name servers.
+```bash
+dig @nameserver example.com AXFR
+nslookup
+> server nameserver
+> ls -d example.com
+```
+
+### DNS Enumeration
+Systematically querying DNS to discover hosts and subdomains.
+
+### Reverse DNS Lookup
+Finding domain names associated with IP addresses.
+```bash
+dig -x 192.168.1.1
+nslookup 192.168.1.1
+```
+
+### Subdomain Enumeration
+Discovering subdomains of a target domain.
+```bash
+# Using brute force
+for sub in www mail ftp admin; do
+    host $sub.example.com
+done
+```
+
+## DNS Footprinting Tools
+
+### Command-Line Tools
+
+**dig (Domain Information Groper)**
+```bash
+dig example.com
+dig example.com MX
+dig example.com NS
+dig example.com ANY
+```
+
+**nslookup**
+```bash
+nslookup example.com
+nslookup -type=mx example.com
+nslookup -type=ns example.com
+```
+
+**host**
+```bash
+host example.com
+host -t mx example.com
+host -t ns example.com
+```
+
+**whois**
+```bash
+whois example.com
+```
+
+### Automated Tools
+
+**DNSRecon**
+Comprehensive DNS enumeration tool.
+```bash
+dnsrecon -d example.com
+dnsrecon -d example.com -t axfr
+```
+
+**Fierce**
+DNS reconnaissance and subdomain enumeration.
+```bash
+fierce --domain example.com
+```
+
+**DNSenum**
+Multithreaded DNS enumeration tool.
+```bash
+dnsenum example.com
+```
+
+**Sublist3r**
+Fast subdomain enumeration tool.
+```bash
+sublist3r -d example.com
+```
+
+**Amass**
+In-depth DNS enumeration and mapping.
+```bash
+amass enum -d example.com
+```
+
+### Online Tools
+
+**DNSDumpster**
+Free domain research tool with visual mapping.
+
+**SecurityTrails**
+DNS intelligence and historical data.
+
+**ViewDNS.info**
+Collection of DNS and network tools.
+
+**MXToolbox**
+DNS lookup and diagnostics.
+
+## Information Gathered from DNS
+
+### Network Infrastructure
+- IP address ranges
+- Subnet information
+- Network topology
+
+### Email Servers
+- Mail server addresses
+- Email routing information
+- SPF/DKIM configurations
+
+### Subdomains
+- Development servers
+- Staging environments
+- Admin panels
+- API endpoints
+
+### Third-Party Services
+- Cloud providers
+- CDN services
+- Email services
+- Hosting providers
+
+## DNS Security Records
+
+### SPF (Sender Policy Framework)
+Prevents email spoofing by specifying authorized mail servers.
+```
+v=spf1 ip4:192.168.1.0/24 include:_spf.google.com ~all
+```
+
+### DKIM (DomainKeys Identified Mail)
+Email authentication using digital signatures.
+
+### DMARC (Domain-based Message Authentication)
+Email authentication policy and reporting.
+```
+v=DMARC1; p=quarantine; rua=mailto:dmarc@example.com
+```
+
+### DNSSEC (DNS Security Extensions)
+Adds cryptographic signatures to DNS records.
+
+## DNS Cache Snooping
+
+Querying DNS cache to discover previously resolved domains.
+```bash
+dig @dns-server example.com +norecurse
+```
+
+## Defense Against DNS Footprinting
+
+### For Organizations
+
+**Disable Zone Transfers**
+Restrict AXFR to authorized servers only.
+
+**Split-Horizon DNS**
+Separate internal and external DNS views.
+
+**Rate Limiting**
+Limit DNS query rates from single sources.
+
+**DNSSEC Implementation**
+Protect DNS integrity with cryptographic signatures.
+
+**Monitor DNS Traffic**
+Detect unusual query patterns.
+
+### Configuration Best Practices
+- Remove unnecessary DNS records
+- Use private IP ranges internally
+- Implement proper ACLs
+- Regular DNS audits
+- Hide version information
+
+## Legal and Ethical Considerations
+
+- Obtain proper authorization
+- Respect rate limits
+- Follow responsible disclosure
+- Document all activities
+- Stay within scope of engagement
