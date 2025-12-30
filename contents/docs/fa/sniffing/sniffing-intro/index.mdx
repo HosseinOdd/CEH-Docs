@@ -229,7 +229,7 @@ arp -s 192.168.1.1 00:11:22:33:44:55
 ### امنیت شبکه
 
 #### امنیت پورت
-```cisco
+```text
 # پیکربندی سوئیچ Cisco
 interface FastEthernet0/1
 switchport mode access
@@ -239,7 +239,7 @@ switchport port-security violation shutdown
 ```
 
 #### DHCP Snooping
-```cisco
+```text
 # فعال کردن DHCP snooping
 ip dhcp snooping
 ip dhcp snooping vlan 10
@@ -250,7 +250,7 @@ ip dhcp snooping trust
 ```
 
 #### بازرسی پویای ARP (DAI)
-```cisco
+```text
 # فعال کردن DAI
 ip arp inspection vlan 10
 

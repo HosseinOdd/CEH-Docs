@@ -161,7 +161,7 @@ sudo systemctl start isc-dhcp-server
 ### پیکربندی (Cisco)
 
 #### DHCP Snooping پایه
-```cisco
+```text
 # فعال کردن DHCP snooping به صورت سراسری
 ip dhcp snooping
 
@@ -181,7 +181,7 @@ interface range FastEthernet0/1-24
 ```
 
 #### محدودسازی نرخ
-```cisco
+```text
 # محدود کردن بسته‌های DHCP در ثانیه (جلوگیری از starvation)
 interface range FastEthernet0/1-24
   ip dhcp snooping limit rate 10
@@ -192,7 +192,7 @@ interface FastEthernet0/10
 ```
 
 #### گزینه اطلاعات 82
-```cisco
+```text
 # درج گزینه 82 (اطلاعات relay)
 ip dhcp snooping information option
 
@@ -204,7 +204,7 @@ ip dhcp snooping information option format remote-id hostname
 ```
 
 #### تایید پیکربندی
-```cisco
+```text
 # نمایش وضعیت DHCP snooping
 show ip dhcp snooping
 
@@ -236,7 +236,7 @@ AA:BB:CC:DD:EE:FF  192.168.1.11 86400      dhcp-snooping 10   Fa0/8
 ```
 
 #### ذخیره پایگاه داده Binding
-```cisco
+```text
 # ذخیره در فایل (راه‌اندازی مجدد را تحمل می‌کند)
 ip dhcp snooping database flash:dhcp-snooping.db
 
@@ -251,7 +251,7 @@ ip dhcp snooping database write-delay 300
 
 پایگاه داده binding DHCP Snooping توسط **Dynamic ARP Inspection** استفاده می‌شود.
 
-```cisco
+```text
 # فعال کردن DHCP snooping (پیش‌نیاز)
 ip dhcp snooping
 ip dhcp snooping vlan 10
@@ -316,7 +316,7 @@ bootp.option.dhcp == 5
 ### نظارت شبکه
 
 #### قوانین Snort
-```snort
+```text
 # تشخیص خستگی DHCP
 alert udp any 68 -> any 67 (msg:"DHCP Starvation Attack"; \
   threshold:type threshold, track by_src, count 50, seconds 60; \
@@ -329,7 +329,7 @@ alert udp any 67 -> any 68 (msg:"Rogue DHCP Server Detected"; \
 ```
 
 #### ثبت لاگ
-```cisco
+```text
 # فعال کردن ثبت لاگ برای DHCP snooping
 logging buffered informational
 logging trap notifications
@@ -347,7 +347,7 @@ show logging | include DHCP
 
 جلوگیری از جعل IP با اعتبارسنجی IP مبدأ در برابر binding DHCP.
 
-```cisco
+```text
 # فعال کردن IP Source Guard در رابط
 interface FastEthernet0/5
   ip verify source
@@ -364,7 +364,7 @@ show ip verify source
 
 پیکربندی دستی bindingها برای دستگاه‌های بحرانی.
 
-```cisco
+```text
 # اضافه کردن binding ثابت
 ip dhcp snooping binding 0011.2233.4455 vlan 10 192.168.1.50 interface FastEthernet0/10 expiry 86400
 
@@ -376,7 +376,7 @@ show ip dhcp snooping binding
 
 فقط اجازه دریافت DHCP به آدرس‌های MAC شناخته شده.
 
-```cisco
+```text
 # پیکربندی سرور DHCP با فیلتر MAC
 ip dhcp pool RESTRICTED
   host 192.168.1.100 hardware-address 0011.2233.4455
@@ -395,13 +395,13 @@ ip dhcp pool RESTRICTED
 ### بعد از خستگی DHCP
 
 1. **شناسایی منبع حمله**
-   ```cisco
+   ```text
    show ip dhcp snooping binding
    show ip dhcp snooping statistics
    ```
 
 2. **پاک کردن bindingهای جعلی**
-   ```cisco
+   ```text
    clear ip dhcp snooping binding
    # یا ورودی خاص
    clear ip dhcp snooping binding vlan 10 0011.2233.4455
@@ -413,7 +413,7 @@ ip dhcp pool RESTRICTED
    ```
 
 4. **فعال کردن محدودسازی نرخ**
-   ```cisco
+   ```text
    interface range FastEthernet0/1-24
      ip dhcp snooping limit rate 10
    ```
@@ -421,13 +421,13 @@ ip dhcp pool RESTRICTED
 ### بعد از تشخیص DHCP جعلی
 
 1. **مکان‌یابی سرور جعلی**
-   ```cisco
+   ```text
    show ip dhcp snooping binding
    # شناسایی پورت غیرقابل اعتماد با پاسخ‌های سرور
    ```
 
 2. **خاموش کردن پورت مخرب**
-   ```cisco
+   ```text
    interface FastEthernet0/12
      shutdown
    ```
@@ -444,7 +444,7 @@ ip dhcp pool RESTRICTED
    ```
 
 4. **تایید عملکرد DHCP قانونی**
-   ```cisco
+   ```text
    show ip dhcp binding
    show ip dhcp snooping binding
    ```
@@ -485,7 +485,7 @@ show logging | include DHCP
 ## پیکربندی پیشرفته
 
 ### گزینه 82 Circuit ID
-```cisco
+```text
 # پیکربندی گزینه 82 با فرمت سفارشی
 ip dhcp snooping information option format remote-id string MySwitch01
 
@@ -495,7 +495,7 @@ interface FastEthernet0/5
 ```
 
 ### DHCP Relay با Snooping
-```cisco
+```text
 # پیکربندی DHCP relay
 interface Vlan10
   ip helper-address 192.168.100.10

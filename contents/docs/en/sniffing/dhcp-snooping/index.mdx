@@ -161,7 +161,7 @@ Attackers may try to bypass DHCP snooping protection.
 ### Configuration (Cisco)
 
 #### Basic DHCP Snooping
-```cisco
+```text
 # Enable DHCP snooping globally
 ip dhcp snooping
 
@@ -181,7 +181,7 @@ interface range FastEthernet0/1-24
 ```
 
 #### Rate Limiting
-```cisco
+```text
 # Limit DHCP packets per second (prevents starvation)
 interface range FastEthernet0/1-24
   ip dhcp snooping limit rate 10
@@ -192,7 +192,7 @@ interface FastEthernet0/10
 ```
 
 #### Information Option 82
-```cisco
+```text
 # Insert option 82 (relay information)
 ip dhcp snooping information option
 
@@ -204,7 +204,7 @@ ip dhcp snooping information option format remote-id hostname
 ```
 
 #### Verify Configuration
-```cisco
+```text
 # Show DHCP snooping status
 show ip dhcp snooping
 
@@ -236,7 +236,7 @@ AA:BB:CC:DD:EE:FF  192.168.1.11 86400      dhcp-snooping 10   Fa0/8
 ```
 
 #### Saving Binding Database
-```cisco
+```text
 # Save to file (survives reboot)
 ip dhcp snooping database flash:dhcp-snooping.db
 
@@ -251,7 +251,7 @@ ip dhcp snooping database write-delay 300
 
 DHCP Snooping binding database is used by **Dynamic ARP Inspection**.
 
-```cisco
+```text
 # Enable DHCP snooping (prerequisite)
 ip dhcp snooping
 ip dhcp snooping vlan 10
@@ -316,7 +316,7 @@ bootp.option.dhcp == 5
 ### Network Monitoring
 
 #### Snort Rules
-```snort
+```text
 # Detect DHCP starvation
 alert udp any 68 -> any 67 (msg:"DHCP Starvation Attack"; \
   threshold:type threshold, track by_src, count 50, seconds 60; \
@@ -329,7 +329,7 @@ alert udp any 67 -> any 68 (msg:"Rogue DHCP Server Detected"; \
 ```
 
 #### Logging
-```cisco
+```text
 # Enable logging for DHCP snooping
 logging buffered informational
 logging trap notifications
@@ -347,7 +347,7 @@ show logging | include DHCP
 
 Prevents IP spoofing by validating source IP against DHCP binding.
 
-```cisco
+```text
 # Enable IP Source Guard on interface
 interface FastEthernet0/5
   ip verify source
@@ -364,7 +364,7 @@ show ip verify source
 
 Manually configure bindings for critical devices.
 
-```cisco
+```text
 # Add static binding
 ip dhcp snooping binding 0011.2233.4455 vlan 10 192.168.1.50 interface FastEthernet0/10 expiry 86400
 
@@ -376,7 +376,7 @@ show ip dhcp snooping binding
 
 Allow only known MAC addresses to obtain DHCP.
 
-```cisco
+```text
 # Configure DHCP server with MAC filtering
 ip dhcp pool RESTRICTED
   host 192.168.1.100 hardware-address 0011.2233.4455
@@ -395,13 +395,13 @@ ip dhcp pool RESTRICTED
 ### After DHCP Starvation
 
 1. **Identify attack source**
-   ```cisco
+   ```text
    show ip dhcp snooping binding
    show ip dhcp snooping statistics
    ```
 
 2. **Clear bogus bindings**
-   ```cisco
+   ```text
    clear ip dhcp snooping binding
    # Or specific entry
    clear ip dhcp snooping binding vlan 10 0011.2233.4455
@@ -413,7 +413,7 @@ ip dhcp pool RESTRICTED
    ```
 
 4. **Enable rate limiting**
-   ```cisco
+   ```text
    interface range FastEthernet0/1-24
      ip dhcp snooping limit rate 10
    ```
@@ -421,13 +421,13 @@ ip dhcp pool RESTRICTED
 ### After Rogue DHCP Detection
 
 1. **Locate rogue server**
-   ```cisco
+   ```text
    show ip dhcp snooping binding
    # Identify untrusted port with server responses
    ```
 
 2. **Shutdown malicious port**
-   ```cisco
+   ```text
    interface FastEthernet0/12
      shutdown
    ```
@@ -444,7 +444,7 @@ ip dhcp pool RESTRICTED
    ```
 
 4. **Verify legitimate DHCP functioning**
-   ```cisco
+   ```text
    show ip dhcp binding
    show ip dhcp snooping binding
    ```
@@ -485,7 +485,7 @@ show logging | include DHCP
 ## Advanced Configuration
 
 ### Option 82 Circuit ID
-```cisco
+```text
 # Configure option 82 with custom format
 ip dhcp snooping information option format remote-id string MySwitch01
 
@@ -495,7 +495,7 @@ interface FastEthernet0/5
 ```
 
 ### DHCP Relay with Snooping
-```cisco
+```text
 # Configure DHCP relay
 interface Vlan10
   ip helper-address 192.168.100.10

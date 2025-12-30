@@ -456,7 +456,7 @@ done
 
 #### Snort Rules
 
-```snort
+```text
 # Detect ARP spoofing
 alert arp any any -> any any (msg:"ARP Spoofing Detected"; \
   arp_opcode:2; \
@@ -485,7 +485,7 @@ alert arp any any -> any any (msg:"Possible ARP Spoofing"; \
 
 DAI validates ARP packets against DHCP snooping binding database.
 
-```cisco
+```text
 # Prerequisites: DHCP snooping enabled
 ip dhcp snooping
 ip dhcp snooping vlan 10
@@ -531,7 +531,7 @@ echo "192.168.1.1 00:11:22:33:44:55" | sudo tee -a /etc/ethers
 
 ### Port Security
 
-```cisco
+```text
 interface FastEthernet0/5
   switchport port-security
   switchport port-security maximum 1
@@ -543,7 +543,7 @@ interface FastEthernet0/5
 
 Isolate hosts to prevent lateral attacks.
 
-```cisco
+```text
 vlan 100
   private-vlan primary
 vlan 101
@@ -588,13 +588,13 @@ Use encrypted protocols to minimize impact:
    ```
 
 3. **Locate attacker**
-   ```cisco
+   ```text
    show ip arp inspection
    show mac address-table | include <attacker-mac>
    ```
 
 4. **Shutdown malicious port**
-   ```cisco
+   ```text
    interface FastEthernet0/12
      shutdown
    ```

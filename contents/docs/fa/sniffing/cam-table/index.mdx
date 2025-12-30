@@ -196,7 +196,7 @@ sudo ettercap -T -M mac:// -i eth0
 ### تکنیک‌های نظارت
 
 #### بررسی جدول CAM سوئیچ
-```cisco
+```text
 # سوئیچ‌های Cisco
 show mac address-table count
 show mac address-table
@@ -209,7 +209,7 @@ show mac address-table aging-time
 ```
 
 #### نظارت بر نرخ یادگیری MAC
-```cisco
+```text
 # فعال کردن ثبت لاگ
 logging buffered informational
 
@@ -229,7 +229,7 @@ snmpget -v2c -c public <switch-ip> dot1dTpFdbAddress
 ### تشخیص IDS/IPS
 
 #### قوانین Snort
-```snort
+```text
 # تشخیص سیل MAC
 alert eth any any -> any any (msg:"MAC Flood Detected"; \
   threshold:type threshold, track by_src, count 100, seconds 10; \
@@ -257,7 +257,7 @@ alert ethernet any any -> any any (msg:"MAC Address Flood"; \
 امنیت پورت دفاع اصلی در برابر سیل MAC است.
 
 #### پیکربندی Cisco
-```cisco
+```text
 # رابط دسترسی
 interface FastEthernet0/1
  switchport mode access
@@ -288,7 +288,7 @@ interface FastEthernet0/1
 - نیاز به مداخله دستی
 - بهترین برای محیط‌های امن
 
-```cisco
+```text
 # فعال مجدد بعد از نقض
 interface FastEthernet0/1
  shutdown
@@ -309,7 +309,7 @@ interface FastEthernet0/1
 - زمانی استفاده کنید که سربار ثبت لاگ نگران‌کننده است
 
 #### تایید پیکربندی
-```cisco
+```text
 # نمایش وضعیت امنیت پورت
 show port-security
 
@@ -327,7 +327,7 @@ show port-security address
 
 در حالی که عمدتاً برای ARP است، DAI به اعتبارسنجی ترافیک کمک می‌کند.
 
-```cisco
+```text
 # فعال کردن DHCP snooping (پیش‌نیاز)
 ip dhcp snooping
 ip dhcp snooping vlan 10
@@ -348,7 +348,7 @@ interface FastEthernet0/2
 
 محدود کردن ترافیک پخش، multicast و یونی‌کست ناشناخته.
 
-```cisco
+```text
 interface FastEthernet0/1
  # محدود کردن پخش به 10% پهنای باند
  storm-control broadcast level 10.00
@@ -369,7 +369,7 @@ interface FastEthernet0/1
 
 تنظیم زمان پیرشدگی برای جلوگیری از خستگی CAM.
 
-```cisco
+```text
 # تنظیم زمان پیرشدگی (پیش‌فرض: 300 ثانیه)
 mac address-table aging-time 600
 
@@ -383,7 +383,7 @@ no mac address-table aging-time
 ### بخش‌بندی شبکه
 
 #### VLANها
-```cisco
+```text
 # ایجاد VLANها
 vlan 10
  name Engineering
@@ -397,7 +397,7 @@ interface range FastEthernet0/1-10
 ```
 
 #### VLANهای خصوصی
-```cisco
+```text
 # ایجاد VLAN خصوصی
 vlan 100
  private-vlan primary
@@ -417,7 +417,7 @@ interface FastEthernet0/1
 ### نظارت و هشدارها
 
 #### پیکربندی Syslog
-```cisco
+```text
 # فعال کردن ثبت لاگ
 logging on
 logging buffered informational
@@ -430,7 +430,7 @@ logging trap notifications
 ```
 
 #### تله‌های SNMP
-```cisco
+```text
 # فعال کردن SNMP
 snmp-server community public RO
 snmp-server host 192.168.1.100 version 2c public
@@ -447,24 +447,24 @@ snmp-server enable traps mac-notification
 ### اقدامات فوری
 
 1. **شناسایی سوئیچ آسیب‌دیده**
-   ```cisco
+   ```text
    show mac address-table count
    show port-security
    ```
 
 2. **پاک کردن جدول CAM**
-   ```cisco
+   ```text
    clear mac address-table dynamic
    ```
 
 3. **خاموش کردن پورت مخرب**
-   ```cisco
+   ```text
    interface FastEthernet0/5
     shutdown
    ```
 
 4. **فعال مجدد امنیت پورت**
-   ```cisco
+   ```text
    interface FastEthernet0/5
     no shutdown
    ```

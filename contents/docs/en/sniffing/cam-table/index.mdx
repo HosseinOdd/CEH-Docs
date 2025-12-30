@@ -196,7 +196,7 @@ sudo ettercap -T -M mac:// -i eth0
 ### Monitoring Techniques
 
 #### Check Switch CAM Table
-```cisco
+```text
 # Cisco switches
 show mac address-table count
 show mac address-table
@@ -209,7 +209,7 @@ show mac address-table aging-time
 ```
 
 #### Monitor MAC Learning Rate
-```cisco
+```text
 # Enable logging
 logging buffered informational
 
@@ -229,7 +229,7 @@ snmpget -v2c -c public <switch-ip> dot1dTpFdbAddress
 ### IDS/IPS Detection
 
 #### Snort Rules
-```snort
+```text
 # Detect MAC flooding
 alert eth any any -> any any (msg:"MAC Flood Detected"; \
   threshold:type threshold, track by_src, count 100, seconds 10; \
@@ -257,7 +257,7 @@ alert ethernet any any -> any any (msg:"MAC Address Flood"; \
 Port security is the primary defense against MAC flooding.
 
 #### Cisco Configuration
-```cisco
+```text
 # Access interface
 interface FastEthernet0/1
  switchport mode access
@@ -288,7 +288,7 @@ interface FastEthernet0/1
 - Requires manual intervention
 - Best for secure environments
 
-```cisco
+```text
 # Re-enable after violation
 interface FastEthernet0/1
  shutdown
@@ -309,7 +309,7 @@ interface FastEthernet0/1
 - Use when logging overhead is concern
 
 #### Verify Configuration
-```cisco
+```text
 # Show port security status
 show port-security
 
@@ -327,7 +327,7 @@ show port-security address
 
 While primarily for ARP, DAI helps validate traffic.
 
-```cisco
+```text
 # Enable DHCP snooping (prerequisite)
 ip dhcp snooping
 ip dhcp snooping vlan 10
@@ -348,7 +348,7 @@ interface FastEthernet0/2
 
 Limit broadcast, multicast, and unknown unicast traffic.
 
-```cisco
+```text
 interface FastEthernet0/1
  # Limit broadcast to 10% of bandwidth
  storm-control broadcast level 10.00
@@ -369,7 +369,7 @@ interface FastEthernet0/1
 
 Adjust aging time to prevent CAM exhaustion.
 
-```cisco
+```text
 # Set aging time (default: 300 seconds)
 mac address-table aging-time 600
 
@@ -383,7 +383,7 @@ no mac address-table aging-time
 ### Network Segmentation
 
 #### VLANs
-```cisco
+```text
 # Create VLANs
 vlan 10
  name Engineering
@@ -397,7 +397,7 @@ interface range FastEthernet0/1-10
 ```
 
 #### Private VLANs
-```cisco
+```text
 # Create private VLAN
 vlan 100
  private-vlan primary
@@ -417,7 +417,7 @@ interface FastEthernet0/1
 ### Monitoring and Alerts
 
 #### Syslog Configuration
-```cisco
+```text
 # Enable logging
 logging on
 logging buffered informational
@@ -430,7 +430,7 @@ logging trap notifications
 ```
 
 #### SNMP Traps
-```cisco
+```text
 # Enable SNMP
 snmp-server community public RO
 snmp-server host 192.168.1.100 version 2c public
@@ -447,24 +447,24 @@ snmp-server enable traps mac-notification
 ### Immediate Actions
 
 1. **Identify affected switch**
-   ```cisco
+   ```text
    show mac address-table count
    show port-security
    ```
 
 2. **Clear CAM table**
-   ```cisco
+   ```text
    clear mac address-table dynamic
    ```
 
 3. **Shutdown malicious port**
-   ```cisco
+   ```text
    interface FastEthernet0/5
     shutdown
    ```
 
 4. **Re-enable port security**
-   ```cisco
+   ```text
    interface FastEthernet0/5
     no shutdown
    ```
