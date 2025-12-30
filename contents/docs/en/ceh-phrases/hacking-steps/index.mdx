@@ -1,0 +1,76 @@
+---
+title: Hacking Steps
+description: The standard phases of hacking methodology in ethical hacking and cybersecurity
+---
+
+## Overview
+
+In Ethical Hacking and the CEH framework, hacking is a structured and methodical process used to identify and exploit security weaknesses — always with proper authorization. Understanding these steps helps security professionals analyze attacker behavior and improve defensive strategies.
+
+## Hacking Methodology
+
+### 1. Reconnaissance (Footprinting)
+The initial phase where information about the target is gathered before any direct attack occurs.
+
+This phase may include:
+- Collecting IP addresses and domain information
+- Identifying network ranges
+- Gathering organizational and employee details
+
+Reconnaissance can be:
+- **Passive**: No direct interaction with the target
+- **Active**: Direct interaction with target systems
+
+---
+
+### 2. Scanning
+In this phase, the attacker actively scans the target to identify technical details and vulnerabilities.
+
+Scanning activities include:
+- Port scanning
+- Service and version detection
+- Operating system fingerprinting
+- Vulnerability scanning
+
+Common tools: Nmap, Nessus, OpenVAS
+
+---
+
+### 3. Gaining Access
+This phase involves exploiting identified vulnerabilities to gain access to the target system.
+
+Common techniques include:
+- Exploiting software vulnerabilities
+- Password attacks
+- Abuse of misconfigurations
+- Weak authentication exploitation
+
+This step represents the actual system compromise.
+
+---
+
+### 4. Maintaining Access
+After gaining access, the attacker attempts to maintain persistence within the system.
+
+Common methods:
+- Installing backdoors
+- Creating hidden user accounts
+- Using trojans or rootkits
+
+This phase highlights the importance of monitoring and intrusion detection.
+
+---
+
+### 5. Covering Tracks (Clearing Tracks)
+The final phase focuses on hiding evidence of the attack to avoid detection and forensic investigation.
+
+Actions may include:
+- Deleting or modifying log files
+- Disabling security alerts
+- Obfuscating malicious activities
+
+---
+
+## Importance in CEH
+
+These five steps represent the classic hacking lifecycle taught in CEH and are essential for understanding how attacks are planned, executed, and concealed.
