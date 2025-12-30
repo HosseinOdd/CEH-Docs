@@ -107,6 +107,17 @@ export const ROUTES: EachRoute[] = [
       { title: "arp_attacks", href: "/arp-attacks" },
     ],
   },
+    {
+    title: "social__engineering",
+    href: "/social-engineering",
+    noLink: true,
+    items: [
+      { title: "social_engineering_introduction", href: "/social-engineering-introduction" },
+      { title: "social_engineering_phases", href: "/social-engineering-phases" },
+      { title: "social_engineering_attack", href: "/social-engineering-attack" },
+      { title: "social_engineering_prevention", href: "/social-engineering-prevention" },
+    ],
+  },
 ];
 
 type Page = { title: string; href: string };
