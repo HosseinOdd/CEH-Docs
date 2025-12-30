@@ -1,0 +1,311 @@
+---
+title: Hping3
+description: Advanced packet crafting and network testing tool for security professionals
+---
+
+## What is Hping3?
+
+Hping3 is a command-line oriented TCP/IP packet assembler/analyzer. It's one of the most powerful tools for network security testing, allowing users to craft custom packets and analyze responses.
+
+## Key Features
+
+- Custom packet crafting
+- TCP/IP stack auditing
+- Firewall testing
+- Port scanning
+- Network testing
+- Traceroute with different protocols
+- Remote OS fingerprinting
+- DoS testing
+
+## Installation
+
+### Linux (Debian/Ubuntu)
+```bash
+sudo apt-get install hping3
+```
+
+### Linux (Red Hat/CentOS)
+```bash
+sudo yum install hping3
+```
+
+### macOS
+```bash
+brew install hping
+```
+
+## Basic Syntax
+
+```bash
+hping3 [options] target
+```
+
+## Common Options
+
+### Basic Options
+- `-c COUNT`: Number of packets to send
+- `-i INTERVAL`: Wait interval between packets (u for microseconds)
+- `-V`: Verbose mode
+- `--fast`: Send 10 packets per second
+- `--faster`: Send 100 packets per second
+- `--flood`: Send packets as fast as possible
+
+### Protocol Options
+- `-0`: RAW IP mode
+- `-1`: ICMP mode
+- `-2`: UDP mode
+- `-8`: SCAN mode
+- `-9`: Listen mode
+
+### Port Options
+- `-p PORT`: Destination port
+- `--baseport PORT`: Base source port
+- `--destport PORT`: Destination port
+- `--keep`: Keep source port
+
+### TCP Flags
+- `-S`: SYN flag
+- `-A`: ACK flag
+- `-F`: FIN flag
+- `-P`: PSH flag
+- `-U`: URG flag
+- `-R`: RST flag
+
+## Common Use Cases
+
+### 1. Basic ICMP Ping
+```bash
+hping3 -1 target.com
+```
+
+### 2. SYN Scan on Specific Port
+```bash
+hping3 -S -p 80 target.com
+```
+
+### 3. Scan Multiple Ports
+```bash
+hping3 -S -p ++1 target.com
+# Increments port for each packet
+```
+
+### 4. Port Range Scan
+```bash
+hping3 -8 1-1000 -S target.com
+```
+
+### 5. UDP Packet
+```bash
+hping3 -2 -p 53 target.com
+```
+
+### 6. Flood Attack (Testing)
+```bash
+hping3 --flood -S -p 80 target.com
+```
+
+### 7. Traceroute with TCP
+```bash
+hping3 -T -p 80 target.com
+```
+
+### 8. Firewall Testing
+```bash
+hping3 -S -p 80 -c 3 target.com
+```
+
+## Advanced Techniques
+
+### TCP SYN Flood
+```bash
+hping3 -S --flood -V -p 80 target.com
+```
+
+### Spoof Source IP
+```bash
+hping3 -a spoofed_ip -S -p 80 target.com
+```
+
+### Fragment Packets
+```bash
+hping3 -f -p 80 target.com
+```
+
+### Custom TTL
+```bash
+hping3 -t 64 -S -p 80 target.com
+```
+
+### Random Source Port
+```bash
+hping3 -S -p 80 --rand-source target.com
+```
+
+### TCP Timestamp
+```bash
+hping3 -S -p 80 --tcp-timestamp target.com
+```
+
+## OS Fingerprinting
+
+```bash
+# Send packets with different TCP options
+hping3 -S -p 80 -c 1 target.com
+
+# Analyze TTL and window size from response
+hping3 -S -p 80 -c 1 -V target.com
+```
+
+## Firewall Evasion
+
+### Using Different Protocols
+```bash
+# Try ICMP
+hping3 -1 target.com
+
+# Try UDP
+hping3 -2 -p 53 target.com
+
+# Try TCP on common ports
+hping3 -S -p 80 target.com
+```
+
+### Fragmentation
+```bash
+hping3 -f -S -p 80 target.com
+```
+
+### Slow Scanning
+```bash
+hping3 -S -p 80 -i u100000 target.com
+# Sends packet every 0.1 seconds
+```
+
+## Network Testing
+
+### Bandwidth Test
+```bash
+hping3 --flood -p 80 target.com
+```
+
+### Latency Test
+```bash
+hping3 -1 -c 10 target.com
+```
+
+### MTU Discovery
+```bash
+hping3 -1 -d 1500 -N 1500 target.com
+```
+
+## Interpreting Results
+
+### Response Types
+
+**ICMP Responses:**
+- `ICMP Port Unreachable`: Port is closed
+- `No response`: Port might be filtered
+- `Response received`: Host is alive
+
+**TCP Responses:**
+- `flags=SA`: Port is open (SYN-ACK)
+- `flags=RA`: Port is closed (RST-ACK)
+- `No response`: Port is filtered
+
+### TTL Analysis
+Common default TTL values:
+- **64**: Linux/Unix
+- **128**: Windows
+- **255**: Cisco/Network devices
+
+## Practical Examples
+
+### 1. Check if Host is Alive
+```bash
+hping3 -1 -c 3 192.168.1.1
+```
+
+### 2. Test Specific Port
+```bash
+hping3 -S -p 443 -c 5 example.com
+```
+
+### 3. Bypass Firewall
+```bash
+# Use source port 53 (DNS)
+hping3 -S -p 80 -s 53 target.com
+```
+
+### 4. Detect Load Balancer
+```bash
+hping3 -S -p 80 -c 10 target.com
+# Check if responses come from different IPs
+```
+
+### 5. Idle Scan
+```bash
+# Find zombie host
+hping3 -S -r -p 445 zombie_host
+
+# Perform scan
+hping3 -a zombie_host -S -p 80 target.com
+```
+
+## Hping3 Scripting
+
+Hping3 supports Tcl scripting for automation:
+
+```tcl
+# Example script
+set target "192.168.1.1"
+set port 80
+
+hping send {ip(daddr=$target)+tcp(dport=$port,flags=s)}
+```
+
+## Detection and Prevention
+
+### IDS/IPS Signatures
+Hping3 scanning can be detected by:
+- High packet rate from single source
+- Sequential port scanning patterns
+- Unusual TCP flag combinations
+- Fragmented packets
+
+### Defense Measures
+- Rate limiting
+- Connection tracking
+- Anomaly detection
+- Packet inspection
+
+## Use Cases in Penetration Testing
+
+1. **Firewall Rule Testing**: Verify firewall configurations
+2. **IDS Testing**: Test intrusion detection systems
+3. **Network Mapping**: Discover network topology
+4. **Service Discovery**: Identify running services
+5. **DoS Testing**: Test resilience against floods
+
+## Best Practices
+
+- Always obtain authorization before testing
+- Use appropriate timing to avoid network disruption
+- Document all testing activities
+- Be aware of legal implications
+- Test in isolated environments when possible
+
+## Limitations
+
+- Requires root/admin privileges
+- Can be noisy and easily detected
+- May violate network policies
+- Results can be affected by firewalls
+- Limited to TCP/IP protocols
+
+## Alternatives
+
+- **Nmap**: More features, easier to use
+- **Scapy**: More flexible packet manipulation
+- **Netcat**: Simpler for basic tasks
+- **Masscan**: Faster for large-scale scanning
