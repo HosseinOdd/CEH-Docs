@@ -52,7 +52,8 @@
         "owaspbwa": "Installing OWASP BWA",
         "ceh_phrases": "CEH Phrases",
         "ethical_hacking_phrases": "Ethical Hacking Phrases",
-        "attack_phrases": "Attack Phrases"
+        "attack_phrases": "Attack Phrases",
+        "hacking_fundamentals": "Hacking Fundamentals"
     },
     "blog": {
         "title": "Latest CEH Articles and Updates",

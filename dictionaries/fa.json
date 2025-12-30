@@ -52,7 +52,8 @@
         "owaspbwa": "نصب OWASP BWA",
         "ceh_phrases": "اصطلاحات CEH",
         "ethical_hacking_phrases": "اصطلاحات هک اخلاقی",
-        "attack_phrases": "اصطلاحات حمله"
+        "attack_phrases": "اصطلاحات حمله",
+        "hacking_fundamentals": "مبانی هک"
     },
     "blog": {
         "title": "آخرین مقالات و به‌روزرسانی‌های CEH",
