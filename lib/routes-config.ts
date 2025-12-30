@@ -62,6 +62,14 @@ export const ROUTES: EachRoute[] = [
       { title: "proxies", href: "/proxies" },
     ],
   },
+    {
+    title: "enumeration",
+    href: "/enumeration",
+    noLink: true,
+    items: [
+      { title: "enumeration_introduction", href: "/enumeration-introduction" },
+    ],
+  },
   {
     title: "malware",
     href: "/malware",

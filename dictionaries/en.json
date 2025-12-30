@@ -89,7 +89,9 @@
         "tcpdump_wireshark": "Tcpdump & Wireshark",
         "cam_table": "CAM Table Attacks",
         "dhcp_snooping": "DHCP Snooping",
-        "arp_attacks": "ARP Attacks"
+        "arp_attacks": "ARP Attacks",
+        "enumeration": "Enumeration",
+        "enumeration_introduction": "Enumeration Introduction"
     },
     "blog": {
         "title": "Latest CEH Articles and Updates",

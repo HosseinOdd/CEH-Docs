@@ -89,7 +89,9 @@
         "tcpdump_wireshark": "Tcpdump و Wireshark",
         "cam_table": "حملات CAM Table",
         "dhcp_snooping": "DHCP Snooping",
-        "arp_attacks": "حملات ARP"
+        "arp_attacks": "حملات ARP",
+        "enumeration": "سرشماری",
+        "enumeration_introduction": "مقدمه سرشماری"
     },
     "blog": {
         "title": "آخرین مقالات و به‌روزرسانی‌های CEH",
