@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && touch out/.nojekyll",
     "start": "next start",
     "lint": "next lint",
-    "export": "next build"
+    "export": "next build && touch out/.nojekyll"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.0",

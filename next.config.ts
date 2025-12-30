@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  // output: 'export', // Disabled for local development
+  output: 'export',
   basePath: process.env.NODE_ENV === 'production' ? '/CEH-Docs' : '',
   images: {
     unoptimized: true,
