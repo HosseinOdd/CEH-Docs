@@ -26,6 +26,7 @@ export const ROUTES: EachRoute[] = [
     noLink: true,
     items: [
       { title: "ethical_hacking_phrases", href: "/ethical-hacking-phrases" },
+      { title: "infosec_phrases", href: "/infosec-phrases" },
       { title: "attack_phrases", href: "/attack-phrases" },
       { title: "hacking_fundamentals", href: "/hacking-fundamentals" },
     ],
