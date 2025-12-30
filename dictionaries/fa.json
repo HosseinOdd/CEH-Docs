@@ -51,7 +51,8 @@
         "metasploitable": "نصب Metasploitable",
         "owaspbwa": "نصب OWASP BWA",
         "ceh_phrases": "اصطلاحات CEH",
-        "ethical_hacking_phrases": "اصطلاحات هک اخلاقی"
+        "ethical_hacking_phrases": "اصطلاحات هک اخلاقی",
+        "attack_phrases": "اصطلاحات حمله"
     },
     "blog": {
         "title": "آخرین مقالات و به‌روزرسانی‌های CEH",

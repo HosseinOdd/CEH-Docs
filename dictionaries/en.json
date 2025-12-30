@@ -51,7 +51,8 @@
         "metasploitable": "Installing Metasploitable",
         "owaspbwa": "Installing OWASP BWA",
         "ceh_phrases": "CEH Phrases",
-        "ethical_hacking_phrases": "Ethical Hacking Phrases"
+        "ethical_hacking_phrases": "Ethical Hacking Phrases",
+        "attack_phrases": "Attack Phrases"
     },
     "blog": {
         "title": "Latest CEH Articles and Updates",
