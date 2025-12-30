@@ -101,10 +101,7 @@
         "NTP_enumeration": "NTP",
         "SMTP_enumeration": "SMTP",
         "social__engineering": "مهندسی اجتماعی",
-        "social_engineering_introduction": "مقدمه مهندسی اجتماعی",
-        "social_engineering_phases": "فازهای مهندسی اجتماعی",
-        "social_engineering_attack": "حمله",
-        "social_engineering_prevention": "جلوگیری"
+        "social_engineering_introduction": "مقدمه مهندسی اجتماعی"
 
 
     },
