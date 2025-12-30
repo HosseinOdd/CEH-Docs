@@ -108,7 +108,8 @@
         "dos": "DoS",
         "dos_introduction": "DoS Introduction",
         "dos_layers": "Layers",
-        "dos_hping3": "hping3"
+        "dos_hping3": "hping3",
+        "dos_prevention": "DoS Prevention"
 
     },
     "blog": {

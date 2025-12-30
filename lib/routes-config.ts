@@ -128,6 +128,7 @@ export const ROUTES: EachRoute[] = [
       { title: "dos_introduction", href: "/dos-introduction" },
       { title: "dos_layers", href: "/dos-layers" },
       { title: "dos_hping3", href: "/dos-hping3" },
+      { title: "dos_prevention", href: "/dos-prevention" }
 
     ],
   },

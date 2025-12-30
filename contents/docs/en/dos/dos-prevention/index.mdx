@@ -1,0 +1,26 @@
+---
+title: DoS Prevention
+description: Strategies and techniques to prevent Denial of Service attacks
+---
+
+## Introduction
+
+Preventing Denial of Service (DoS) attacks is a critical aspect of cybersecurity. DoS attacks aim to make a system or service unavailable to legitimate users, potentially causing financial, operational, and reputational damage. Prevention involves a combination of network-level, application-level, and organizational strategies.
+
+## Key Prevention Techniques
+
+| Technique | Description |
+|-----------|------------|
+| Firewalls & Rate Limiting | Block excessive traffic or suspicious sources |
+| Intrusion Detection/Prevention Systems | Detect and respond to abnormal traffic patterns |
+| Traffic Filtering & Blackholing | Filter unwanted traffic before it reaches the target |
+| Redundancy & Load Balancing | Distribute traffic across multiple servers to avoid overload |
+| Network Monitoring | Continuous analysis to detect early signs of DoS |
+| Secure Application Design | Optimize web services to handle high traffic efficiently |
+| User & Staff Training | Awareness of DoS symptoms and reporting unusual network behavior |
+
+## Example: Rate Limiting
+
+```text
+# Limit the number of connections per IP to 100 per minute
+iptables -A INPUT -p tcp --dport 80 -m connlimit --connlimit-above 100 -j DROP

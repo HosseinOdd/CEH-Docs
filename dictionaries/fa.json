@@ -108,7 +108,8 @@
         "dos": "DoS",
         "dos_introduction": "مقدمه DoS",
         "dos_layers": "لایه‌ها",
-        "dos_hping3": "ابزار hping3"
+        "dos_hping3": "ابزار hping3",
+        "dos_prevention": "جلوگیری از حملات DoS"
         
 
     },
