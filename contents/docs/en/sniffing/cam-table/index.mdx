@@ -1,0 +1,551 @@
+---
+title: CAM Table Attacks
+description: Content Addressable Memory table overflow and MAC flooding attacks
+---
+
+## What is CAM Table?
+
+The **CAM (Content Addressable Memory)** table is a memory structure used by Ethernet switches to store MAC address to port mappings. It allows switches to forward frames efficiently by looking up the destination MAC address.
+
+### How CAM Works
+
+1. **Frame arrives** on a switch port
+2. **Source MAC learned** and stored with port number
+3. **Destination MAC lookup** in CAM table
+4. **Frame forwarded** to specific port
+5. If MAC not found → **broadcast to all ports**
+
+### CAM Table Structure
+
+```
+MAC Address        | Port | VLAN | Age
+-------------------|------|------|-----
+00:11:22:33:44:55 | 1    | 10   | 120
+AA:BB:CC:DD:EE:FF | 5    | 10   | 45
+11:22:33:44:55:66 | 12   | 20   | 300
+```
+
+## CAM Table Overflow Attack
+
+### Attack Concept
+
+The attacker floods the switch with thousands of fake MAC addresses, filling up the CAM table. Once full, the switch cannot learn new legitimate MAC addresses and fails open, acting like a hub—broadcasting all traffic to all ports.
+
+### Why This Works
+
+- **Limited CAM size**: Switches have finite memory (4K-128K entries)
+- **Fail-open behavior**: When table full, switch broadcasts
+- **No authentication**: Anyone can send Ethernet frames
+- **Fast aging**: Some entries may expire, but attacker keeps flooding
+
+### Attack Phases
+
+#### Phase 1: CAM Table Fill
+```
+Attacker floods switch with fake source MACs
+→ Switch learns all fake MACs
+→ CAM table becomes full
+```
+
+#### Phase 2: Switch Behavior Change
+```
+Legitimate device sends frame
+→ Switch can't learn new MAC (table full)
+→ Switch broadcasts frame to all ports
+→ Switch operates like a hub
+```
+
+#### Phase 3: Traffic Sniffing
+```
+All traffic is broadcast
+→ Attacker receives all frames
+→ Passive sniffing now possible
+```
+
+## Tools for CAM Table Attacks
+
+### macof
+
+**macof** is a tool from the dsniff suite that floods a switch with random MAC addresses.
+
+#### Installation
+```bash
+# Debian/Ubuntu
+sudo apt install dsniff
+
+# Red Hat/CentOS
+sudo yum install dsniff
+
+# macOS (Homebrew)
+brew install dsniff
+```
+
+#### Basic Usage
+```bash
+# Flood interface eth0
+sudo macof -i eth0
+
+# Specify source IP
+sudo macof -i eth0 -s 10.0.0.1
+
+# Specify destination IP
+sudo macof -i eth0 -d 10.0.0.2
+
+# Both source and destination
+sudo macof -i eth0 -s 192.168.1.100 -d 192.168.1.1
+
+# Control packet rate
+sudo macof -i eth0 -n 1000  # Send 1000 packets
+```
+
+#### Advanced Options
+```bash
+# Custom MAC prefix
+sudo macof -i eth0 -y AA:BB:CC
+
+# Specific network
+sudo macof -i eth0 -s 192.168.1.0/24
+
+# Continuous flood (default)
+sudo macof -i eth0
+# Press Ctrl+C to stop
+```
+
+#### What macof Does
+```
+1. Generates random MAC addresses
+2. Creates Ethernet frames with fake source MACs
+3. Sends frames at high speed (thousands per second)
+4. Continues until stopped or limit reached
+```
+
+### Yersinia
+
+**Yersinia** is a more advanced layer 2 attack framework with GUI support.
+
+#### Installation
+```bash
+# Debian/Ubuntu
+sudo apt install yersinia
+
+# Build from source
+git clone https://github.com/tomac/yersinia.git
+cd yersinia
+./autogen.sh
+./configure
+make
+sudo make install
+```
+
+#### CLI Usage
+```bash
+# Interactive mode
+sudo yersinia -I
+
+# Attack mode
+sudo yersinia -G  # GUI mode
+
+# Specific attack
+sudo yersinia -attack 2  # MAC flooding attack
+```
+
+#### GUI Mode
+```bash
+sudo yersinia -G
+
+# Then select:
+# 1. Protocol: STP, CDP, DTP, DHCP, etc.
+# 2. Attack type
+# 3. Launch attack
+```
+
+### Ettercap
+
+Ettercap can also perform MAC flooding as part of MITM attacks.
+
+```bash
+# Install
+sudo apt install ettercap-graphical
+
+# Launch GUI
+sudo ettercap -G
+
+# CLI MAC flood
+sudo ettercap -T -M mac:// -i eth0
+```
+
+## Detecting CAM Table Overflow
+
+### Symptoms
+
+1. **Network performance degradation**
+   - Slow connectivity
+   - Timeouts and packet loss
+   - Broadcast storms
+
+2. **Switch behavior changes**
+   - Switch acts like a hub
+   - All traffic visible to all ports
+   - Unicast flooding
+
+3. **Log entries**
+   - "MAC address table full"
+   - Excessive MAC learning
+   - Rapid MAC flapping
+
+### Monitoring Techniques
+
+#### Check Switch CAM Table
+```cisco
+# Cisco switches
+show mac address-table count
+show mac address-table
+
+# Show dynamic entries
+show mac address-table dynamic
+
+# Show aging time
+show mac address-table aging-time
+```
+
+#### Monitor MAC Learning Rate
+```cisco
+# Enable logging
+logging buffered informational
+
+# Check for rapid MAC changes
+show logging | include MAC
+```
+
+#### SNMP Monitoring
+```bash
+# Query CAM table size via SNMP
+snmpwalk -v2c -c public <switch-ip> dot1dTpFdbTable
+
+# Monitor table utilization
+snmpget -v2c -c public <switch-ip> dot1dTpFdbAddress
+```
+
+### IDS/IPS Detection
+
+#### Snort Rules
+```snort
+# Detect MAC flooding
+alert eth any any -> any any (msg:"MAC Flood Detected"; \
+  threshold:type threshold, track by_src, count 100, seconds 10; \
+  classtype:attempted-dos; sid:1000001;)
+
+# Detect macof tool signature
+alert ip any any -> any any (msg:"Possible macof attack"; \
+  content:"|00 00 00 00 00 00|"; offset:0; depth:6; \
+  threshold:type threshold, track by_src, count 50, seconds 5; \
+  sid:1000002;)
+```
+
+#### Suricata Rules
+```yaml
+alert ethernet any any -> any any (msg:"MAC Address Flood"; \
+  flow:stateless; \
+  detection_filter:track by_src, count 100, seconds 10; \
+  classtype:network-scan; sid:2000001;)
+```
+
+## Prevention and Mitigation
+
+### Port Security
+
+Port security is the primary defense against MAC flooding.
+
+#### Cisco Configuration
+```cisco
+# Access interface
+interface FastEthernet0/1
+ switchport mode access
+ switchport port-security
+ 
+ # Maximum MAC addresses (default: 1)
+ switchport port-security maximum 2
+ 
+ # Violation actions
+ switchport port-security violation shutdown  # Default
+ # OR
+ switchport port-security violation restrict   # Drop packets, log
+ # OR
+ switchport port-security violation protect    # Drop packets silently
+ 
+ # Static MAC (optional)
+ switchport port-security mac-address 0011.2233.4455
+ 
+ # Sticky MAC learning
+ switchport port-security mac-address sticky
+```
+
+#### Violation Actions Explained
+
+**Shutdown** (default)
+- Port enters error-disabled state
+- Stops all traffic
+- Requires manual intervention
+- Best for secure environments
+
+```cisco
+# Re-enable after violation
+interface FastEthernet0/1
+ shutdown
+ no shutdown
+```
+
+**Restrict**
+- Drops violating packets
+- Increments violation counter
+- Sends SNMP trap and syslog message
+- Port remains up
+- Good for monitoring
+
+**Protect**
+- Drops violating packets
+- No logging or notification
+- Port remains up
+- Use when logging overhead is concern
+
+#### Verify Configuration
+```cisco
+# Show port security status
+show port-security
+
+# Specific interface
+show port-security interface FastEthernet0/1
+
+# Show violations
+show port-security address
+
+# Show secure MAC addresses
+show port-security address
+```
+
+### Dynamic ARP Inspection (DAI)
+
+While primarily for ARP, DAI helps validate traffic.
+
+```cisco
+# Enable DHCP snooping (prerequisite)
+ip dhcp snooping
+ip dhcp snooping vlan 10
+
+# Enable DAI
+ip arp inspection vlan 10
+
+# Trust uplink ports
+interface GigabitEthernet0/1
+ ip arp inspection trust
+
+# Rate limiting
+interface FastEthernet0/2
+ ip arp inspection limit rate 15 burst interval 1
+```
+
+### Storm Control
+
+Limit broadcast, multicast, and unknown unicast traffic.
+
+```cisco
+interface FastEthernet0/1
+ # Limit broadcast to 10% of bandwidth
+ storm-control broadcast level 10.00
+ 
+ # Limit multicast
+ storm-control multicast level 10.00
+ 
+ # Limit unknown unicast
+ storm-control unicast level 10.00
+ 
+ # Action when threshold exceeded
+ storm-control action shutdown
+ # OR
+ storm-control action trap
+```
+
+### MAC Address Aging
+
+Adjust aging time to prevent CAM exhaustion.
+
+```cisco
+# Set aging time (default: 300 seconds)
+mac address-table aging-time 600
+
+# Per-VLAN aging
+mac address-table aging-time 600 vlan 10
+
+# Disable aging (not recommended)
+no mac address-table aging-time
+```
+
+### Network Segmentation
+
+#### VLANs
+```cisco
+# Create VLANs
+vlan 10
+ name Engineering
+vlan 20
+ name Sales
+
+# Assign ports
+interface range FastEthernet0/1-10
+ switchport mode access
+ switchport access vlan 10
+```
+
+#### Private VLANs
+```cisco
+# Create private VLAN
+vlan 100
+ private-vlan primary
+vlan 101
+ private-vlan isolated
+
+# Associate
+vlan 100
+ private-vlan association 101
+
+# Interface configuration
+interface FastEthernet0/1
+ switchport mode private-vlan host
+ switchport private-vlan host-association 100 101
+```
+
+### Monitoring and Alerts
+
+#### Syslog Configuration
+```cisco
+# Enable logging
+logging on
+logging buffered informational
+
+# Send to syslog server
+logging host 192.168.1.100
+
+# Log port security violations
+logging trap notifications
+```
+
+#### SNMP Traps
+```cisco
+# Enable SNMP
+snmp-server community public RO
+snmp-server host 192.168.1.100 version 2c public
+
+# Enable port security traps
+snmp-server enable traps port-security
+
+# MAC notification
+snmp-server enable traps mac-notification
+```
+
+## Recovery from Attack
+
+### Immediate Actions
+
+1. **Identify affected switch**
+   ```cisco
+   show mac address-table count
+   show port-security
+   ```
+
+2. **Clear CAM table**
+   ```cisco
+   clear mac address-table dynamic
+   ```
+
+3. **Shutdown malicious port**
+   ```cisco
+   interface FastEthernet0/5
+    shutdown
+   ```
+
+4. **Re-enable port security**
+   ```cisco
+   interface FastEthernet0/5
+    no shutdown
+   ```
+
+### Long-term Remediation
+
+1. **Enable port security** on all access ports
+2. **Implement storm control** network-wide
+3. **Deploy IDS/IPS** with MAC flood signatures
+4. **Network segmentation** with VLANs
+5. **Regular audits** of switch configurations
+6. **Centralized logging** for rapid detection
+7. **Automated response** with SNMP traps
+
+## Testing Your Defenses
+
+### Lab Setup
+```bash
+# In a test environment
+# Terminal 1: Start packet capture
+sudo tcpdump -i eth0 -w test.pcap
+
+# Terminal 2: Monitor switch
+ssh admin@switch
+show mac address-table count
+
+# Terminal 3: Launch attack
+sudo macof -i eth0 -n 10000
+
+# Verify port security triggered
+show port-security interface FastEthernet0/1
+```
+
+### Expected Results with Port Security
+
+```
+Port Security              : Enabled
+Port Status                : Secure-shutdown
+Violation Mode             : Shutdown
+Aging Time                 : 0 mins
+SecureStatic Address Aging : Disabled
+Maximum MAC Addresses      : 1
+Total MAC Addresses        : 2
+Configured MAC Addresses   : 0
+Sticky MAC Addresses       : 0
+Last Source Address:Vlan   : AA:BB:CC:DD:EE:FF:1
+Security Violation Count   : 1
+```
+
+## Best Practices
+
+1. **Enable port security** on all access ports
+2. **Use sticky MAC learning** for user ports
+3. **Set maximum MAC addresses** to expected number (usually 1-2)
+4. **Implement violation shutdown** for critical areas
+5. **Deploy storm control** as additional layer
+6. **Monitor CAM table usage** regularly
+7. **Log and alert** on violations
+8. **Test configuration** in lab before production
+9. **Document exceptions** (phones, printers with multiple MACs)
+10. **Regular security audits** of switch configs
+
+## Attack Variants
+
+### MAC Flooding with ARP
+```bash
+# Send ARP packets with fake MACs
+sudo arpspoof -r -t 192.168.1.1 192.168.1.100
+# Combined with macof for more effective attack
+```
+
+### Selective MAC Flooding
+Target specific VLANs or switch segments to avoid detection.
+
+### Low-and-Slow MAC Flooding
+Send fake MACs at slow rate to evade detection thresholds.
+
+## Resources
+
+- Cisco Port Security Configuration Guide
+- dsniff Tool Suite Documentation
+- Yersinia Framework: https://github.com/tomac/yersinia
+- IEEE 802.1X for port-based authentication
+- Network Access Control (NAC) Solutions

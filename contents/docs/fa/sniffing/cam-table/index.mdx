@@ -1,0 +1,551 @@
+---
+title: حملات CAM Table
+description: سرریز جدول Content Addressable Memory و حملات MAC flooding
+---
+
+## CAM Table چیست؟
+
+جدول **CAM (Content Addressable Memory)** ساختار حافظه‌ای است که توسط سوئیچ‌های Ethernet برای ذخیره نگاشت آدرس MAC به پورت استفاده می‌شود. به سوئیچ‌ها اجازه می‌دهد فریم‌ها را با جستجوی آدرس MAC مقصد به طور کارآمد فوروارد کنند.
+
+### نحوه کار CAM
+
+1. **فریم وارد می‌شود** در یک پورت سوئیچ
+2. **MAC مبدأ یاد گرفته می‌شود** و با شماره پورت ذخیره می‌شود
+3. **جستجوی MAC مقصد** در جدول CAM
+4. **فریم فوروارد می‌شود** به پورت خاص
+5. اگر MAC پیدا نشد → **پخش به همه پورت‌ها**
+
+### ساختار جدول CAM
+
+```
+MAC Address        | Port | VLAN | Age
+-------------------|------|------|-----
+00:11:22:33:44:55 | 1    | 10   | 120
+AA:BB:CC:DD:EE:FF | 5    | 10   | 45
+11:22:33:44:55:66 | 12   | 20   | 300
+```
+
+## حمله سرریز جدول CAM
+
+### مفهوم حمله
+
+مهاجم سوئیچ را با هزاران آدرس MAC جعلی سیل می‌کند و جدول CAM را پر می‌کند. وقتی پر شود، سوئیچ نمی‌تواند آدرس‌های MAC قانونی جدید را یاد بگیرد و fail open می‌شود، مانند یک hub عمل می‌کند—همه ترافیک را به همه پورت‌ها پخش می‌کند.
+
+### چرا این کار می‌کند
+
+- **اندازه CAM محدود**: سوئیچ‌ها حافظه محدود دارند (4K-128K ورودی)
+- **رفتار fail-open**: وقتی جدول پر است، سوئیچ پخش می‌کند
+- **بدون احراز هویت**: هرکس می‌تواند فریم Ethernet بفرستد
+- **پیرشدگی سریع**: برخی ورودی‌ها ممکن است منقضی شوند، اما مهاجم به سیل کردن ادامه می‌دهد
+
+### مراحل حمله
+
+#### فاز 1: پرکردن جدول CAM
+```
+مهاجم سوئیچ را با MACهای مبدأ جعلی سیل می‌کند
+→ سوئیچ همه MACهای جعلی را یاد می‌گیرد
+→ جدول CAM پر می‌شود
+```
+
+#### فاز 2: تغییر رفتار سوئیچ
+```
+دستگاه قانونی فریم می‌فرستد
+→ سوئیچ نمی‌تواند MAC جدید یاد بگیرد (جدول پر)
+→ سوئیچ فریم را به همه پورت‌ها پخش می‌کند
+→ سوئیچ مانند hub عمل می‌کند
+```
+
+#### فاز 3: شنود ترافیک
+```
+همه ترافیک پخش می‌شود
+→ مهاجم همه فریم‌ها را دریافت می‌کند
+→ شنود غیرفعال اکنون ممکن است
+```
+
+## ابزارهای حملات جدول CAM
+
+### macof
+
+**macof** ابزاری از مجموعه dsniff است که سوئیچ را با آدرس‌های MAC تصادفی سیل می‌کند.
+
+#### نصب
+```bash
+# Debian/Ubuntu
+sudo apt install dsniff
+
+# Red Hat/CentOS
+sudo yum install dsniff
+
+# macOS (Homebrew)
+brew install dsniff
+```
+
+#### استفاده پایه
+```bash
+# سیل رابط eth0
+sudo macof -i eth0
+
+# مشخص کردن IP مبدأ
+sudo macof -i eth0 -s 10.0.0.1
+
+# مشخص کردن IP مقصد
+sudo macof -i eth0 -d 10.0.0.2
+
+# هم مبدأ و هم مقصد
+sudo macof -i eth0 -s 192.168.1.100 -d 192.168.1.1
+
+# کنترل نرخ بسته
+sudo macof -i eth0 -n 1000  # ارسال 1000 بسته
+```
+
+#### گزینه‌های پیشرفته
+```bash
+# پیشوند MAC سفارشی
+sudo macof -i eth0 -y AA:BB:CC
+
+# شبکه خاص
+sudo macof -i eth0 -s 192.168.1.0/24
+
+# سیل مداوم (پیش‌فرض)
+sudo macof -i eth0
+# Ctrl+C برای متوقف کردن
+```
+
+#### کاری که macof انجام می‌دهد
+```
+1. تولید آدرس‌های MAC تصادفی
+2. ایجاد فریم‌های Ethernet با MACهای مبدأ جعلی
+3. ارسال فریم‌ها با سرعت بالا (هزاران در ثانیه)
+4. ادامه تا متوقف شدن یا رسیدن به حد
+```
+
+### Yersinia
+
+**Yersinia** فریمورک پیشرفته‌تر حمله لایه 2 با پشتیبانی GUI است.
+
+#### نصب
+```bash
+# Debian/Ubuntu
+sudo apt install yersinia
+
+# ساخت از منبع
+git clone https://github.com/tomac/yersinia.git
+cd yersinia
+./autogen.sh
+./configure
+make
+sudo make install
+```
+
+#### استفاده CLI
+```bash
+# حالت تعاملی
+sudo yersinia -I
+
+# حالت حمله
+sudo yersinia -G  # حالت GUI
+
+# حمله خاص
+sudo yersinia -attack 2  # حمله MAC flooding
+```
+
+#### حالت GUI
+```bash
+sudo yersinia -G
+
+# سپس انتخاب کنید:
+# 1. پروتکل: STP، CDP، DTP، DHCP و غیره
+# 2. نوع حمله
+# 3. راه‌اندازی حمله
+```
+
+### Ettercap
+
+Ettercap همچنین می‌تواند سیل MAC را به عنوان بخشی از حملات MITM انجام دهد.
+
+```bash
+# نصب
+sudo apt install ettercap-graphical
+
+# راه‌اندازی GUI
+sudo ettercap -G
+
+# سیل MAC CLI
+sudo ettercap -T -M mac:// -i eth0
+```
+
+## تشخیص سرریز جدول CAM
+
+### علائم
+
+1. **کاهش عملکرد شبکه**
+   - اتصال آهسته
+   - زمان‌های پایان و از دست دادن بسته
+   - طوفان‌های پخش
+
+2. **تغییر رفتار سوئیچ**
+   - سوئیچ مانند hub عمل می‌کند
+   - همه ترافیک برای همه پورت‌ها قابل مشاهده
+   - سیل یونی‌کست
+
+3. **ورودی‌های لاگ**
+   - "جدول آدرس MAC پر"
+   - یادگیری MAC مفرط
+   - تلاطم سریع MAC
+
+### تکنیک‌های نظارت
+
+#### بررسی جدول CAM سوئیچ
+```cisco
+# سوئیچ‌های Cisco
+show mac address-table count
+show mac address-table
+
+# نمایش ورودی‌های پویا
+show mac address-table dynamic
+
+# نمایش زمان پیرشدگی
+show mac address-table aging-time
+```
+
+#### نظارت بر نرخ یادگیری MAC
+```cisco
+# فعال کردن ثبت لاگ
+logging buffered informational
+
+# بررسی تغییرات سریع MAC
+show logging | include MAC
+```
+
+#### نظارت SNMP
+```bash
+# کوئری اندازه جدول CAM از طریق SNMP
+snmpwalk -v2c -c public <switch-ip> dot1dTpFdbTable
+
+# نظارت بر استفاده جدول
+snmpget -v2c -c public <switch-ip> dot1dTpFdbAddress
+```
+
+### تشخیص IDS/IPS
+
+#### قوانین Snort
+```snort
+# تشخیص سیل MAC
+alert eth any any -> any any (msg:"MAC Flood Detected"; \
+  threshold:type threshold, track by_src, count 100, seconds 10; \
+  classtype:attempted-dos; sid:1000001;)
+
+# تشخیص امضای ابزار macof
+alert ip any any -> any any (msg:"Possible macof attack"; \
+  content:"|00 00 00 00 00 00|"; offset:0; depth:6; \
+  threshold:type threshold, track by_src, count 50, seconds 5; \
+  sid:1000002;)
+```
+
+#### قوانین Suricata
+```yaml
+alert ethernet any any -> any any (msg:"MAC Address Flood"; \
+  flow:stateless; \
+  detection_filter:track by_src, count 100, seconds 10; \
+  classtype:network-scan; sid:2000001;)
+```
+
+## پیشگیری و کاهش
+
+### امنیت پورت
+
+امنیت پورت دفاع اصلی در برابر سیل MAC است.
+
+#### پیکربندی Cisco
+```cisco
+# رابط دسترسی
+interface FastEthernet0/1
+ switchport mode access
+ switchport port-security
+ 
+ # حداکثر آدرس‌های MAC (پیش‌فرض: 1)
+ switchport port-security maximum 2
+ 
+ # اقدامات نقض
+ switchport port-security violation shutdown  # پیش‌فرض
+ # یا
+ switchport port-security violation restrict   # دور ریختن بسته، ثبت لاگ
+ # یا
+ switchport port-security violation protect    # دور ریختن بسته بی‌صدا
+ 
+ # MAC ثابت (اختیاری)
+ switchport port-security mac-address 0011.2233.4455
+ 
+ # یادگیری MAC چسبنده
+ switchport port-security mac-address sticky
+```
+
+#### توضیح اقدامات نقض
+
+**Shutdown** (پیش‌فرض)
+- پورت وارد حالت error-disabled می‌شود
+- همه ترافیک متوقف می‌شود
+- نیاز به مداخله دستی
+- بهترین برای محیط‌های امن
+
+```cisco
+# فعال مجدد بعد از نقض
+interface FastEthernet0/1
+ shutdown
+ no shutdown
+```
+
+**Restrict**
+- بسته‌های ناقض را دور می‌ریزد
+- شمارنده نقض را افزایش می‌دهد
+- تله SNMP و پیام syslog ارسال می‌کند
+- پورت باز می‌ماند
+- خوب برای نظارت
+
+**Protect**
+- بسته‌های ناقض را دور می‌ریزد
+- بدون ثبت لاگ یا اطلاع
+- پورت باز می‌ماند
+- زمانی استفاده کنید که سربار ثبت لاگ نگران‌کننده است
+
+#### تایید پیکربندی
+```cisco
+# نمایش وضعیت امنیت پورت
+show port-security
+
+# رابط خاص
+show port-security interface FastEthernet0/1
+
+# نمایش نقض‌ها
+show port-security address
+
+# نمایش آدرس‌های MAC امن
+show port-security address
+```
+
+### بازرسی پویای ARP (DAI)
+
+در حالی که عمدتاً برای ARP است، DAI به اعتبارسنجی ترافیک کمک می‌کند.
+
+```cisco
+# فعال کردن DHCP snooping (پیش‌نیاز)
+ip dhcp snooping
+ip dhcp snooping vlan 10
+
+# فعال کردن DAI
+ip arp inspection vlan 10
+
+# اعتماد به پورت‌های uplink
+interface GigabitEthernet0/1
+ ip arp inspection trust
+
+# محدودسازی نرخ
+interface FastEthernet0/2
+ ip arp inspection limit rate 15 burst interval 1
+```
+
+### کنترل طوفان
+
+محدود کردن ترافیک پخش، multicast و یونی‌کست ناشناخته.
+
+```cisco
+interface FastEthernet0/1
+ # محدود کردن پخش به 10% پهنای باند
+ storm-control broadcast level 10.00
+ 
+ # محدود کردن multicast
+ storm-control multicast level 10.00
+ 
+ # محدود کردن یونی‌کست ناشناخته
+ storm-control unicast level 10.00
+ 
+ # اقدام وقتی آستانه تجاوز شود
+ storm-control action shutdown
+ # یا
+ storm-control action trap
+```
+
+### پیرشدگی آدرس MAC
+
+تنظیم زمان پیرشدگی برای جلوگیری از خستگی CAM.
+
+```cisco
+# تنظیم زمان پیرشدگی (پیش‌فرض: 300 ثانیه)
+mac address-table aging-time 600
+
+# پیرشدگی به ازای VLAN
+mac address-table aging-time 600 vlan 10
+
+# غیرفعال کردن پیرشدگی (توصیه نمی‌شود)
+no mac address-table aging-time
+```
+
+### بخش‌بندی شبکه
+
+#### VLANها
+```cisco
+# ایجاد VLANها
+vlan 10
+ name Engineering
+vlan 20
+ name Sales
+
+# اختصاص پورت‌ها
+interface range FastEthernet0/1-10
+ switchport mode access
+ switchport access vlan 10
+```
+
+#### VLANهای خصوصی
+```cisco
+# ایجاد VLAN خصوصی
+vlan 100
+ private-vlan primary
+vlan 101
+ private-vlan isolated
+
+# ارتباط
+vlan 100
+ private-vlan association 101
+
+# پیکربندی رابط
+interface FastEthernet0/1
+ switchport mode private-vlan host
+ switchport private-vlan host-association 100 101
+```
+
+### نظارت و هشدارها
+
+#### پیکربندی Syslog
+```cisco
+# فعال کردن ثبت لاگ
+logging on
+logging buffered informational
+
+# ارسال به سرور syslog
+logging host 192.168.1.100
+
+# ثبت لاگ نقض‌های امنیت پورت
+logging trap notifications
+```
+
+#### تله‌های SNMP
+```cisco
+# فعال کردن SNMP
+snmp-server community public RO
+snmp-server host 192.168.1.100 version 2c public
+
+# فعال کردن تله‌های امنیت پورت
+snmp-server enable traps port-security
+
+# اطلاع MAC
+snmp-server enable traps mac-notification
+```
+
+## بازیابی از حمله
+
+### اقدامات فوری
+
+1. **شناسایی سوئیچ آسیب‌دیده**
+   ```cisco
+   show mac address-table count
+   show port-security
+   ```
+
+2. **پاک کردن جدول CAM**
+   ```cisco
+   clear mac address-table dynamic
+   ```
+
+3. **خاموش کردن پورت مخرب**
+   ```cisco
+   interface FastEthernet0/5
+    shutdown
+   ```
+
+4. **فعال مجدد امنیت پورت**
+   ```cisco
+   interface FastEthernet0/5
+    no shutdown
+   ```
+
+### اصلاح بلندمدت
+
+1. **فعال کردن امنیت پورت** در همه پورت‌های دسترسی
+2. **پیاده‌سازی کنترل طوفان** در کل شبکه
+3. **استقرار IDS/IPS** با امضاهای سیل MAC
+4. **بخش‌بندی شبکه** با VLANها
+5. **ممیزی‌های منظم** پیکربندی‌های سوئیچ
+6. **ثبت لاگ متمرکز** برای تشخیص سریع
+7. **پاسخ خودکار** با تله‌های SNMP
+
+## آزمایش دفاع‌های شما
+
+### راه‌اندازی آزمایشگاه
+```bash
+# در محیط آزمایشی
+# ترمینال 1: شروع ضبط بسته
+sudo tcpdump -i eth0 -w test.pcap
+
+# ترمینال 2: نظارت بر سوئیچ
+ssh admin@switch
+show mac address-table count
+
+# ترمینال 3: راه‌اندازی حمله
+sudo macof -i eth0 -n 10000
+
+# تایید اجرای امنیت پورت
+show port-security interface FastEthernet0/1
+```
+
+### نتایج مورد انتظار با امنیت پورت
+
+```
+Port Security              : Enabled
+Port Status                : Secure-shutdown
+Violation Mode             : Shutdown
+Aging Time                 : 0 mins
+SecureStatic Address Aging : Disabled
+Maximum MAC Addresses      : 1
+Total MAC Addresses        : 2
+Configured MAC Addresses   : 0
+Sticky MAC Addresses       : 0
+Last Source Address:Vlan   : AA:BB:CC:DD:EE:FF:1
+Security Violation Count   : 1
+```
+
+## بهترین روش‌ها
+
+1. **فعال کردن امنیت پورت** در همه پورت‌های دسترسی
+2. **استفاده از یادگیری MAC چسبنده** برای پورت‌های کاربر
+3. **تنظیم حداکثر آدرس‌های MAC** به تعداد مورد انتظار (معمولاً 1-2)
+4. **پیاده‌سازی shutdown نقض** برای مناطق بحرانی
+5. **استقرار کنترل طوفان** به عنوان لایه اضافی
+6. **نظارت بر استفاده جدول CAM** به طور منظم
+7. **ثبت و هشدار لاگ** در نقض‌ها
+8. **آزمایش پیکربندی** در آزمایشگاه قبل از تولید
+9. **مستندسازی استثناها** (تلفن‌ها، چاپگرها با MACهای چندگانه)
+10. **ممیزی‌های امنیتی منظم** پیکربندی‌های سوئیچ
+
+## انواع حمله
+
+### سیل MAC با ARP
+```bash
+# ارسال بسته‌های ARP با MACهای جعلی
+sudo arpspoof -r -t 192.168.1.1 192.168.1.100
+# ترکیب با macof برای حمله موثرتر
+```
+
+### سیل MAC انتخابی
+هدف گرفتن VLANها یا بخش‌های خاص سوئیچ برای اجتناب از تشخیص.
+
+### سیل MAC آهسته و کم
+ارسال MACهای جعلی با نرخ آهسته برای فرار از آستانه‌های تشخیص.
+
+## منابع
+
+- راهنمای پیکربندی امنیت پورت Cisco
+- مستندات مجموعه ابزار dsniff
+- فریمورک Yersinia: https://github.com/tomac/yersinia
+- IEEE 802.1X برای احراز هویت مبتنی بر پورت
+- راه‌حل‌های کنترل دسترسی شبکه (NAC)
