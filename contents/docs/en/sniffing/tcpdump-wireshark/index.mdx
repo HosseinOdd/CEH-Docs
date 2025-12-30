@@ -1,0 +1,585 @@
+---
+title: Tcpdump & Wireshark
+description: Packet capture and analysis with tcpdump and Wireshark
+---
+
+## tcpdump
+
+tcpdump is a powerful command-line packet analyzer for Unix-like systems. It captures and displays network packets.
+
+### Installation
+
+```bash
+# Debian/Ubuntu
+sudo apt install tcpdump
+
+# Red Hat/CentOS
+sudo yum install tcpdump
+
+# macOS (pre-installed)
+tcpdump --version
+```
+
+### Basic Usage
+
+#### Capture All Traffic
+```bash
+# Capture on default interface
+sudo tcpdump
+
+# Specify interface
+sudo tcpdump -i eth0
+
+# All interfaces
+sudo tcpdump -i any
+```
+
+#### Save to File
+```bash
+# Write to pcap file
+sudo tcpdump -i eth0 -w capture.pcap
+
+# Limit file size (MB)
+sudo tcpdump -i eth0 -W 5 -C 10 -w capture.pcap
+
+# Rotate files
+sudo tcpdump -i eth0 -W 10 -G 3600 -w capture-%Y%m%d-%H%M%S.pcap
+```
+
+#### Read from File
+```bash
+# Read pcap file
+tcpdump -r capture.pcap
+
+# Filter while reading
+tcpdump -r capture.pcap 'port 80'
+
+# Print in ASCII
+tcpdump -A -r capture.pcap
+```
+
+### Filtering
+
+#### Host Filters
+```bash
+# Specific host
+tcpdump host 192.168.1.100
+
+# Source host
+tcpdump src host 192.168.1.100
+
+# Destination host
+tcpdump dst host 192.168.1.100
+
+# Network range
+tcpdump net 192.168.1.0/24
+```
+
+#### Protocol Filters
+```bash
+# TCP traffic
+tcpdump tcp
+
+# UDP traffic
+tcpdump udp
+
+# ICMP traffic
+tcpdump icmp
+
+# ARP traffic
+tcpdump arp
+```
+
+#### Port Filters
+```bash
+# Specific port
+tcpdump port 80
+
+# Source port
+tcpdump src port 53
+
+# Destination port
+tcpdump dst port 443
+
+# Port range
+tcpdump portrange 1000-2000
+```
+
+#### Complex Filters
+```bash
+# AND operator
+tcpdump 'host 192.168.1.100 and port 80'
+
+# OR operator
+tcpdump 'port 80 or port 443'
+
+# NOT operator
+tcpdump 'not port 22'
+
+# Combining
+tcpdump 'tcp and (port 80 or port 443) and host 192.168.1.100'
+```
+
+### Advanced Options
+
+#### Verbosity
+```bash
+# Verbose output (-v, -vv, -vvv)
+tcpdump -v
+tcpdump -vv
+tcpdump -vvv
+
+# Quiet mode (less output)
+tcpdump -q
+```
+
+#### Display Options
+```bash
+# Show link-level headers
+tcpdump -e
+
+# Print in hex and ASCII
+tcpdump -X
+
+# Print absolute sequence numbers
+tcpdump -S
+
+# Don't convert addresses to names
+tcpdump -n
+
+# Don't convert protocols and ports
+tcpdump -nn
+```
+
+#### Packet Size
+```bash
+# Capture full packets
+tcpdump -s 0
+
+# Capture specific bytes
+tcpdump -s 100
+
+# Snap length
+tcpdump -s 65535
+```
+
+### Practical Examples
+
+#### HTTP Traffic
+```bash
+# Capture HTTP requests
+tcpdump -i eth0 -A 'tcp port 80 and (((ip[2:2] - ((ip[0]&0xf)<<2)) - ((tcp[12]&0xf0)>>2)) != 0)'
+
+# GET requests
+tcpdump -i eth0 -A -s 0 'tcp port 80 and (tcp[((tcp[12:1] & 0xf0) >> 2):4] = 0x47455420)'
+
+# POST requests
+tcpdump -i eth0 -A -s 0 'tcp port 80 and (tcp[((tcp[12:1] & 0xf0) >> 2):4] = 0x504f5354)'
+```
+
+#### HTTPS Traffic
+```bash
+# Capture encrypted traffic (metadata only)
+tcpdump -i eth0 'tcp port 443'
+
+# Show TLS handshake
+tcpdump -i eth0 -vv 'tcp port 443'
+```
+
+#### DNS Queries
+```bash
+# All DNS traffic
+tcpdump -i eth0 'udp port 53'
+
+# DNS queries only
+tcpdump -i eth0 'udp port 53 and udp[10] & 0x80 = 0'
+
+# DNS responses
+tcpdump -i eth0 'udp port 53 and udp[10] & 0x80 != 0'
+```
+
+#### FTP Traffic
+```bash
+# FTP commands and responses
+tcpdump -i eth0 -A 'tcp port 21'
+
+# FTP data transfer
+tcpdump -i eth0 'tcp port 20'
+```
+
+#### Email Traffic
+```bash
+# SMTP traffic
+tcpdump -i eth0 -A 'tcp port 25'
+
+# POP3 traffic
+tcpdump -i eth0 -A 'tcp port 110'
+
+# IMAP traffic
+tcpdump -i eth0 -A 'tcp port 143'
+```
+
+#### ICMP Analysis
+```bash
+# All ICMP
+tcpdump 'icmp'
+
+# Ping requests
+tcpdump 'icmp[icmptype] = icmp-echo'
+
+# Ping replies
+tcpdump 'icmp[icmptype] = icmp-echoreply'
+```
+
+#### Capture Specific Flags
+```bash
+# TCP SYN packets
+tcpdump 'tcp[tcpflags] & tcp-syn != 0'
+
+# TCP FIN packets
+tcpdump 'tcp[tcpflags] & tcp-fin != 0'
+
+# TCP RST packets
+tcpdump 'tcp[tcpflags] & tcp-rst != 0'
+```
+
+---
+
+## Wireshark
+
+Wireshark is the world's most popular network protocol analyzer with a graphical interface.
+
+### Installation
+
+```bash
+# Debian/Ubuntu
+sudo apt install wireshark
+
+# Red Hat/CentOS
+sudo yum install wireshark wireshark-gnome
+
+# macOS (Homebrew)
+brew install --cask wireshark
+
+# Allow non-root capture
+sudo usermod -aG wireshark $USER
+sudo chmod +x /usr/bin/dumpcap
+```
+
+### Interface Overview
+
+#### Main Components
+1. **Menu Bar**: File operations, capture, analysis
+2. **Main Toolbar**: Quick access buttons
+3. **Filter Toolbar**: Display filter input
+4. **Packet List**: Captured packets
+5. **Packet Details**: Protocol layers
+6. **Packet Bytes**: Raw hexadecimal data
+7. **Status Bar**: Capture statistics
+
+### Capture Filters
+
+Capture filters use BPF (Berkeley Packet Filter) syntax, similar to tcpdump.
+
+```
+# Host
+host 192.168.1.1
+
+# Port
+port 80
+tcp port 443
+
+# Protocol
+tcp
+udp
+icmp
+
+# Network
+net 192.168.0.0/24
+
+# Combinations
+host 192.168.1.1 and tcp port 80
+not broadcast and not multicast
+```
+
+### Display Filters
+
+Display filters are applied after capture and more powerful.
+
+#### Basic Syntax
+```
+# Protocol
+http
+dns
+tls
+
+# Field comparison
+ip.addr == 192.168.1.1
+tcp.port == 80
+http.request.method == "GET"
+
+# Operators
+== (equal)
+!= (not equal)
+> (greater than)
+< (less than)
+contains
+matches (regex)
+```
+
+#### Common Display Filters
+
+**IP Filters**
+```
+ip.addr == 192.168.1.1         # Specific IP
+ip.src == 192.168.1.1          # Source IP
+ip.dst == 192.168.1.1          # Destination IP
+ip.addr == 192.168.1.0/24      # Network range
+```
+
+**TCP Filters**
+```
+tcp.port == 80                 # TCP port
+tcp.flags.syn == 1             # SYN packets
+tcp.flags.ack == 1             # ACK packets
+tcp.flags.reset == 1           # RST packets
+tcp.analysis.retransmission    # Retransmissions
+tcp.stream eq 0                # Follow TCP stream
+```
+
+**HTTP Filters**
+```
+http                           # All HTTP
+http.request                   # HTTP requests
+http.response                  # HTTP responses
+http.request.method == "POST"  # POST requests
+http.request.uri contains "login"  # URI contains
+http.response.code == 200      # Status code
+http.cookie contains "session" # Cookies
+http.authbasic                 # Basic authentication
+```
+
+**HTTPS/TLS Filters**
+```
+tls                            # All TLS traffic
+tls.handshake.type == 1        # Client Hello
+tls.handshake.type == 2        # Server Hello
+tls.handshake.extensions_server_name  # SNI
+```
+
+**DNS Filters**
+```
+dns                            # All DNS
+dns.qry.name contains "google" # Query contains
+dns.flags.response == 0        # Queries only
+dns.flags.response == 1        # Responses only
+```
+
+**ARP Filters**
+```
+arp                            # All ARP
+arp.opcode == 1                # ARP requests
+arp.opcode == 2                # ARP replies
+arp.duplicate-address-detected # Duplicate IP
+```
+
+#### Advanced Filters
+```
+# Multiple conditions
+(ip.src == 192.168.1.1) && (tcp.port == 80)
+
+# OR conditions
+(tcp.port == 80) || (tcp.port == 443)
+
+# NOT conditions
+!(arp || icmp)
+
+# Contains text
+frame contains "password"
+tcp contains "admin"
+
+# Regex match
+http.host matches ".*google.*"
+```
+
+### Following Streams
+
+#### TCP Stream
+1. Right-click on packet → Follow → TCP Stream
+2. View entire conversation
+3. Filter: `tcp.stream eq X`
+
+#### UDP Stream
+1. Right-click on packet → Follow → UDP Stream
+2. View UDP conversation
+3. Filter: `udp.stream eq X`
+
+#### TLS Stream
+1. Follow → TLS Stream
+2. View encrypted data (requires keys)
+
+### Statistics and Analysis
+
+#### Protocol Hierarchy
+- **Statistics → Protocol Hierarchy**
+- Shows distribution of protocols
+- Percentage of traffic per protocol
+
+#### Conversations
+- **Statistics → Conversations**
+- View active conversations
+- Filter by protocol (Ethernet, IPv4, TCP, UDP)
+- Shows packets and bytes exchanged
+
+#### Endpoints
+- **Statistics → Endpoints**
+- List of communication endpoints
+- Traffic volume per endpoint
+
+#### I/O Graphs
+- **Statistics → I/O Graphs**
+- Visualize traffic over time
+- Create custom graphs with filters
+
+#### HTTP Statistics
+- **Statistics → HTTP → Requests**
+- HTTP request methods and URIs
+- **Statistics → HTTP → Packet Counter**
+- Response codes distribution
+
+### Exporting Objects
+
+#### Export HTTP Objects
+1. **File → Export Objects → HTTP**
+2. View all HTTP objects (images, files, etc.)
+3. Save individual or all objects
+
+#### Export Other Protocols
+- **DICOM** (medical images)
+- **SMB** (network shares)
+- **TFTP** (trivial file transfer)
+
+### Decrypting HTTPS
+
+#### Using SSL Keys
+```bash
+# Set environment variable (before starting Wireshark)
+export SSLKEYLOGFILE=$HOME/ssl-keys.log
+
+# Chrome/Firefox will log keys to this file
+```
+
+**In Wireshark:**
+1. Edit → Preferences → Protocols → TLS
+2. (Pre-)Master-Secret log filename: `/path/to/ssl-keys.log`
+3. Capture traffic
+4. HTTP traffic will be decrypted
+
+### TShark (CLI Wireshark)
+
+#### Basic Usage
+```bash
+# Capture traffic
+tshark -i eth0
+
+# Write to file
+tshark -i eth0 -w capture.pcap
+
+# Read from file
+tshark -r capture.pcap
+
+# Display filter
+tshark -r capture.pcap -Y "http.request"
+```
+
+#### Field Extraction
+```bash
+# Extract specific fields
+tshark -r capture.pcap -T fields -e ip.src -e ip.dst -e tcp.port
+
+# HTTP requests
+tshark -r capture.pcap -Y "http.request" -T fields -e http.request.method -e http.host -e http.request.uri
+
+# DNS queries
+tshark -r capture.pcap -Y "dns.qry.name" -T fields -e dns.qry.name
+```
+
+#### Statistics
+```bash
+# Protocol hierarchy
+tshark -r capture.pcap -q -z io,phs
+
+# Conversations
+tshark -r capture.pcap -q -z conv,tcp
+
+# HTTP statistics
+tshark -r capture.pcap -q -z http,tree
+```
+
+### Practical Analysis Scenarios
+
+#### Troubleshooting Connectivity
+1. Check for TCP handshake (SYN, SYN-ACK, ACK)
+2. Look for retransmissions: `tcp.analysis.retransmission`
+3. Check for RST packets: `tcp.flags.reset == 1`
+
+#### Detecting ARP Spoofing
+1. Filter: `arp`
+2. Look for duplicate IP with different MAC
+3. Check for excessive ARP replies
+
+#### Finding Malicious Traffic
+```
+# Suspicious HTTP
+http.request.method == "POST" && http.content_length > 10000
+
+# Beaconing (regular intervals)
+# Use Statistics → I/O Graphs
+
+# DNS tunneling
+dns.qry.name.len > 50
+```
+
+#### Password Sniffing
+```
+# FTP credentials
+ftp.request.command == "USER" || ftp.request.command == "PASS"
+
+# HTTP Basic Auth
+http.authbasic
+
+# POP3 credentials
+pop.request.command == "USER" || pop.request.command == "PASS"
+```
+
+## Comparison
+
+| Feature | tcpdump | Wireshark |
+|---------|---------|-----------|
+| **Interface** | Command-line | Graphical |
+| **Learning Curve** | Steeper | Easier |
+| **Resource Usage** | Low | High |
+| **Remote Capture** | SSH-friendly | Requires X11 forwarding |
+| **Filter Syntax** | BPF only | BPF + Display filters |
+| **Protocol Dissection** | Limited | Comprehensive |
+| **Follow Streams** | Manual | Built-in |
+| **Statistics** | Manual | Built-in graphs |
+| **Best For** | Servers, automation | Desktop analysis |
+
+## Best Practices
+
+1. **Use capture filters** to reduce file size
+2. **Avoid capturing on production** networks during peak hours
+3. **Encrypt pcap files** if they contain sensitive data
+4. **Set snapshot length** appropriately to save disk space
+5. **Use ring buffer** for long captures
+6. **Document filters** used for analysis
+7. **Export relevant packets** instead of keeping full captures
+8. **Delete captures** after analysis to protect privacy
+
+## Resources
+
+- Wireshark User Guide: https://www.wireshark.org/docs/wsug_html_chunked/
+- tcpdump Manual: https://www.tcpdump.org/manpages/tcpdump.1.html
+- Display Filter Reference: https://www.wireshark.org/docs/dfref/
+- Sample Captures: https://wiki.wireshark.org/SampleCaptures

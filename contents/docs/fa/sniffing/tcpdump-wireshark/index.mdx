@@ -1,0 +1,585 @@
+---
+title: Tcpdump و Wireshark
+description: ضبط و تحلیل بسته با tcpdump و Wireshark
+---
+
+## tcpdump
+
+tcpdump یک آنالایزر بسته قدرتمند خط فرمان برای سیستم‌های Unix است. بسته‌های شبکه را ضبط و نمایش می‌دهد.
+
+### نصب
+
+```bash
+# Debian/Ubuntu
+sudo apt install tcpdump
+
+# Red Hat/CentOS
+sudo yum install tcpdump
+
+# macOS (نصب شده پیش‌فرض)
+tcpdump --version
+```
+
+### استفاده پایه
+
+#### ضبط همه ترافیک
+```bash
+# ضبط در رابط پیش‌فرض
+sudo tcpdump
+
+# مشخص کردن رابط
+sudo tcpdump -i eth0
+
+# همه رابط‌ها
+sudo tcpdump -i any
+```
+
+#### ذخیره در فایل
+```bash
+# نوشتن به فایل pcap
+sudo tcpdump -i eth0 -w capture.pcap
+
+# محدود کردن اندازه فایل (MB)
+sudo tcpdump -i eth0 -W 5 -C 10 -w capture.pcap
+
+# چرخش فایل‌ها
+sudo tcpdump -i eth0 -W 10 -G 3600 -w capture-%Y%m%d-%H%M%S.pcap
+```
+
+#### خواندن از فایل
+```bash
+# خواندن فایل pcap
+tcpdump -r capture.pcap
+
+# فیلتر کردن هنگام خواندن
+tcpdump -r capture.pcap 'port 80'
+
+# چاپ در ASCII
+tcpdump -A -r capture.pcap
+```
+
+### فیلتر کردن
+
+#### فیلترهای هاست
+```bash
+# هاست خاص
+tcpdump host 192.168.1.100
+
+# هاست مبدأ
+tcpdump src host 192.168.1.100
+
+# هاست مقصد
+tcpdump dst host 192.168.1.100
+
+# محدوده شبکه
+tcpdump net 192.168.1.0/24
+```
+
+#### فیلترهای پروتکل
+```bash
+# ترافیک TCP
+tcpdump tcp
+
+# ترافیک UDP
+tcpdump udp
+
+# ترافیک ICMP
+tcpdump icmp
+
+# ترافیک ARP
+tcpdump arp
+```
+
+#### فیلترهای پورت
+```bash
+# پورت خاص
+tcpdump port 80
+
+# پورت مبدأ
+tcpdump src port 53
+
+# پورت مقصد
+tcpdump dst port 443
+
+# محدوده پورت
+tcpdump portrange 1000-2000
+```
+
+#### فیلترهای پیچیده
+```bash
+# عملگر AND
+tcpdump 'host 192.168.1.100 and port 80'
+
+# عملگر OR
+tcpdump 'port 80 or port 443'
+
+# عملگر NOT
+tcpdump 'not port 22'
+
+# ترکیب
+tcpdump 'tcp and (port 80 or port 443) and host 192.168.1.100'
+```
+
+### گزینه‌های پیشرفته
+
+#### پرگویی
+```bash
+# خروجی پرجزئیات (-v, -vv, -vvv)
+tcpdump -v
+tcpdump -vv
+tcpdump -vvv
+
+# حالت ساکت (خروجی کمتر)
+tcpdump -q
+```
+
+#### گزینه‌های نمایش
+```bash
+# نمایش هدرهای سطح لینک
+tcpdump -e
+
+# چاپ در هگز و ASCII
+tcpdump -X
+
+# چاپ شماره‌های توالی مطلق
+tcpdump -S
+
+# عدم تبدیل آدرس‌ها به نام
+tcpdump -n
+
+# عدم تبدیل پروتکل‌ها و پورت‌ها
+tcpdump -nn
+```
+
+#### اندازه بسته
+```bash
+# ضبط بسته‌های کامل
+tcpdump -s 0
+
+# ضبط بایت‌های خاص
+tcpdump -s 100
+
+# طول snap
+tcpdump -s 65535
+```
+
+### مثال‌های کاربردی
+
+#### ترافیک HTTP
+```bash
+# ضبط درخواست‌های HTTP
+tcpdump -i eth0 -A 'tcp port 80 and (((ip[2:2] - ((ip[0]&0xf)<<2)) - ((tcp[12]&0xf0)>>2)) != 0)'
+
+# درخواست‌های GET
+tcpdump -i eth0 -A -s 0 'tcp port 80 and (tcp[((tcp[12:1] & 0xf0) >> 2):4] = 0x47455420)'
+
+# درخواست‌های POST
+tcpdump -i eth0 -A -s 0 'tcp port 80 and (tcp[((tcp[12:1] & 0xf0) >> 2):4] = 0x504f5354)'
+```
+
+#### ترافیک HTTPS
+```bash
+# ضبط ترافیک رمزگذاری شده (فقط متادیتا)
+tcpdump -i eth0 'tcp port 443'
+
+# نمایش دست‌دادن TLS
+tcpdump -i eth0 -vv 'tcp port 443'
+```
+
+#### کوئری‌های DNS
+```bash
+# همه ترافیک DNS
+tcpdump -i eth0 'udp port 53'
+
+# فقط کوئری‌های DNS
+tcpdump -i eth0 'udp port 53 and udp[10] & 0x80 = 0'
+
+# پاسخ‌های DNS
+tcpdump -i eth0 'udp port 53 and udp[10] & 0x80 != 0'
+```
+
+#### ترافیک FTP
+```bash
+# دستورات و پاسخ‌های FTP
+tcpdump -i eth0 -A 'tcp port 21'
+
+# انتقال داده FTP
+tcpdump -i eth0 'tcp port 20'
+```
+
+#### ترافیک ایمیل
+```bash
+# ترافیک SMTP
+tcpdump -i eth0 -A 'tcp port 25'
+
+# ترافیک POP3
+tcpdump -i eth0 -A 'tcp port 110'
+
+# ترافیک IMAP
+tcpdump -i eth0 -A 'tcp port 143'
+```
+
+#### تحلیل ICMP
+```bash
+# همه ICMP
+tcpdump 'icmp'
+
+# درخواست‌های Ping
+tcpdump 'icmp[icmptype] = icmp-echo'
+
+# پاسخ‌های Ping
+tcpdump 'icmp[icmptype] = icmp-echoreply'
+```
+
+#### ضبط فلگ‌های خاص
+```bash
+# بسته‌های TCP SYN
+tcpdump 'tcp[tcpflags] & tcp-syn != 0'
+
+# بسته‌های TCP FIN
+tcpdump 'tcp[tcpflags] & tcp-fin != 0'
+
+# بسته‌های TCP RST
+tcpdump 'tcp[tcpflags] & tcp-rst != 0'
+```
+
+---
+
+## Wireshark
+
+Wireshark محبوب‌ترین آنالایزر پروتکل شبکه جهان با رابط گرافیکی است.
+
+### نصب
+
+```bash
+# Debian/Ubuntu
+sudo apt install wireshark
+
+# Red Hat/CentOS
+sudo yum install wireshark wireshark-gnome
+
+# macOS (Homebrew)
+brew install --cask wireshark
+
+# اجازه ضبط غیر-root
+sudo usermod -aG wireshark $USER
+sudo chmod +x /usr/bin/dumpcap
+```
+
+### نمای کلی رابط
+
+#### اجزای اصلی
+1. **نوار منو**: عملیات فایل، ضبط، تحلیل
+2. **نوار ابزار اصلی**: دکمه‌های دسترسی سریع
+3. **نوار ابزار فیلتر**: ورودی فیلتر نمایش
+4. **لیست بسته**: بسته‌های ضبط شده
+5. **جزئیات بسته**: لایه‌های پروتکل
+6. **بایت‌های بسته**: داده‌های خام هگزادسیمال
+7. **نوار وضعیت**: آمار ضبط
+
+### فیلترهای ضبط
+
+فیلترهای ضبط از سینتکس BPF استفاده می‌کنند، مشابه tcpdump.
+
+```
+# هاست
+host 192.168.1.1
+
+# پورت
+port 80
+tcp port 443
+
+# پروتکل
+tcp
+udp
+icmp
+
+# شبکه
+net 192.168.0.0/24
+
+# ترکیب‌ها
+host 192.168.1.1 and tcp port 80
+not broadcast and not multicast
+```
+
+### فیلترهای نمایش
+
+فیلترهای نمایش بعد از ضبط اعمال می‌شوند و قدرتمندتر هستند.
+
+#### سینتکس پایه
+```
+# پروتکل
+http
+dns
+tls
+
+# مقایسه فیلد
+ip.addr == 192.168.1.1
+tcp.port == 80
+http.request.method == "GET"
+
+# عملگرها
+== (برابر)
+!= (نابرابر)
+> (بزرگتر از)
+< (کوچکتر از)
+contains
+matches (regex)
+```
+
+#### فیلترهای نمایش رایج
+
+**فیلترهای IP**
+```
+ip.addr == 192.168.1.1         # IP خاص
+ip.src == 192.168.1.1          # IP مبدأ
+ip.dst == 192.168.1.1          # IP مقصد
+ip.addr == 192.168.1.0/24      # محدوده شبکه
+```
+
+**فیلترهای TCP**
+```
+tcp.port == 80                 # پورت TCP
+tcp.flags.syn == 1             # بسته‌های SYN
+tcp.flags.ack == 1             # بسته‌های ACK
+tcp.flags.reset == 1           # بسته‌های RST
+tcp.analysis.retransmission    # ارسال مجدد
+tcp.stream eq 0                # دنبال کردن جریان TCP
+```
+
+**فیلترهای HTTP**
+```
+http                           # همه HTTP
+http.request                   # درخواست‌های HTTP
+http.response                  # پاسخ‌های HTTP
+http.request.method == "POST"  # درخواست‌های POST
+http.request.uri contains "login"  # URI شامل
+http.response.code == 200      # کد وضعیت
+http.cookie contains "session" # کوکی‌ها
+http.authbasic                 # احراز هویت پایه
+```
+
+**فیلترهای HTTPS/TLS**
+```
+tls                            # همه ترافیک TLS
+tls.handshake.type == 1        # Client Hello
+tls.handshake.type == 2        # Server Hello
+tls.handshake.extensions_server_name  # SNI
+```
+
+**فیلترهای DNS**
+```
+dns                            # همه DNS
+dns.qry.name contains "google" # کوئری شامل
+dns.flags.response == 0        # فقط کوئری‌ها
+dns.flags.response == 1        # فقط پاسخ‌ها
+```
+
+**فیلترهای ARP**
+```
+arp                            # همه ARP
+arp.opcode == 1                # درخواست‌های ARP
+arp.opcode == 2                # پاسخ‌های ARP
+arp.duplicate-address-detected # IP تکراری
+```
+
+#### فیلترهای پیشرفته
+```
+# شرایط چندگانه
+(ip.src == 192.168.1.1) && (tcp.port == 80)
+
+# شرایط OR
+(tcp.port == 80) || (tcp.port == 443)
+
+# شرایط NOT
+!(arp || icmp)
+
+# شامل متن
+frame contains "password"
+tcp contains "admin"
+
+# تطابق Regex
+http.host matches ".*google.*"
+```
+
+### دنبال کردن جریان‌ها
+
+#### جریان TCP
+1. کلیک راست روی بسته → Follow → TCP Stream
+2. مشاهده کل مکالمه
+3. فیلتر: `tcp.stream eq X`
+
+#### جریان UDP
+1. کلیک راست روی بسته → Follow → UDP Stream
+2. مشاهده مکالمه UDP
+3. فیلتر: `udp.stream eq X`
+
+#### جریان TLS
+1. Follow → TLS Stream
+2. مشاهده داده‌های رمزگذاری شده (نیاز به کلیدها)
+
+### آمار و تحلیل
+
+#### سلسله‌مراتب پروتکل
+- **Statistics → Protocol Hierarchy**
+- نمایش توزیع پروتکل‌ها
+- درصد ترافیک به ازای هر پروتکل
+
+#### مکالمه‌ها
+- **Statistics → Conversations**
+- مشاهده مکالمه‌های فعال
+- فیلتر بر اساس پروتکل (Ethernet, IPv4, TCP, UDP)
+- نمایش بسته‌ها و بایت‌های مبادله شده
+
+#### نقاط پایانی
+- **Statistics → Endpoints**
+- لیست نقاط پایانی ارتباطی
+- حجم ترافیک به ازای هر نقطه پایانی
+
+#### نمودارهای I/O
+- **Statistics → I/O Graphs**
+- تجسم ترافیک در طول زمان
+- ایجاد نمودارهای سفارشی با فیلترها
+
+#### آمار HTTP
+- **Statistics → HTTP → Requests**
+- متدها و URIهای درخواست HTTP
+- **Statistics → HTTP → Packet Counter**
+- توزیع کدهای پاسخ
+
+### صادرکردن اشیاء
+
+#### صادرکردن اشیاء HTTP
+1. **File → Export Objects → HTTP**
+2. مشاهده همه اشیاء HTTP (تصاویر، فایل‌ها، و غیره)
+3. ذخیره تک یا همه اشیاء
+
+#### صادرکردن پروتکل‌های دیگر
+- **DICOM** (تصاویر پزشکی)
+- **SMB** (اشتراک‌های شبکه)
+- **TFTP** (انتقال فایل ساده)
+
+### رمزگشایی HTTPS
+
+#### استفاده از کلیدهای SSL
+```bash
+# تنظیم متغیر محیطی (قبل از شروع Wireshark)
+export SSLKEYLOGFILE=$HOME/ssl-keys.log
+
+# Chrome/Firefox کلیدها را در این فایل ثبت می‌کنند
+```
+
+**در Wireshark:**
+1. Edit → Preferences → Protocols → TLS
+2. (Pre-)Master-Secret log filename: `/path/to/ssl-keys.log`
+3. ضبط ترافیک
+4. ترافیک HTTP رمزگشایی می‌شود
+
+### TShark (Wireshark CLI)
+
+#### استفاده پایه
+```bash
+# ضبط ترافیک
+tshark -i eth0
+
+# نوشتن به فایل
+tshark -i eth0 -w capture.pcap
+
+# خواندن از فایل
+tshark -r capture.pcap
+
+# فیلتر نمایش
+tshark -r capture.pcap -Y "http.request"
+```
+
+#### استخراج فیلد
+```bash
+# استخراج فیلدهای خاص
+tshark -r capture.pcap -T fields -e ip.src -e ip.dst -e tcp.port
+
+# درخواست‌های HTTP
+tshark -r capture.pcap -Y "http.request" -T fields -e http.request.method -e http.host -e http.request.uri
+
+# کوئری‌های DNS
+tshark -r capture.pcap -Y "dns.qry.name" -T fields -e dns.qry.name
+```
+
+#### آمار
+```bash
+# سلسله‌مراتب پروتکل
+tshark -r capture.pcap -q -z io,phs
+
+# مکالمه‌ها
+tshark -r capture.pcap -q -z conv,tcp
+
+# آمار HTTP
+tshark -r capture.pcap -q -z http,tree
+```
+
+### سناریوهای تحلیل کاربردی
+
+#### عیب‌یابی اتصال
+1. بررسی دست‌دادن TCP (SYN, SYN-ACK, ACK)
+2. جستجو برای ارسال مجدد: `tcp.analysis.retransmission`
+3. بررسی بسته‌های RST: `tcp.flags.reset == 1`
+
+#### تشخیص جعل ARP
+1. فیلتر: `arp`
+2. جستجو برای IP تکراری با MAC متفاوت
+3. بررسی پاسخ‌های ARP مفرط
+
+#### یافتن ترافیک مخرب
+```
+# HTTP مشکوک
+http.request.method == "POST" && http.content_length > 10000
+
+# سیگنال‌دهی (فواصل منظم)
+# از Statistics → I/O Graphs استفاده کنید
+
+# تونل‌زنی DNS
+dns.qry.name.len > 50
+```
+
+#### شنود رمز عبور
+```
+# اعتبارنامه‌های FTP
+ftp.request.command == "USER" || ftp.request.command == "PASS"
+
+# احراز هویت پایه HTTP
+http.authbasic
+
+# اعتبارنامه‌های POP3
+pop.request.command == "USER" || pop.request.command == "PASS"
+```
+
+## مقایسه
+
+| ویژگی | tcpdump | Wireshark |
+|---------|---------|-----------|
+| **رابط** | خط فرمان | گرافیکی |
+| **منحنی یادگیری** | تندتر | راحت‌تر |
+| **مصرف منابع** | کم | زیاد |
+| **ضبط از راه دور** | سازگار با SSH | نیاز به فوروارد X11 |
+| **سینتکس فیلتر** | فقط BPF | BPF + فیلترهای نمایش |
+| **تجزیه پروتکل** | محدود | جامع |
+| **دنبال کردن جریان** | دستی | توکار |
+| **آمار** | دستی | نمودارهای توکار |
+| **بهترین برای** | سرورها، اتوماسیون | تحلیل دسکتاپ |
+
+## بهترین روش‌ها
+
+1. **از فیلترهای ضبط استفاده کنید** برای کاهش اندازه فایل
+2. **از ضبط در شبکه‌های تولید خودداری کنید** در ساعات اوج
+3. **فایل‌های pcap را رمزگذاری کنید** اگر داده‌های حساس دارند
+4. **طول snapshot را مناسب تنظیم کنید** برای صرفه‌جویی فضا
+5. **از بافر حلقوی استفاده کنید** برای ضبط‌های طولانی
+6. **فیلترهای استفاده شده را مستند کنید** برای تحلیل
+7. **بسته‌های مرتبط را صادر کنید** به جای نگه داشتن ضبط کامل
+8. **ضبط‌ها را حذف کنید** بعد از تحلیل برای حفاظت از حریم خصوصی
+
+## منابع
+
+- راهنمای کاربر Wireshark: https://www.wireshark.org/docs/wsug_html_chunked/
+- دستورالعمل tcpdump: https://www.tcpdump.org/manpages/tcpdump.1.html
+- مرجع فیلتر نمایش: https://www.wireshark.org/docs/dfref/
+- نمونه ضبط‌ها: https://wiki.wireshark.org/SampleCaptures
