@@ -1,0 +1,298 @@
+---
+title: SolarWinds Network Tools
+description: Network discovery and mapping tools for penetration testing
+---
+
+## What is SolarWinds?
+
+SolarWinds provides various network management and monitoring tools. In penetration testing context, we focus on network discovery, mapping, and reconnaissance capabilities.
+
+## Key Tools for Pen Testing
+
+### Network Topology Mapper
+- Automated network discovery
+- Visual network diagrams
+- Device inventory
+- Connection tracking
+
+### IP Address Manager
+- IP address tracking
+- Subnet management
+- DHCP/DNS management
+- IP conflict detection
+
+### Port Scanner
+- TCP/UDP port scanning
+- Service detection
+- Response time measurement
+- Multiple scan techniques
+
+### TraceRoute Tool
+- Path discovery
+- Hop-by-hop analysis
+- Response time per hop
+- Network troubleshooting
+
+## Network Topology Mapper
+
+### Features
+- Automatic network scanning
+- Multiple scanning methods
+- Visual topology maps
+- Export capabilities
+
+### Usage
+```
+1. Launch Network Topology Mapper
+2. Select scanning method
+3. Define target network range
+4. Configure scan settings
+5. Start discovery
+6. View and export results
+```
+
+### Scanning Methods
+- **SNMP**: Network device discovery
+- **WMI**: Windows device scanning
+- **VMware**: Virtual infrastructure
+- **Hybrid**: Combined methods
+
+## Port Scanner
+
+### Basic Scanning
+```
+Target: 192.168.1.0/24
+Port Range: 1-1024
+Protocol: TCP/UDP
+Timeout: 1000ms
+```
+
+### Features
+- Fast scanning
+- Service detection
+- Custom port ranges
+- Export results
+
+## Network Performance Monitor
+
+### Capabilities
+- Network availability
+- Response time monitoring
+- Bandwidth usage
+- Device health
+
+### Useful for Recon
+- Identify critical systems
+- Map network dependencies
+- Discover network paths
+- Monitor target behavior
+
+## IP Address Scanner
+
+### Discovery Features
+- Live host detection
+- MAC address identification
+- Hostname resolution
+- Response time
+
+### Scan Configuration
+```
+Range: 192.168.1.1-254
+Method: ICMP Echo
+DNS Lookup: Enabled
+MAC Resolution: Enabled
+```
+
+## SNMP Scanner
+
+### Information Gathering
+- Device information
+- Network interfaces
+- Routing tables
+- System details
+
+### SNMP Versions
+- **SNMPv1**: Basic, insecure
+- **SNMPv2c**: Community strings
+- **SNMPv3**: Authentication & encryption
+
+### Common OIDs
+```
+System Description: 1.3.6.1.2.1.1.1.0
+Hostname: 1.3.6.1.2.1.1.5.0
+Uptime: 1.3.6.1.2.1.1.3.0
+Contact: 1.3.6.1.2.1.1.4.0
+```
+
+## Network Discovery Wizard
+
+### Step-by-Step
+1. **Select Discovery Method**
+   - ICMP
+   - SNMP
+   - WMI
+   - Hybrid
+
+2. **Define Scope**
+   - IP ranges
+   - Subnets
+   - Credentials
+
+3. **Configure Options**
+   - Timeout values
+   - Retry attempts
+   - Concurrent scans
+
+4. **Execute Scan**
+   - Monitor progress
+   - View live results
+
+5. **Analyze Results**
+   - Device list
+   - Topology map
+   - Export data
+
+## Mapping and Visualization
+
+### Network Diagrams
+- Automatic layout
+- Device grouping
+- Connection types
+- Visual hierarchy
+
+### Export Formats
+- Visio
+- PNG/JPG
+- PDF
+- CSV data
+
+### Customization
+- Custom icons
+- Color coding
+- Labels and notes
+- Layout options
+
+## Integration Features
+
+### Database Export
+- SQL Server
+- Oracle
+- MySQL
+- CSV/Excel
+
+### SIEM Integration
+- Log forwarding
+- Alert integration
+- Event correlation
+
+### API Access
+- RESTful API
+- PowerShell
+- Scripting capabilities
+
+## Reconnaissance Use Cases
+
+### Network Mapping
+```
+Discover network layout
+Identify network segments
+Map routing paths
+Document infrastructure
+```
+
+### Asset Discovery
+```
+Find live hosts
+Identify device types
+Catalog services
+Track MAC addresses
+```
+
+### Vulnerability Assessment Support
+```
+Identify scan targets
+Prioritize systems
+Map dependencies
+Plan attack paths
+```
+
+## Best Practices
+
+### Reconnaissance Phase
+1. Start with broad scans
+2. Identify network ranges
+3. Map topology
+4. Document findings
+
+### Stealth Considerations
+- Slow scan rates
+- Randomize timing
+- Avoid detection patterns
+- Use legitimate credentials when possible
+
+### Documentation
+- Save topology maps
+- Export device lists
+- Record timestamps
+- Note anomalies
+
+## Command-Line Tools
+
+### SNMP Walk
+```bash
+# Using SolarWinds CLI
+snmpwalk -v2c -c public 192.168.1.1
+```
+
+### Bulk Operations
+```powershell
+# PowerShell script example
+Import-Module SolarWinds
+Get-NetworkDevices -Subnet "192.168.1.0/24"
+```
+
+## Limitations
+
+- Commercial software (costs)
+- Windows-focused
+- Can be detected
+- Requires proper credentials for deep scanning
+- May trigger security alerts
+
+## Alternatives
+
+- **Nmap**: Open-source scanning
+- **Angry IP Scanner**: Simple IP scanning
+- **NetXMS**: Open-source monitoring
+- **Zabbix**: Network monitoring
+- **PRTG**: Network monitoring
+
+## Detection and Evasion
+
+### Common Detections
+- IDS/IPS signatures
+- SNMP query logs
+- WMI access logs
+- Unusual scan patterns
+
+### Evasion Techniques
+- Slow scanning
+- Use legitimate accounts
+- Scan during business hours
+- Blend with normal traffic
+
+## Legal Considerations
+
+⚠️ **Important**: Only use on authorized networks!
+
+- Get written permission
+- Define scope clearly
+- Follow rules of engagement
+- Document authorization
+
+## Resources
+
+- Official Documentation: https://www.solarwinds.com/
+- Community Forums
+- Training materials
+- Knowledge base
