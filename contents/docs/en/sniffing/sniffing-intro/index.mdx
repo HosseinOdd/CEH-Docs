@@ -1,0 +1,336 @@
+---
+title: Introduction to Sniffing
+description: Network packet sniffing, protocols, and attack techniques
+---
+
+## What is Sniffing?
+
+Network sniffing (packet sniffing) is the process of capturing and analyzing network traffic. It can be used for legitimate purposes (network troubleshooting, security monitoring) or malicious purposes (stealing credentials, eavesdropping).
+
+## How Sniffing Works
+
+### Network Communication
+- Data travels in packets
+- Packets contain headers and payload
+- Headers include source/destination info
+- Payload contains actual data
+
+### Network Topologies
+
+#### Hub-Based Networks
+- Broadcasts to all ports
+- Easy to sniff
+- All devices see all traffic
+- **Obsolete technology**
+
+#### Switch-Based Networks
+- Forwards to specific ports only
+- Uses MAC address table (CAM)
+- More secure than hubs
+- Requires attack techniques to sniff
+
+## Types of Sniffing
+
+### Passive Sniffing
+- Monitor traffic without interaction
+- Works on hub networks
+- Silent and undetectable
+- Limited to broadcast domain
+
+### Active Sniffing
+- Inject packets to capture traffic
+- Required for switched networks
+- ARP spoofing, MAC flooding
+- Can be detected
+
+## Protocols Vulnerable to Sniffing
+
+### Unencrypted Protocols
+- **HTTP**: Web traffic (credentials, data)
+- **FTP**: File transfer (username/password)
+- **Telnet**: Remote access (plaintext)
+- **SMTP**: Email (messages, credentials)
+- **POP3/IMAP**: Email retrieval
+- **DNS**: Domain queries
+
+### Partially Secure Protocols
+- **HTTPS**: Encrypted, but metadata visible
+- **SSH**: Encrypted, connection info visible
+- **VPN**: Encrypted tunnel, endpoints visible
+
+## What Can Be Captured?
+
+### Credentials
+```
+POST /login HTTP/1.1
+Host: example.com
+Content-Type: application/x-www-form-urlencoded
+
+username=admin&password=secret123
+```
+
+### Email Content
+```
+MAIL FROM: sender@example.com
+RCPT TO: victim@example.com
+DATA
+Subject: Confidential
+This is sensitive information...
+```
+
+### Session Cookies
+```
+GET / HTTP/1.1
+Host: website.com
+Cookie: sessionid=abc123xyz789
+```
+
+### File Transfers
+- FTP downloads/uploads
+- HTTP file transfers
+- Unencrypted attachments
+
+## Sniffing Tools
+
+### Command-Line Tools
+
+#### tcpdump
+```bash
+# Capture all traffic
+sudo tcpdump -i eth0
+
+# Save to file
+sudo tcpdump -i eth0 -w capture.pcap
+
+# Filter by protocol
+sudo tcpdump -i eth0 tcp port 80
+
+# Read from file
+tcpdump -r capture.pcap
+```
+
+#### Wireshark (TShark CLI)
+```bash
+# Capture traffic
+tshark -i eth0 -w capture.pcap
+
+# Display filters
+tshark -r capture.pcap -Y "http.request"
+
+# Extract HTTP objects
+tshark -r capture.pcap --export-objects http,output_dir
+```
+
+### GUI Tools
+
+#### Wireshark
+- Most popular packet analyzer
+- Graphical interface
+- Protocol dissection
+- Advanced filtering
+- Follow TCP streams
+
+#### Ettercap
+- MITM attacks
+- ARP poisoning
+- Content filtering
+- Plugin support
+
+#### Cain & Abel (Windows)
+- Password recovery
+- Network sniffing
+- ARP poisoning
+- VoIP recording
+
+## Network Attacks for Sniffing
+
+### MAC Flooding
+- Overflow switch CAM table
+- Switch acts as hub
+- All traffic broadcast
+
+### ARP Spoofing/Poisoning
+- Send fake ARP replies
+- Associate attacker MAC with target IP
+- Redirect traffic through attacker
+
+### DHCP Starvation
+- Exhaust DHCP pool
+- Force victims to rogue DHCP
+- Control network settings
+
+### DNS Spoofing
+- Fake DNS responses
+- Redirect to malicious sites
+- Credential harvesting
+
+### MITM (Man-in-the-Middle)
+- Position between client and server
+- Intercept and modify traffic
+- SSL stripping attacks
+
+## Switched Network Attacks
+
+### CAM Table Overflow
+```bash
+# Using macof
+macof -i eth0 -s 10.0.0.1 -d 10.0.0.2
+
+# Floods switch with fake MAC addresses
+```
+
+### ARP Cache Poisoning
+```bash
+# Using arpspoof
+arpspoof -i eth0 -t victim_ip gateway_ip
+arpspoof -i eth0 -t gateway_ip victim_ip
+
+# Enable IP forwarding
+echo 1 > /proc/sys/net/ipv4/ip_forward
+```
+
+## Detection Methods
+
+### Network-Based Detection
+
+#### ARP Monitoring
+- Detect duplicate IPs with different MACs
+- Monitor ARP cache changes
+- Alert on unusual ARP traffic
+
+#### Traffic Analysis
+- Unusual packet patterns
+- Promiscuous mode detection
+- MAC address anomalies
+
+### Host-Based Detection
+
+#### Check Promiscuous Mode
+```bash
+# Linux
+ip link show eth0
+# Look for PROMISC flag
+
+# Check with ifconfig
+ifconfig eth0 | grep PROMISC
+```
+
+#### ARP Cache Inspection
+```bash
+# View ARP table
+arp -a
+
+# Static ARP entries (prevention)
+arp -s 192.168.1.1 00:11:22:33:44:55
+```
+
+## Prevention Techniques
+
+### Network Security
+
+#### Port Security
+```cisco
+# Cisco switch configuration
+interface FastEthernet0/1
+switchport mode access
+switchport port-security
+switchport port-security maximum 1
+switchport port-security violation shutdown
+```
+
+#### DHCP Snooping
+```cisco
+# Enable DHCP snooping
+ip dhcp snooping
+ip dhcp snooping vlan 10
+
+# Trust uplink ports
+interface GigabitEthernet0/1
+ip dhcp snooping trust
+```
+
+#### Dynamic ARP Inspection (DAI)
+```cisco
+# Enable DAI
+ip arp inspection vlan 10
+
+# Trust ports
+interface GigabitEthernet0/1
+ip arp inspection trust
+```
+
+### Encryption
+
+#### Use Encrypted Protocols
+- HTTPS instead of HTTP
+- SSH instead of Telnet
+- SFTP instead of FTP
+- IMAPS/POP3S instead of IMAP/POP3
+- VPN for remote access
+
+#### SSL/TLS
+- Encrypt web traffic
+- Certificate validation
+- Perfect Forward Secrecy
+
+### Network Segmentation
+- VLANs for isolation
+- Firewall between segments
+- DMZ for public services
+- Separate admin network
+
+## Legal and Ethical Considerations
+
+### Legal Issues
+- **Wiretapping laws**: Illegal without consent
+- **Computer Fraud and Abuse Act**: Unauthorized access
+- **Privacy laws**: GDPR, HIPAA violations
+- **Workplace monitoring**: May require disclosure
+
+### Authorized Testing
+- Written permission required
+- Define scope clearly
+- Document findings
+- Follow responsible disclosure
+
+## Sniffing in Wireless Networks
+
+### Wireless Sniffing
+```bash
+# Monitor mode
+sudo airmon-ng start wlan0
+
+# Capture packets
+sudo airodump-ng wlan0mon
+
+# WPA handshake capture
+sudo airodump-ng -c 6 --bssid XX:XX:XX:XX:XX:XX -w capture wlan0mon
+```
+
+### Wireless Vulnerabilities
+- Open networks: No encryption
+- WEP: Easily cracked
+- WPA/WPA2: Handshake capture + dictionary attack
+- Evil twin: Rogue access point
+- Deauth attacks: Force reconnection
+
+## Best Practices for Defense
+
+1. **Use encryption** for all sensitive communications
+2. **Implement port security** on switches
+3. **Enable DHCP snooping** and DAI
+4. **Monitor network traffic** for anomalies
+5. **Use VPN** for remote access
+6. **Static ARP entries** for critical systems
+7. **Network segmentation** to limit exposure
+8. **Regular security audits** and penetration testing
+9. **User awareness training** about secure protocols
+10. **Certificate pinning** for critical applications
+
+## Resources
+
+- Wireshark: https://www.wireshark.org
+- tcpdump: https://www.tcpdump.org
+- Ettercap: https://www.ettercap-project.org
+- Packet Analysis Training
+- Network Security Fundamentals
