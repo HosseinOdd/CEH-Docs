@@ -1,0 +1,160 @@
+---
+title: Website Reconnaissance
+description: Techniques and tools for gathering information from websites
+---
+
+## Website Reconnaissance Overview
+
+Website reconnaissance involves collecting information about a target website to identify vulnerabilities, technologies used, and potential entry points for attacks.
+
+## Information to Gather
+
+- Web server type and version
+- Operating system
+- Programming languages and frameworks
+- Content Management System (CMS)
+- Third-party plugins and extensions
+- Directory structure
+- Hidden files and directories
+- Subdomains
+- Email addresses
+- Technologies and libraries
+
+## Website Reconnaissance Techniques
+
+### Examining Website Source Code
+
+View page source to find:
+- Hidden comments
+- Metadata
+- JavaScript files
+- API endpoints
+- Developer notes
+- Framework clues
+
+### Analyzing HTTP Headers
+
+HTTP headers reveal:
+- Server information
+- Programming language
+- Framework details
+- Security headers
+- Cookies configuration
+
+### Robots.txt Analysis
+
+The robots.txt file can reveal:
+- Hidden directories
+- Admin panels
+- Restricted areas
+- Disallowed paths
+
+### Sitemap.xml Analysis
+
+Sitemaps provide:
+- Complete site structure
+- All indexed pages
+- Last modification dates
+- Priority pages
+
+### Website Mirroring
+
+Creating local copies of websites for offline analysis using tools like:
+- HTTrack
+- Wget
+- cURL
+
+### Subdomain Enumeration
+
+Finding subdomains to expand attack surface:
+- DNS enumeration
+- Certificate transparency logs
+- Search engine queries
+- Subdomain brute-forcing
+
+## Website Reconnaissance Tools
+
+### Web Technology Identification
+
+**Wappalyzer**
+Browser extension that identifies technologies used on websites.
+
+**BuiltWith**
+Provides detailed technology profile of websites.
+
+**WhatWeb**
+Command-line tool for identifying website technologies.
+
+### Website Scanning
+
+**Nikto**
+Web server scanner that tests for vulnerabilities and misconfigurations.
+
+**Burp Suite**
+Comprehensive web application security testing platform.
+
+**OWASP ZAP**
+Open-source web application security scanner.
+
+### Subdomain Discovery
+
+**Sublist3r**
+Python tool for enumerating subdomains.
+
+**Amass**
+In-depth DNS enumeration and network mapping.
+
+**DNSdumpster**
+Online DNS reconnaissance tool.
+
+### Website Crawling
+
+**Scrapy**
+Python framework for web scraping and crawling.
+
+**Beautiful Soup**
+Python library for parsing HTML and XML.
+
+**Selenium**
+Browser automation for dynamic content.
+
+## Metadata Extraction
+
+Extract metadata from files found on websites:
+- Document author names
+- Software versions
+- Creation dates
+- Edit history
+- Internal paths
+- User accounts
+
+**Tools:**
+- ExifTool
+- FOCA
+- Metagoofil
+
+## Web Application Fingerprinting
+
+Identifying specific web applications and versions:
+- CMS detection (WordPress, Joomla, Drupal)
+- E-commerce platforms
+- Forum software
+- Custom applications
+
+## WHOIS and DNS Information
+
+Gathering domain registration and DNS data:
+- Registrar information
+- Name servers
+- Contact details
+- Registration dates
+- DNS records (A, MX, NS, TXT)
+
+## Best Practices
+
+- Always obtain proper authorization
+- Document all findings
+- Respect rate limits and robots.txt
+- Use VPN or proxy for anonymity
+- Avoid aggressive scanning
+- Report vulnerabilities responsibly
