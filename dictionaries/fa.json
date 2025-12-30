@@ -62,7 +62,18 @@
         "social_engineering": "مهندسی اجتماعی",
         "website_reconnaissance": "بررسی وب‌سایت",
         "email_header": "تحلیل هدر ایمیل",
-        "dns_footprinting": "شناسایی DNS"
+        "dns_footprinting": "شناسایی DNS",
+        "network_scanning": "اسکن سیستماتیک شبکه",
+        "network_scanning_intro": "مقدمه‌ای بر اسکن شبکه",
+        "port_scan_basics": "مبانی اسکن پورت",
+        "hping3": "Hping3",
+        "nmap": "Nmap",
+        "idle_scan": "اسکن Idle",
+        "os_fingerprinting": "شناسایی سیستم‌عامل",
+        "nessus": "Nessus",
+        "solar_winds": "SolarWinds Network Mapper",
+        "scapy": "Scapy",
+        "proxies": "پروکسی‌ها"
     },
     "blog": {
         "title": "آخرین مقالات و به‌روزرسانی‌های CEH",

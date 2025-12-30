@@ -62,7 +62,18 @@
         "social_engineering": "Social Engineering",
         "website_reconnaissance": "Website Reconnaissance",
         "email_header": "Email Header Analysis",
-        "dns_footprinting": "DNS Footprinting"
+        "dns_footprinting": "DNS Footprinting",
+        "network_scanning": "Network Scanning",
+        "network_scanning_intro": "Introduction to Network Scanning",
+        "port_scan_basics": "Port Scanning Basics",
+        "hping3": "Hping3",
+        "nmap": "Nmap",
+        "idle_scan": "Idle Scan",
+        "os_fingerprinting": "OS Fingerprinting",
+        "nessus": "Nessus",
+        "solar_winds": "SolarWinds Network Mapper",
+        "scapy": "Scapy",
+        "proxies": "Proxies"
     },
     "blog": {
         "title": "Latest CEH Articles and Updates",

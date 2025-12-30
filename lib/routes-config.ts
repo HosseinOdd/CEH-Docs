@@ -45,6 +45,23 @@ export const ROUTES: EachRoute[] = [
       { title: "dns_footprinting", href: "/dns-footprinting" },
     ],
   },
+  {
+    title: "network_scanning",
+    href: "/network-scanning",
+    noLink: true,
+    items: [
+      { title: "network_scanning_intro", href: "/network-scanning-intro" },
+      { title: "port_scan_basics", href: "/port-scan-basics" },
+      { title: "hping3", href: "/hping3" },
+      { title: "nmap", href: "/nmap" },
+      { title: "idle_scan", href: "/idle-scan" },
+      { title: "os_fingerprinting", href: "/os-fingerprinting" },
+      { title: "nessus", href: "/nessus" },
+      { title: "solar_winds", href: "/solar-winds" },
+      { title: "scapy", href: "/scapy" },
+      { title: "proxies", href: "/proxies" },
+    ],
+  },
 ];
 
 type Page = { title: string; href: string };
