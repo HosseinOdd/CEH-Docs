@@ -53,7 +53,14 @@
         "ceh_phrases": "اصطلاحات CEH",
         "ethical_hacking_phrases": "اصطلاحات هک اخلاقی",
         "attack_phrases": "اصطلاحات حمله",
-        "hacking_fundamentals": "مبانی هک"
+        "hacking_fundamentals": "مبانی هک",
+        "footprinting_reconnaissance": "بررسی و شناسایی ردپاها",
+        "footprinting_intro": "مقدمه‌ای بر شناسایی ردپاها",
+        "hack_using_google": "هک با استفاده از گوگل",
+        "social_engineering": "مهندسی اجتماعی",
+        "website_reconnaissance": "بررسی وب‌سایت",
+        "email_header": "تحلیل هدر ایمیل",
+        "dns_footprinting": "شناسایی DNS"
     },
     "blog": {
         "title": "آخرین مقالات و به‌روزرسانی‌های CEH",

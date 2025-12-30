@@ -53,7 +53,14 @@
         "ceh_phrases": "CEH Phrases",
         "ethical_hacking_phrases": "Ethical Hacking Phrases",
         "attack_phrases": "Attack Phrases",
-        "hacking_fundamentals": "Hacking Fundamentals"
+        "hacking_fundamentals": "Hacking Fundamentals",
+        "footprinting_reconnaissance": "Footprinting and Reconnaissance",
+        "footprinting_intro": "Introduction to Footprinting",
+        "hack_using_google": "Hacking with Google",
+        "social_engineering": "Social Engineering",
+        "website_reconnaissance": "Website Reconnaissance",
+        "email_header": "Email Header Analysis",
+        "dns_footprinting": "DNS Footprinting"
     },
     "blog": {
         "title": "Latest CEH Articles and Updates",

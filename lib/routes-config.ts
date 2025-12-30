@@ -30,6 +30,19 @@ export const ROUTES: EachRoute[] = [
       { title: "hacking_fundamentals", href: "/hacking-fundamentals" },
     ],
   },
+  {
+    title: "footprinting_reconnaissance",
+    href: "/footprinting-reconnaissance",
+    noLink: true,
+    items: [
+      { title: "footprinting_intro", href: "/footprinting-intro" },
+      { title: "hack_using_google", href: "/hack-using-google" },
+      { title: "social_engineering", href: "/social-engineering" },
+      { title: "website_reconnaissance", href: "/website-reconnaissance" },
+      { title: "email_header", href: "/email-header" },
+      { title: "dns_footprinting", href: "/dns-footprinting" },
+    ],
+  },
 ];
 
 type Page = { title: string; href: string };
