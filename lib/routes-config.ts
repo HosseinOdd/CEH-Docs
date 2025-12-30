@@ -21,8 +21,8 @@ export const ROUTES: EachRoute[] = [
     ],
   },
   {
-    title: "ceh_phases",
-    href: "/ceh-phases",
+    title: "ceh_phrases",
+    href: "/ceh-phrases",
     noLink: true,
     items: [
       { title: "ethical_hacking_phrases", href: "/ethical-hacking-phrases" },
