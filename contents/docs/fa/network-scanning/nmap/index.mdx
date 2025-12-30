@@ -1,0 +1,298 @@
+---
+title: Nmap
+description: قدرتمندترین و محبوب‌ترین ابزار اسکن شبکه برای متخصصان امنیت
+---
+
+## Nmap چیست؟
+
+Nmap (Network Mapper) یک ابزار رایگان و متن‌باز برای کشف شبکه و ممیزی امنیتی است. این ابزار استاندارد صنعت برای اسکن پورت و نقشه‌برداری شبکه است که توسط متخصصان امنیت در سراسر جهان استفاده می‌شود.
+
+## نصب
+
+### Linux
+```bash
+sudo apt-get install nmap      # Debian/Ubuntu
+sudo yum install nmap           # Red Hat/CentOS
+```
+
+### macOS
+```bash
+brew install nmap
+```
+
+### Windows
+دانلود از: https://nmap.org/download.html
+
+## نحو پایه
+
+```bash
+nmap [نوع اسکن] [گزینه‌ها] هدف
+```
+
+## مشخص کردن هدف
+
+```bash
+nmap 192.168.1.1                    # IP واحد
+nmap 192.168.1.1-254                # محدوده IP
+nmap 192.168.1.0/24                 # نشانه‌گذاری CIDR
+nmap scanme.nmap.org                # نام دامنه
+nmap 192.168.1.1 192.168.1.5        # چند هدف
+nmap -iL targets.txt                # خواندن از فایل
+nmap 192.168.1.* --exclude 192.168.1.1  # حذف هاست‌ها
+```
+
+## انواع اسکن
+
+### اسکن TCP Connect (`-sT`)
+```bash
+nmap -sT target.com
+```
+- دست‌دهی کامل TCP را تکمیل می‌کند
+- دقیق‌ترین
+- به راحتی تشخیص و لاگ می‌شود
+- پیش‌فرض برای کاربران غیر root
+
+### اسکن SYN (`-sS`)
+```bash
+sudo nmap -sS target.com
+```
+- اسکن نیمه‌باز (اسکن مخفیانه)
+- دست‌دهی را کامل نمی‌کند
+- نیاز به مجوزهای root دارد
+- اسکن پیش‌فرض برای root
+
+### اسکن UDP (`-sU`)
+```bash
+sudo nmap -sU target.com
+```
+- پورت‌های UDP را اسکن می‌کند
+- کندتر از اسکن‌های TCP
+- نیاز به مجوزهای root دارد
+
+## تعیین پورت
+
+```bash
+nmap -p 22 target.com                   # پورت واحد
+nmap -p 22,80,443 target.com            # چند پورت
+nmap -p 1-1000 target.com               # محدوده پورت
+nmap -p- target.com                     # تمام 65535 پورت
+nmap -p U:53,T:80 target.com            # UDP و TCP
+nmap --top-ports 100 target.com         # 100 پورت برتر
+nmap -F target.com                      # اسکن سریع (100 پورت)
+```
+
+## کشف هاست
+
+### اسکن Ping (`-sn`)
+```bash
+nmap -sn 192.168.1.0/24
+```
+- هاست‌های زنده را کشف می‌کند
+- بدون اسکن پورت
+
+### بدون Ping (`-Pn`)
+```bash
+nmap -Pn target.com
+```
+- کشف هاست را رد می‌کند
+- فرض می‌کند هاست فعال است
+
+## تشخیص سرویس و نسخه
+
+### تشخیص نسخه (`-sV`)
+```bash
+nmap -sV target.com
+```
+- نسخه‌های سرویس را تشخیص می‌دهد
+- پورت‌های باز را بررسی می‌کند
+
+### اسکن تهاجمی (`-A`)
+```bash
+nmap -A target.com
+```
+- تشخیص سیستم‌عامل را فعال می‌کند
+- تشخیص نسخه
+- اسکن اسکریپت
+- Traceroute
+
+### تشخیص سیستم‌عامل (`-O`)
+```bash
+sudo nmap -O target.com
+```
+- سیستم‌عامل را شناسایی می‌کند
+- نیاز به مجوزهای root دارد
+
+## زمان‌بندی و عملکرد
+
+```bash
+nmap -T0 target.com     # پارانوید (کندترین)
+nmap -T1 target.com     # مخفیانه
+nmap -T2 target.com     # مؤدبانه
+nmap -T3 target.com     # عادی (پیش‌فرض)
+nmap -T4 target.com     # تهاجمی
+nmap -T5 target.com     # دیوانه (سریع‌ترین)
+```
+
+## گزینه‌های خروجی
+
+```bash
+nmap -oN output.txt target.com          # خروجی عادی
+nmap -oX output.xml target.com          # خروجی XML
+nmap -oG output.txt target.com          # خروجی Grepable
+nmap -oA basename target.com            # تمام فرمت‌ها
+nmap -v target.com                      # پرحرف
+nmap -vv target.com                     # خیلی پرحرف
+```
+
+## اسکریپت‌های NSE
+
+### اجرای اسکریپت‌ها
+```bash
+nmap --script=default target.com
+nmap --script=vuln target.com
+nmap --script=http-* target.com
+nmap --script=ssl-enum-ciphers -p 443 target.com
+```
+
+### اسکریپت‌های محبوب
+```bash
+# شمارش HTTP
+nmap --script=http-enum target.com
+
+# تست SSL/TLS
+nmap --script=ssl-heartbleed -p 443 target.com
+
+# شمارش SMB
+nmap --script=smb-enum-shares target.com
+
+# اسکن آسیب‌پذیری
+nmap --script=vuln target.com
+```
+
+## فرار از فایروال
+
+### تکه‌تکه کردن بسته‌ها (`-f`)
+```bash
+nmap -f target.com
+```
+
+### اسکن فریبنده (`-D`)
+```bash
+nmap -D RND:10 target.com           # 10 فریبنده تصادفی
+```
+
+### جعل IP منبع (`-S`)
+```bash
+nmap -S spoof_ip target.com
+```
+
+### جعل آدرس MAC
+```bash
+nmap --spoof-mac 0 target.com       # MAC تصادفی
+```
+
+## تکنیک‌های پیشرفته
+
+### اسکن Idle (`-sI`)
+```bash
+nmap -sI zombie_host:port target.com
+```
+- از هاست زامبی استفاده می‌کند
+- کاملاً ناشناس
+
+### Traceroute
+```bash
+nmap --traceroute target.com
+```
+
+## مثال‌های عملی
+
+### اسکن پایه شبکه
+```bash
+nmap -sn 192.168.1.0/24
+```
+
+### اسکن کامل پورت با تشخیص سرویس
+```bash
+nmap -p- -sV -T4 target.com
+```
+
+### اسکن تهاجمی
+```bash
+nmap -A -T4 target.com
+```
+
+### اسکن سریع پورت‌های برتر
+```bash
+nmap --top-ports 20 --open target.com
+```
+
+### اسکن آسیب‌پذیری
+```bash
+nmap --script=vuln -sV target.com
+```
+
+### اسکن مخفیانه
+```bash
+sudo nmap -sS -T2 -f target.com
+```
+
+### شمارش وب سرور
+```bash
+nmap -p 80,443 --script=http-enum target.com
+```
+
+## تحلیل خروجی
+
+### وضعیت‌های پورت
+- **open**: سرویس پذیرای اتصالات
+- **closed**: پورت قابل دسترس، بدون سرویس
+- **filtered**: فایروال مسدود می‌کند
+- **open|filtered**: نمی‌توان تعیین کرد
+- **closed|filtered**: نمی‌توان تعیین کرد
+- **unfiltered**: قابل دسترس، وضعیت ناشناخته
+
+## بهترین روش‌ها
+
+1. **مجوز**: همیشه اجازه بگیرید
+2. **شروع ملایم**: با اسکن‌های کم‌تهاجم‌تر شروع کنید
+3. **مستندسازی**: سوابق دقیق نگه دارید
+4. **زمان‌بندی**: از سرعت‌های اسکن مناسب استفاده کنید
+5. **محدوده**: در اهداف مجاز بمانید
+6. **قانونی**: پیامدهای قانونی را درک کنید
+
+## موارد استفاده رایج
+
+### فهرست شبکه
+```bash
+nmap -sn -oX inventory.xml 192.168.1.0/24
+```
+
+### ممیزی امنیتی
+```bash
+nmap -sV --script=vuln -oA audit target.com
+```
+
+### تست فایروال
+```bash
+nmap -sA -p 1-1000 target.com
+```
+
+### کشف سرویس
+```bash
+nmap -sV --version-intensity 5 target.com
+```
+
+## محدودیت‌ها
+
+- نیاز به مجوزهای مناسب دارد
+- توسط IDS/IPS قابل تشخیص است
+- تحت تأثیر فایروال‌ها قرار می‌گیرد
+- نتایج ممکن است ناقص باشند
+- محدودیت‌های قانونی اعمال می‌شود
+
+## منابع
+
+- مستندات رسمی: https://nmap.org/docs.html
+- کتاب Nmap: https://nmap.org/book/
+- اسکریپت‌های NSE: https://nmap.org/nsedoc/

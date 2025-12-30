@@ -1,0 +1,397 @@
+---
+title: Nmap
+description: The most powerful and popular network scanning tool for security professionals
+---
+
+## What is Nmap?
+
+Nmap (Network Mapper) is a free, open-source tool for network discovery and security auditing. It's the industry standard for port scanning and network mapping, used by security professionals worldwide.
+
+## Installation
+
+### Linux
+```bash
+sudo apt-get install nmap      # Debian/Ubuntu
+sudo yum install nmap           # Red Hat/CentOS
+```
+
+### macOS
+```bash
+brew install nmap
+```
+
+### Windows
+Download from: https://nmap.org/download.html
+
+## Basic Syntax
+
+```bash
+nmap [Scan Type] [Options] target
+```
+
+## Target Specification
+
+```bash
+nmap 192.168.1.1                    # Single IP
+nmap 192.168.1.1-254                # IP range
+nmap 192.168.1.0/24                 # CIDR notation
+nmap scanme.nmap.org                # Domain name
+nmap 192.168.1.1 192.168.1.5        # Multiple targets
+nmap -iL targets.txt                # Read from file
+nmap 192.168.1.* --exclude 192.168.1.1  # Exclude hosts
+```
+
+## Scan Types
+
+### TCP Connect Scan (`-sT`)
+```bash
+nmap -sT target.com
+```
+- Completes full TCP handshake
+- Most accurate
+- Easily detected and logged
+- Default for non-root users
+
+### SYN Scan (`-sS`)
+```bash
+sudo nmap -sS target.com
+```
+- Half-open scan (stealth scan)
+- Doesn't complete handshake
+- Requires root privileges
+- Default scan for root
+
+### UDP Scan (`-sU`)
+```bash
+sudo nmap -sU target.com
+```
+- Scans UDP ports
+- Slower than TCP scans
+- Requires root privileges
+
+### ACK Scan (`-sA`)
+```bash
+sudo nmap -sA target.com
+```
+- Used to map firewall rules
+- Determines filtered vs unfiltered
+
+### FIN Scan (`-sF`)
+```bash
+sudo nmap -sF target.com
+```
+- Sends FIN packets
+- Stealthier than SYN scan
+
+### NULL Scan (`-sN`)
+```bash
+sudo nmap -sN target.com
+```
+- Sends packets with no flags
+- Bypasses some firewalls
+
+### XMAS Scan (`-sX`)
+```bash
+sudo nmap -sX target.com
+```
+- Sets FIN, PSH, URG flags
+- Useful for firewall testing
+
+## Port Specification
+
+```bash
+nmap -p 22 target.com                   # Single port
+nmap -p 22,80,443 target.com            # Multiple ports
+nmap -p 1-1000 target.com               # Port range
+nmap -p- target.com                     # All 65535 ports
+nmap -p U:53,T:80 target.com            # UDP and TCP
+nmap --top-ports 100 target.com         # Top 100 ports
+nmap -F target.com                      # Fast scan (100 ports)
+```
+
+## Host Discovery
+
+### Ping Scan (`-sn`)
+```bash
+nmap -sn 192.168.1.0/24
+```
+- Discovers live hosts
+- No port scanning
+
+### No Ping (`-Pn`)
+```bash
+nmap -Pn target.com
+```
+- Skip host discovery
+- Assume host is up
+
+### ICMP Echo (`-PE`)
+```bash
+nmap -PE target.com
+```
+
+### TCP SYN Discovery (`-PS`)
+```bash
+nmap -PS22,80,443 target.com
+```
+
+### ARP Discovery (`-PR`)
+```bash
+nmap -PR 192.168.1.0/24
+```
+- Only works on local network
+- Very fast and accurate
+
+## Service and Version Detection
+
+### Version Detection (`-sV`)
+```bash
+nmap -sV target.com
+```
+- Detects service versions
+- Probes open ports
+
+### Aggressive Scan (`-A`)
+```bash
+nmap -A target.com
+```
+- Enables OS detection
+- Version detection
+- Script scanning
+- Traceroute
+
+### OS Detection (`-O`)
+```bash
+sudo nmap -O target.com
+```
+- Identifies operating system
+- Requires root privileges
+
+## Timing and Performance
+
+```bash
+nmap -T0 target.com     # Paranoid (slowest)
+nmap -T1 target.com     # Sneaky
+nmap -T2 target.com     # Polite
+nmap -T3 target.com     # Normal (default)
+nmap -T4 target.com     # Aggressive
+nmap -T5 target.com     # Insane (fastest)
+```
+
+### Custom Timing
+```bash
+nmap --max-rate 100 target.com          # Max packets per second
+nmap --min-rate 10 target.com           # Min packets per second
+nmap --host-timeout 5m target.com       # Give up after 5 min
+```
+
+## Output Options
+
+```bash
+nmap -oN output.txt target.com          # Normal output
+nmap -oX output.xml target.com          # XML output
+nmap -oG output.txt target.com          # Grepable output
+nmap -oA basename target.com            # All formats
+nmap -v target.com                      # Verbose
+nmap -vv target.com                     # Very verbose
+```
+
+## NSE Scripts
+
+### Script Categories
+- **auth**: Authentication
+- **broadcast**: Broadcast discovery
+- **brute**: Brute force attacks
+- **default**: Default scripts
+- **discovery**: Network discovery
+- **dos**: Denial of service
+- **exploit**: Exploitation
+- **external**: External resources
+- **fuzzer**: Fuzzing
+- **intrusive**: Intrusive scans
+- **malware**: Malware detection
+- **safe**: Safe scripts
+- **version**: Version detection
+- **vuln**: Vulnerability detection
+
+### Running Scripts
+```bash
+nmap --script=default target.com
+nmap --script=vuln target.com
+nmap --script=http-* target.com
+nmap --script=ssl-enum-ciphers -p 443 target.com
+nmap --script-args=unsafe=1 target.com
+```
+
+### Popular Scripts
+```bash
+# HTTP enumeration
+nmap --script=http-enum target.com
+
+# SSL/TLS testing
+nmap --script=ssl-heartbleed -p 443 target.com
+
+# SMB enumeration
+nmap --script=smb-enum-shares target.com
+
+# Vulnerability scanning
+nmap --script=vuln target.com
+
+# Brute force
+nmap --script=ssh-brute target.com
+```
+
+## Firewall Evasion
+
+### Fragment Packets (`-f`)
+```bash
+nmap -f target.com
+```
+
+### MTU Specification
+```bash
+nmap --mtu 24 target.com
+```
+
+### Decoy Scan (`-D`)
+```bash
+nmap -D RND:10 target.com           # 10 random decoys
+nmap -D decoy1,decoy2,ME target.com # Specific decoys
+```
+
+### Spoof Source IP (`-S`)
+```bash
+nmap -S spoof_ip target.com
+```
+
+### Spoof MAC Address
+```bash
+nmap --spoof-mac 0 target.com       # Random MAC
+nmap --spoof-mac Apple target.com   # Apple MAC
+```
+
+### Randomize Hosts
+```bash
+nmap --randomize-hosts -iL targets.txt
+```
+
+### Bad Checksums
+```bash
+nmap --badsum target.com
+```
+
+## Advanced Techniques
+
+### Idle Scan (`-sI`)
+```bash
+nmap -sI zombie_host:port target.com
+```
+- Uses zombie host
+- Completely anonymous
+
+### FTP Bounce Scan
+```bash
+nmap -b ftp_server target.com
+```
+
+### IPv6 Scanning
+```bash
+nmap -6 target.com
+```
+
+### Traceroute
+```bash
+nmap --traceroute target.com
+```
+
+## Practical Examples
+
+### Basic Network Scan
+```bash
+nmap -sn 192.168.1.0/24
+```
+
+### Full Port Scan with Service Detection
+```bash
+nmap -p- -sV -T4 target.com
+```
+
+### Aggressive Scan
+```bash
+nmap -A -T4 target.com
+```
+
+### Quick Scan of Top Ports
+```bash
+nmap --top-ports 20 --open target.com
+```
+
+### Vulnerability Scan
+```bash
+nmap --script=vuln -sV target.com
+```
+
+### Stealth Scan
+```bash
+sudo nmap -sS -T2 -f target.com
+```
+
+### Web Server Enumeration
+```bash
+nmap -p 80,443 --script=http-enum target.com
+```
+
+## Output Analysis
+
+### Port States
+- **open**: Service accepting connections
+- **closed**: Port accessible, no service
+- **filtered**: Firewall blocking
+- **open|filtered**: Cannot determine
+- **closed|filtered**: Cannot determine
+- **unfiltered**: Accessible, state unknown
+
+## Best Practices
+
+1. **Authorization**: Always get permission
+2. **Start Gentle**: Begin with less intrusive scans
+3. **Document**: Keep detailed records
+4. **Timing**: Use appropriate scan speeds
+5. **Scope**: Stay within authorized targets
+6. **Legal**: Understand legal implications
+
+## Common Use Cases
+
+### Network Inventory
+```bash
+nmap -sn -oX inventory.xml 192.168.1.0/24
+```
+
+### Security Audit
+```bash
+nmap -sV --script=vuln -oA audit target.com
+```
+
+### Firewall Testing
+```bash
+nmap -sA -p 1-1000 target.com
+```
+
+### Service Discovery
+```bash
+nmap -sV --version-intensity 5 target.com
+```
+
+## Limitations
+
+- Requires proper permissions
+- Can be detected by IDS/IPS
+- Affected by firewalls
+- Results may be incomplete
+- Legal restrictions apply
+
+## Resources
+
+- Official Documentation: https://nmap.org/docs.html
+- Nmap Book: https://nmap.org/book/
+- NSE Scripts: https://nmap.org/nsedoc/
