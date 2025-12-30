@@ -107,7 +107,8 @@
         "social_engineering_prevention": "Prevention",
         "dos": "DoS",
         "dos_introduction": "DoS Introduction",
-        "dos_layers": "Layers"
+        "dos_layers": "Layers",
+        "dos_hping3": "hping3"
 
     },
     "blog": {

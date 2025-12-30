@@ -1,0 +1,54 @@
+---
+title: hping3
+description: Introduction to hping3 and its relation to DoS attacks in CEH
+---
+
+## Introduction
+
+hping3 is a command-line network security tool used for crafting and sending custom TCP/IP packets. It allows security professionals and ethical hackers to analyze network behavior, test firewall rules, and evaluate intrusion detection systems.
+
+In CEH, hping3 is studied as an educational tool to understand low-level network protocols and how they can be abused.
+
+## Core Features of hping3
+
+hping3 provides fine-grained control over network packets, including:
+- Sending TCP, UDP, and ICMP packets
+- Manual control of TCP flags such as SYN, ACK, and FIN
+- Custom source and destination ports
+- Analyzing target system responses
+- Generating traffic to test service availability
+
+This level of control makes hping3 a powerful network analysis tool.
+
+## Common Uses of hping3 in CEH
+
+| Use Case | Description |
+|--------|------------|
+| Firewall Testing | Evaluating packet filtering rules |
+| IDS/IPS Testing | Observing detection and response behavior |
+| Network Analysis | Studying responses to crafted packets |
+| Availability Testing | Measuring service tolerance to traffic |
+
+## Relation of hping3 to DoS
+
+hping3 has a direct relationship with Denial of Service (DoS) attacks because it can generate large volumes of network traffic toward a target system. By sending crafted packets repeatedly, system resources such as bandwidth, connection tables, or CPU can be exhausted.
+
+In CEH, hping3 is used in controlled lab environments to simulate DoS attacks in order to:
+- Identify when a target system becomes unavailable
+- Analyze firewall and IDS/IPS responses
+- Determine which network layer is being affected
+- Understand resource exhaustion behavior
+
+These simulations help security professionals design better defensive strategies.
+
+## Example Educational Commands
+
+```bash
+# Send ICMP packets to test responsiveness
+hping3 -1 target_ip
+
+# Send TCP packets with SYN flag
+hping3 -S -p 80 target_ip
+
+# Send UDP packets
+hping3 -2 -p 53 target_ip
