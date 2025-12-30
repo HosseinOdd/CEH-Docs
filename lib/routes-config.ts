@@ -71,6 +71,7 @@ export const ROUTES: EachRoute[] = [
       { title: "windows_enumeration", href: "/windows-enumeration" },
       { title: "linux_enumeration", href: "/linux-enumeration" },
       { title: "netBIOS_enumeration", href: "/netBIOS-enumeration" },
+      { title: "DNS_enumeration", href: "/DNS-enumeration" },
     ],
   },
   {

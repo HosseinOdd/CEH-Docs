@@ -94,7 +94,9 @@
         "enumeration_introduction": "Enumeration Introduction",
         "windows_enumeration": "Windows",
         "linux_enumeration": "Linux",
-        "netBIOS_enumeration" : "NetBIOS"
+        "netBIOS_enumeration" : "NetBIOS",
+        "DNS_enumeration": "DNS"
+
     },
     "blog": {
         "title": "Latest CEH Articles and Updates",

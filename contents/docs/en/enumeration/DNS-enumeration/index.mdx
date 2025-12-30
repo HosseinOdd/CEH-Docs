@@ -1,0 +1,42 @@
+---
+title: DNS Enumeration
+description: In-depth enumeration of DNS records to identify hosts, services, and network structure
+---
+
+## Overview
+
+DNS Enumeration is the process of gathering detailed information from the Domain Name System (DNS). DNS plays a critical role in mapping domain names to IP addresses, and misconfigured DNS servers can leak valuable information about an organization’s internal and external infrastructure.
+
+This type of enumeration is commonly performed during the early stages of an attack to build an accurate map of the target network.
+
+## What is DNS
+
+DNS (Domain Name System) is a hierarchical and distributed naming system used to translate human-readable domain names into IP addresses. It also provides additional records that describe mail servers, name servers, and other services.
+
+Because DNS is often publicly accessible, it is a prime target for information gathering.
+
+## Information Gathered via DNS Enumeration
+
+Through DNS enumeration, an attacker or penetration tester may discover:
+- Domain and subdomain names
+- IP addresses of servers and hosts
+- Name servers (NS records)
+- Mail servers (MX records)
+- Service information (TXT, SRV records)
+- Network ranges and internal hostnames
+
+In some cases, misconfigured DNS servers allow zone transfers, exposing complete DNS records.
+
+## Security Impact
+
+Successful DNS enumeration can:
+- Reveal internal network structure
+- Identify critical servers and services
+- Assist in targeted phishing or email attacks
+- Support further scanning and exploitation phases
+
+From a defensive standpoint, DNS misconfigurations are a common source of information leakage.
+
+## Role in Ethical Hacking and CEH
+
+In CEH, DNS enumeration is introduced as a fundamental reconnaissance and enumeration technique. Ethical hackers must understand DNS behavior to identify exposed records, misconfigurations, and weaknesses in domain infrastructure.
