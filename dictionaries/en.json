@@ -49,7 +49,9 @@
         "installation": "Installation",
         "installing_os": "Installing OS",
         "metasploitable": "Installing Metasploitable",
-        "owaspbwa": "Installing OWASP BWA"
+        "owaspbwa": "Installing OWASP BWA",
+        "ceh_phases": "CEH Phases",
+        "ethical_hacking_phrases": "Ethical Hacking Phrases"
     },
     "blog": {
         "title": "Latest CEH Articles and Updates",

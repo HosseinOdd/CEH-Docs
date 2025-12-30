@@ -49,7 +49,9 @@
         "installation": "نصب",
         "installing_os": "نصب سیستم‌عامل",
         "metasploitable": "نصب Metasploitable",
-        "owaspbwa": "نصب OWASP BWA"
+        "owaspbwa": "نصب OWASP BWA",
+        "ceh_phases": "مراحل CEH",
+        "ethical_hacking_phrases": "اصطلاحات هک اخلاقی"
     },
     "blog": {
         "title": "آخرین مقالات و به‌روزرسانی‌های CEH",

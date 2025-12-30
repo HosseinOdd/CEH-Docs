@@ -20,6 +20,14 @@ export const ROUTES: EachRoute[] = [
       { title: "owaspbwa", href: "/owaspbwa" },
     ],
   },
+  {
+    title: "ceh_phases",
+    href: "/ceh-phases",
+    noLink: true,
+    items: [
+      { title: "ethical_hacking_phrases", href: "/ethical-hacking-phrases" },
+    ],
+  },
 ];
 
 type Page = { title: string; href: string };
