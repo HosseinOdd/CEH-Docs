@@ -1,0 +1,380 @@
+---
+title: Scapy
+description: Python-based packet manipulation library for network security testing
+---
+
+## What is Scapy?
+
+Scapy is a powerful Python library used to craft, send, sniff, and analyze network packets. It's widely used by penetration testers and security researchers for custom packet creation and network protocol analysis.
+
+## Key Features
+
+- Packet crafting and manipulation
+- Send/receive packets
+- Packet sniffing and capture
+- Protocol decoding
+- Network scanning
+- ARP poisoning
+- Custom protocol implementation
+- Packet replay and modification
+
+## Installation
+
+### Linux
+```bash
+# Debian/Ubuntu
+sudo apt-get install python3-scapy
+
+# Using pip
+pip3 install scapy
+```
+
+### Windows
+```powershell
+pip install scapy
+```
+
+### macOS
+```bash
+pip3 install scapy
+```
+
+## Basic Usage
+
+### Interactive Mode
+```python
+# Start Scapy interactive shell
+sudo scapy
+
+# or from Python
+from scapy.all import *
+```
+
+### Simple Packet Creation
+```python
+# Create an ICMP packet
+packet = IP(dst="192.168.1.1")/ICMP()
+
+# Send packet
+send(packet)
+
+# Send and receive
+response = sr1(packet)
+```
+
+## Packet Crafting
+
+### Layer 3 - IP Packets
+```python
+# Basic IP packet
+ip = IP(dst="192.168.1.1")
+
+# With options
+ip = IP(dst="192.168.1.1", ttl=64, id=12345)
+
+# Multiple destinations
+ip = IP(dst=["192.168.1.1", "192.168.1.2"])
+```
+
+### Layer 4 - TCP/UDP
+```python
+# TCP packet
+tcp = TCP(dport=80, flags="S")
+
+# UDP packet
+udp = UDP(dport=53)
+
+# Complete TCP SYN packet
+packet = IP(dst="192.168.1.1")/TCP(dport=80, flags="S")
+```
+
+### Layer 7 - Application Data
+```python
+# HTTP GET request
+packet = IP(dst="192.168.1.1")/TCP(dport=80)/"GET / HTTP/1.1\r\nHost: example.com\r\n\r\n"
+
+# DNS query
+dns_query = IP(dst="8.8.8.8")/UDP(dport=53)/DNS(rd=1, qd=DNSQR(qname="example.com"))
+```
+
+## Packet Operations
+
+### Sending Packets
+
+```python
+# Send at Layer 3 (IP)
+send(packet)
+
+# Send at Layer 2 (Ethernet)
+sendp(packet)
+
+# Send and receive one packet
+response = sr1(packet, timeout=2)
+
+# Send and receive multiple packets
+answered, unanswered = sr(packet, timeout=2)
+```
+
+### Sniffing Packets
+
+```python
+# Sniff 10 packets
+packets = sniff(count=10)
+
+# Sniff on specific interface
+packets = sniff(iface="eth0", count=10)
+
+# Sniff with filter (BPF syntax)
+packets = sniff(filter="tcp port 80", count=10)
+
+# Live packet processing
+def packet_callback(packet):
+    print(packet.summary())
+
+sniff(prn=packet_callback, count=10)
+```
+
+### Packet Analysis
+
+```python
+# Show packet details
+packet.show()
+
+# Summary
+packet.summary()
+
+# Access specific layers
+packet[IP].src
+packet[TCP].dport
+
+# Check if layer exists
+if packet.haslayer(TCP):
+    print("TCP packet")
+
+# Display hexdump
+hexdump(packet)
+```
+
+## Network Scanning
+
+### TCP SYN Scan
+```python
+# Single host scan
+def syn_scan(target, ports):
+    for port in ports:
+        packet = IP(dst=target)/TCP(dport=port, flags="S")
+        response = sr1(packet, timeout=1, verbose=0)
+        
+        if response and response.haslayer(TCP):
+            if response[TCP].flags == 0x12:  # SYN-ACK
+                print(f"Port {port}: Open")
+                # Send RST to close connection
+                rst = IP(dst=target)/TCP(dport=port, flags="R")
+                send(rst, verbose=0)
+            elif response[TCP].flags == 0x14:  # RST-ACK
+                print(f"Port {port}: Closed")
+
+# Usage
+syn_scan("192.168.1.1", [80, 443, 22, 21])
+```
+
+### UDP Scan
+```python
+def udp_scan(target, ports):
+    for port in ports:
+        packet = IP(dst=target)/UDP(dport=port)
+        response = sr1(packet, timeout=2, verbose=0)
+        
+        if response is None:
+            print(f"Port {port}: Open|Filtered")
+        elif response.haslayer(ICMP):
+            if response[ICMP].type == 3 and response[ICMP].code == 3:
+                print(f"Port {port}: Closed")
+
+# Usage
+udp_scan("192.168.1.1", [53, 161, 123])
+```
+
+### Host Discovery
+```python
+# ICMP ping sweep
+def ping_sweep(network):
+    answered, unanswered = sr(IP(dst=network)/ICMP(), timeout=2, verbose=0)
+    
+    for sent, received in answered:
+        print(f"{received.src} is alive")
+
+# Usage
+ping_sweep("192.168.1.0/24")
+```
+
+## ARP Operations
+
+### ARP Scan
+```python
+# Discover hosts on local network
+def arp_scan(network):
+    answered, unanswered = srp(Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst=network), 
+                                 timeout=2, verbose=0)
+    
+    for sent, received in answered:
+        print(f"IP: {received.psrc}\tMAC: {received.hwsrc}")
+
+# Usage
+arp_scan("192.168.1.0/24")
+```
+
+### ARP Spoofing
+```python
+def arp_spoof(target_ip, gateway_ip):
+    target_mac = getmacbyip(target_ip)
+    
+    # Create ARP packet
+    arp_response = ARP(pdst=target_ip, hwdst=target_mac, 
+                       psrc=gateway_ip, op='is-at')
+    
+    # Send continuously
+    send(arp_response, verbose=0)
+
+# Enable IP forwarding first!
+# echo 1 > /proc/sys/net/ipv4/ip_forward
+```
+
+## Advanced Techniques
+
+### Traceroute
+```python
+def traceroute(target, max_hops=30):
+    for ttl in range(1, max_hops + 1):
+        packet = IP(dst=target, ttl=ttl)/ICMP()
+        response = sr1(packet, timeout=2, verbose=0)
+        
+        if response is None:
+            print(f"{ttl}\t*")
+        elif response.type == 0:  # Echo reply
+            print(f"{ttl}\t{response.src} (Destination)")
+            break
+        else:
+            print(f"{ttl}\t{response.src}")
+
+# Usage
+traceroute("8.8.8.8")
+```
+
+### OS Fingerprinting
+```python
+def os_fingerprint(target):
+    # Send various packets
+    syn = IP(dst=target)/TCP(dport=80, flags="S")
+    syn_response = sr1(syn, timeout=2, verbose=0)
+    
+    if syn_response:
+        # Analyze TCP options
+        if syn_response.haslayer(TCP):
+            ttl = syn_response[IP].ttl
+            window = syn_response[TCP].window
+            
+            print(f"TTL: {ttl}")
+            print(f"Window Size: {window}")
+            
+            # Basic OS detection
+            if ttl <= 64:
+                print("Likely Linux/Unix")
+            elif ttl <= 128:
+                print("Likely Windows")
+
+# Usage
+os_fingerprint("192.168.1.1")
+```
+
+### DNS Spoofing
+```python
+def dns_spoof(pkt):
+    if pkt.haslayer(DNSQR):
+        qname = pkt[DNSQR].qname
+        
+        # Create spoofed DNS response
+        spoof_response = IP(dst=pkt[IP].src, src=pkt[IP].dst)/\
+                        UDP(dport=pkt[UDP].sport, sport=53)/\
+                        DNS(id=pkt[DNS].id, qr=1, aa=1, qd=pkt[DNS].qd,
+                            an=DNSRR(rrname=qname, ttl=10, rdata="1.2.3.4"))
+        
+        send(spoof_response, verbose=0)
+
+# Sniff and spoof
+sniff(filter="udp port 53", prn=dns_spoof)
+```
+
+## Packet Reading/Writing
+
+### Save Packets
+```python
+# Capture and save
+packets = sniff(count=100)
+wrpcap("capture.pcap", packets)
+```
+
+### Read PCAP Files
+```python
+# Read saved packets
+packets = rdpcap("capture.pcap")
+
+# Process packets
+for packet in packets:
+    if packet.haslayer(TCP):
+        print(packet[TCP].dport)
+```
+
+## Useful Functions
+
+### MAC Address Resolution
+```python
+# Get MAC from IP
+mac = getmacbyip("192.168.1.1")
+
+# Reverse lookup
+conf.checkIPaddr = False
+```
+
+### Randomization
+```python
+# Random source IP
+packet = IP(src=RandIP(), dst="192.168.1.1")/ICMP()
+
+# Random MAC address
+packet = Ether(src=RandMAC())/IP(dst="192.168.1.1")/ICMP()
+```
+
+## Protocol Fuzzing
+
+### TCP Fuzzing
+```python
+# Send packets with random values
+for i in range(100):
+    packet = IP(dst="192.168.1.1")/TCP(dport=80, flags=RandShort())
+    send(packet, verbose=0)
+```
+
+## Best Practices
+
+1. **Always get authorization** before testing
+2. **Use appropriate timeouts** to avoid hangs
+3. **Handle exceptions** properly
+4. **Rate limit** your scans
+5. **Save results** for analysis
+6. **Be verbose** when learning, quiet in production
+
+## Common Use Cases
+
+- **Port Scanning**: Custom scan techniques
+- **Network Discovery**: Host and service detection
+- **Packet Sniffing**: Network traffic analysis
+- **MITM Attacks**: ARP spoofing, DNS spoofing
+- **Fuzzing**: Protocol testing
+- **Custom Protocols**: Implementation and testing
+
+## Resources
+
+- Official Documentation: https://scapy.readthedocs.io/
+- GitHub: https://github.com/secdev/scapy
+- Tutorial: https://scapy.readthedocs.io/en/latest/usage.html
