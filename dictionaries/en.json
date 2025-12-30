@@ -83,7 +83,13 @@
         "malware_lifecycle": "Malware Lifecycle",
         "file_verification": "File Verification",
         "malware_analyze": "Malware Analysis",
-        "buffer_overflow": "Buffer Overflow"
+        "buffer_overflow": "Buffer Overflow",
+        "sniffing": "Sniffing",
+        "sniffing_intro": "Introduction to Sniffing",
+        "tcpdump_wireshark": "Tcpdump & Wireshark",
+        "cam_table": "CAM Table Attacks",
+        "dhcp_snooping": "DHCP Snooping",
+        "arp_attacks": "ARP Attacks"
     },
     "blog": {
         "title": "Latest CEH Articles and Updates",

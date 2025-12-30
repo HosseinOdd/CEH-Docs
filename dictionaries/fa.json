@@ -83,7 +83,13 @@
         "malware_lifecycle": "چرخه حیات بدافزار",
         "file_verification": "تایید فایل",
         "malware_analyze": "آنالیز بدافزار",
-        "buffer_overflow": "سرریز بافر"
+        "buffer_overflow": "سرریز بافر",
+        "sniffing": "شنود",
+        "sniffing_intro": "مقدمه شنود",
+        "tcpdump_wireshark": "Tcpdump و Wireshark",
+        "cam_table": "حملات CAM Table",
+        "dhcp_snooping": "DHCP Snooping",
+        "arp_attacks": "حملات ARP"
     },
     "blog": {
         "title": "آخرین مقالات و به‌روزرسانی‌های CEH",

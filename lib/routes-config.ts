@@ -78,6 +78,18 @@ export const ROUTES: EachRoute[] = [
       { title: "buffer_overflow", href: "/buffer-overflow" },
     ],
   },
+  {
+    title: "sniffing",
+    href: "/sniffing",
+    noLink: true,
+    items: [
+      { title: "sniffing_intro", href: "/sniffing-intro" },
+      { title: "tcpdump_wireshark", href: "/tcpdump-wireshark" },
+      { title: "cam_table", href: "/cam-table" },
+      { title: "dhcp_snooping", href: "/dhcp-snooping" },
+      { title: "arp_attacks", href: "/arp-attacks" },
+    ],
+  },
 ];
 
 type Page = { title: string; href: string };
