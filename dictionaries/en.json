@@ -93,7 +93,8 @@
         "enumeration": "Enumeration",
         "enumeration_introduction": "Enumeration Introduction",
         "windows_enumeration": "Windows",
-        "linux_enumeration": "Linux"
+        "linux_enumeration": "Linux",
+        "netBIOS_enumeration" : "NetBIOS"
     },
     "blog": {
         "title": "Latest CEH Articles and Updates",

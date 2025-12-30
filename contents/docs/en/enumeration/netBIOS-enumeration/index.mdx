@@ -1,0 +1,41 @@
+---
+title: NetBIOS Enumeration
+description: Detailed enumeration of NetBIOS services to identify Windows network resources and information leakage
+---
+
+## Overview
+
+NetBIOS Enumeration is the process of extracting information from systems that use the NetBIOS protocol, commonly found in Windows-based networks. NetBIOS allows applications on different computers to communicate over a local network, but improper configuration can lead to significant information disclosure.
+
+This type of enumeration is especially useful in internal network assessments where legacy services or older Windows systems are present.
+
+## What is NetBIOS
+
+NetBIOS (Network Basic Input/Output System) is a networking protocol that provides name resolution, session management, and data transport services. It typically operates over TCP/IP using ports 137, 138, and 139.
+
+Although NetBIOS is largely replaced by modern protocols, it is still enabled in many networks for compatibility reasons.
+
+## Information Gathered via NetBIOS Enumeration
+
+During NetBIOS enumeration, an attacker or penetration tester may obtain:
+- Computer and host names
+- Logged-in user information
+- Workgroup or domain names
+- Shared resources and network shares
+- MAC addresses and network interfaces
+
+This information can be collected without authentication in poorly secured environments.
+
+## Security Impact
+
+Successful NetBIOS enumeration can:
+- Reveal internal network structure
+- Assist in identifying valid systems and users
+- Enable targeted attacks against shared resources
+- Support lateral movement within the network
+
+From a defensive perspective, NetBIOS is considered a high-risk legacy service if not properly restricted.
+
+## Role in Ethical Hacking and CEH
+
+In the CEH methodology, NetBIOS enumeration is introduced as a classic example of information leakage caused by legacy protocols. Ethical hackers must understand how NetBIOS works in order to identify insecure configurations and recommend secure alternatives.
