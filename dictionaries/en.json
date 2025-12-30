@@ -102,7 +102,8 @@
         "SMTP_enumeration": "SMTP",
         "social__engineering": "Social Engineering",
         "social_engineering_introduction": "Social Engineering Introduction",
-        "social_engineering_phases": "Social Engineering Phases"
+        "social_engineering_phases": "Social Engineering Phases",
+        "social_engineering_attack": "Attack"
 
     },
     "blog": {
