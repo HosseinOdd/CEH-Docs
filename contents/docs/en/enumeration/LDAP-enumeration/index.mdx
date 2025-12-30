@@ -1,0 +1,42 @@
+---
+title: LDAP Enumeration
+description: Detailed enumeration of directory services using LDAP to identify users, groups, and directory structure
+---
+
+## Overview
+
+LDAP Enumeration is the process of extracting detailed information from directory services that use the Lightweight Directory Access Protocol (LDAP). LDAP is commonly used in enterprise environments for centralized authentication, authorization, and directory management.
+
+Improperly secured LDAP services can expose critical information about users, groups, and organizational structure.
+
+## What is LDAP
+
+LDAP (Lightweight Directory Access Protocol) is an application-layer protocol used to access and manage directory information services. It is widely implemented in technologies such as Active Directory, OpenLDAP, and other directory-based systems.
+
+LDAP typically operates over TCP ports 389 (LDAP) and 636 (LDAPS).
+
+## Information Gathered via LDAP Enumeration
+
+Through LDAP enumeration, an attacker or penetration tester may discover:
+- User accounts and usernames
+- Groups and group memberships
+- Organizational units (OUs)
+- Domain and directory structure
+- Email addresses and contact details
+- Password policies and account attributes
+
+In some cases, LDAP allows anonymous binding, making enumeration possible without authentication.
+
+## Security Impact
+
+Successful LDAP enumeration can:
+- Enable targeted credential attacks
+- Reveal internal organizational structure
+- Support privilege escalation and lateral movement
+- Assist in Active Directory attacks
+
+From a defensive standpoint, unsecured LDAP services represent a major risk in enterprise networks.
+
+## Role in Ethical Hacking and CEH
+
+In CEH, LDAP enumeration is considered a high-impact technique. Ethical hackers must understand LDAP queries, directory structures, and access controls to assess directory service security effectively.

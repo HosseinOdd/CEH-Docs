@@ -95,7 +95,9 @@
         "windows_enumeration": "ویندوز",
         "linux_enumeration": "لینوکس",
         "netBIOS_enumeration" : "NetBIOS",
-        "DNS_enumeration": "DNS"
+        "DNS_enumeration": "DNS",
+        "SNMP_enumeration": "SNMP",
+        "LDAP_enumeration": "LDAP"
     },
     "blog": {
         "title": "آخرین مقالات و به‌روزرسانی‌های CEH",

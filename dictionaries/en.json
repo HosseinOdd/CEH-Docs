@@ -95,7 +95,10 @@
         "windows_enumeration": "Windows",
         "linux_enumeration": "Linux",
         "netBIOS_enumeration" : "NetBIOS",
-        "DNS_enumeration": "DNS"
+        "DNS_enumeration": "DNS",
+        "SNMP_enumeration": "SNMP",
+        "LDAP_enumeration": "LDAP"
+
 
     },
     "blog": {

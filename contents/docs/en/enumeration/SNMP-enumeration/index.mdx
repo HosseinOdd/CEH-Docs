@@ -1,0 +1,43 @@
+---
+title: SNMP Enumeration
+description: Detailed enumeration of network devices and system information using SNMP protocol
+---
+
+## Overview
+
+SNMP Enumeration is the process of extracting detailed information from network devices and systems using the Simple Network Management Protocol (SNMP). SNMP is widely used to monitor and manage network devices such as routers, switches, servers, printers, and firewalls.
+
+Due to weak configurations and the use of default community strings, SNMP often exposes sensitive system and network information.
+
+## What is SNMP
+
+SNMP (Simple Network Management Protocol) is an application-layer protocol designed to manage and monitor network devices. It operates primarily over UDP ports 161 (queries) and 162 (traps).
+
+SNMP uses a Management Information Base (MIB), which contains structured information about system components that can be queried remotely.
+
+## Information Gathered via SNMP Enumeration
+
+Through SNMP enumeration, an attacker or penetration tester can retrieve:
+- System and device names
+- Network interfaces and IP addresses
+- Routing tables
+- Running processes
+- Installed software and services
+- User accounts (in some configurations)
+- Device uptime and performance statistics
+
+This information is often accessible using default or weak community strings such as `public` and `private`.
+
+## Security Impact
+
+Successful SNMP enumeration can:
+- Reveal detailed internal network topology
+- Assist in identifying critical network devices
+- Support privilege escalation and lateral movement
+- Expose sensitive configuration and operational data
+
+From a defensive perspective, unsecured SNMP services represent a significant security risk.
+
+## Role in Ethical Hacking and CEH
+
+In CEH, SNMP enumeration is considered a high-value information-gathering technique. Ethical hackers must understand SNMP versions, MIB structures, and common misconfigurations to effectively assess network security.
