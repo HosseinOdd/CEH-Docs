@@ -91,7 +91,8 @@
         "dhcp_snooping": "DHCP Snooping",
         "arp_attacks": "ARP Attacks",
         "enumeration": "Enumeration",
-        "enumeration_introduction": "Enumeration Introduction"
+        "enumeration_introduction": "Enumeration Introduction",
+        "windows_enumeration": "Windows"
     },
     "blog": {
         "title": "Latest CEH Articles and Updates",
