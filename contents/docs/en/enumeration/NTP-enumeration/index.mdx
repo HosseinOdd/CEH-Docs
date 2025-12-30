@@ -1,0 +1,41 @@
+---
+title: NTP Enumeration
+description: Enumeration of Network Time Protocol services to identify system information and network behavior
+---
+
+## Overview
+
+NTP Enumeration is the process of collecting information from systems running the Network Time Protocol (NTP). NTP is used to synchronize system clocks across networked devices, which is critical for logging, authentication, and network operations.
+
+Although NTP is not designed for authentication or user management, misconfigured NTP services can leak valuable system and network information.
+
+## What is NTP
+
+NTP (Network Time Protocol) is a networking protocol used to synchronize time between systems over packet-switched networks. It typically operates over UDP port 123 and is commonly enabled on servers, network devices, and infrastructure components.
+
+Because accurate time synchronization is essential, NTP services are often widely accessible within networks.
+
+## Information Gathered via NTP Enumeration
+
+Through NTP enumeration, an attacker or penetration tester may obtain:
+- System uptime information
+- Time synchronization sources
+- Server IP addresses and hostnames
+- Network delay and jitter data
+- Indirect insights into network topology
+
+Certain NTP modes and commands can reveal details about connected peers and internal time servers.
+
+## Security Impact
+
+Successful NTP enumeration can:
+- Reveal internal network architecture
+- Assist in identifying critical infrastructure systems
+- Support timing-based attacks
+- Help attackers evade detection by synchronizing malicious activities
+
+From a defensive perspective, exposed or outdated NTP configurations can increase the attack surface.
+
+## Role in Ethical Hacking and CEH
+
+In CEH, NTP enumeration is introduced as a supplementary enumeration technique. Ethical hackers must understand NTP behavior and common misconfigurations to identify potential information leakage and recommend secure configurations.

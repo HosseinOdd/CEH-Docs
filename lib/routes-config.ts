@@ -74,6 +74,7 @@ export const ROUTES: EachRoute[] = [
       { title: "DNS_enumeration", href: "/DNS-enumeration" },
       { title: "SNMP_enumeration", href: "/SNMP-enumeration" },
       { title: "LDAP_enumeration", href: "/LDAP-enumeration" },
+      { title: "NTP_enumeration", href: "/NTP-enumeration" },
     ],
   },
   {

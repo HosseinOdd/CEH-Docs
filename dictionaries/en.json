@@ -97,7 +97,8 @@
         "netBIOS_enumeration" : "NetBIOS",
         "DNS_enumeration": "DNS",
         "SNMP_enumeration": "SNMP",
-        "LDAP_enumeration": "LDAP"
+        "LDAP_enumeration": "LDAP",
+        "NTP_enumeration": "NTP"
 
 
     },
