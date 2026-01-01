@@ -6,6 +6,7 @@ import { Footer } from "@/components/footer";
 import { getDictionary, LangProps } from "@/lib/dictionaries";
 import { ClientDictionary } from "@/components/contexts/dictionary-provider";
 import { LocaleSync } from "@/components/locale-sync";
+import { LocaleRedirect } from "@/components/locale-redirect";
 import { locales } from "@/lib/locale";
 import "@/styles/globals.css";
 
@@ -58,6 +59,7 @@ export default async function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <LocaleRedirect />
             <LocaleSync />
             <Navbar dict={dict} />
             <main className="sm:container mx-auto w-[90vw] h-auto scroll-smooth">
