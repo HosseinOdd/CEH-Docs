@@ -18,11 +18,11 @@ export function middleware(request: NextRequest) {
     const preferredLocaleCookie = request.cookies.get('preferred-locale')?.value;
     
     // Determine which locale to use
-    let locale = locales[0]; // default to 'en'
+    let locale: typeof locales[number] = locales[0]; // default to 'en'
     
     // If user has a preferred locale saved in cookie, use it
     if (preferredLocaleCookie && locales.includes(preferredLocaleCookie as any)) {
-        locale = preferredLocaleCookie;
+        locale = preferredLocaleCookie as typeof locales[number];
     }
     
     request.nextUrl.pathname = `${basePath}/${locale}${pathnameWithoutBase}`;
