@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 /**
  * This component syncs the current locale with localStorage and cookies
- * so that the user's language preference persists across visits
+ * ONLY when user manually changes language (via LangSelect)
  */
 export function LocaleSync() {
   const pathname = usePathname();
@@ -16,16 +16,22 @@ export function LocaleSync() {
     const currentLocale = pathParts[0];
     
     if (currentLocale && (currentLocale === "en" || currentLocale === "fa")) {
-      // Save to localStorage
-      localStorage.setItem("preferred-locale", currentLocale);
+      const storedLocale = localStorage.getItem("preferred-locale");
       
-      // Save to cookie (for middleware to read)
-      // Set cookie with proper attributes for GitHub Pages
-      document.cookie = `preferred-locale=${currentLocale}; path=/; max-age=31536000; SameSite=Lax`;
-      
-      console.log(`[LocaleSync] Saved locale: ${currentLocale}`);
+      // Only save if locale changed (user clicked language selector)
+      // Don't overwrite on initial load
+      if (storedLocale && storedLocale !== currentLocale) {
+        localStorage.setItem("preferred-locale", currentLocale);
+        document.cookie = `preferred-locale=${currentLocale}; path=/; max-age=31536000; SameSite=Lax`;
+        console.log(`[LocaleSync] User changed locale: ${storedLocale} -> ${currentLocale}`);
+      } else if (!storedLocale) {
+        // First time visitor - save current locale
+        localStorage.setItem("preferred-locale", currentLocale);
+        document.cookie = `preferred-locale=${currentLocale}; path=/; max-age=31536000; SameSite=Lax`;
+        console.log(`[LocaleSync] First visit, saving locale: ${currentLocale}`);
+      }
     }
   }, [pathname]);
 
-  return null; // This component doesn't render anything
+  return null;
 }

@@ -3,13 +3,17 @@
 <head>
     <meta charset="utf-8">
     <title>Redirecting...</title>
-    <meta http-equiv="refresh" content="0; url=./en">
     <script>
-        // Redirect to default language
-        window.location.href = './en';
+        // Get preferred locale from localStorage
+        const preferredLocale = localStorage.getItem('preferred-locale');
+        const locale = (preferredLocale === 'fa' || preferredLocale === 'en') ? preferredLocale : 'en';
+        
+        // Redirect to preferred locale
+        console.log('[Root Redirect] Preferred locale:', preferredLocale, '-> Redirecting to:', locale);
+        window.location.href = './' + locale;
     </script>
 </head>
 <body>
-    <p>Redirecting to <a href="./en">English version</a>...</p>
+    <p>Redirecting...</p>
 </body>
 </html>
