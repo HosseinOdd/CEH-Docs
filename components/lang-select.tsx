@@ -27,9 +27,12 @@ export default function LangSelect() {
   const router = useRouter();
 
   function handleChangeLocale(newLocale: string) {
-    // Save selected locale to localStorage
+    // Save selected locale to localStorage and cookie
     if (typeof window !== 'undefined') {
       localStorage.setItem('preferred-locale', newLocale);
+      // Also set cookie for middleware
+      document.cookie = `preferred-locale=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
+      console.log(`[LangSelect] Changed locale to: ${newLocale}`);
     }
     router.push(pathname.replace(/\/[a-z]{2}/, `/${newLocale}`));
   }

@@ -12,14 +12,18 @@ export function LocaleSync() {
 
   useEffect(() => {
     // Extract current locale from pathname
-    const currentLocale = pathname.split("/")[1];
+    const pathParts = pathname.split("/").filter(Boolean);
+    const currentLocale = pathParts[0];
     
     if (currentLocale && (currentLocale === "en" || currentLocale === "fa")) {
       // Save to localStorage
       localStorage.setItem("preferred-locale", currentLocale);
       
       // Save to cookie (for middleware to read)
-      document.cookie = `preferred-locale=${currentLocale}; path=/; max-age=31536000`; // 1 year
+      // Set cookie with proper attributes for GitHub Pages
+      document.cookie = `preferred-locale=${currentLocale}; path=/; max-age=31536000; SameSite=Lax`;
+      
+      console.log(`[LocaleSync] Saved locale: ${currentLocale}`);
     }
   }, [pathname]);
 
