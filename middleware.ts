@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getLocale, pathnameHasLocale } from "./lib/locale";
+import { getLocale, pathnameHasLocale, locales } from "./lib/locale";
 
 export function middleware(request: NextRequest) {
     // Check if there is any supported locale in the pathname
@@ -14,8 +14,15 @@ export function middleware(request: NextRequest) {
     const hasLocale = pathnameHasLocale(pathnameWithoutBase);
     if (hasLocale) return;
 
-    // Redirect if there is no locale
-    const locale = getLocale(pathnameWithoutBase);
+    // Try to get preferred locale from cookie
+    const preferredLocaleCookie = request.cookies.get('preferred-locale')?.value;
+    let locale = getLocale(pathnameWithoutBase);
+    
+    // If user has a preferred locale saved, use it
+    if (preferredLocaleCookie && locales.includes(preferredLocaleCookie as any)) {
+        locale = preferredLocaleCookie;
+    }
+    
     request.nextUrl.pathname = `${basePath}/${locale}${pathnameWithoutBase}`;
     // e.g. incoming request is /CEH-Docs/docs/get-started
     // The new URL is now /CEH-Docs/en/docs/get-started

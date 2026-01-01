@@ -27,6 +27,10 @@ export default function LangSelect() {
   const router = useRouter();
 
   function handleChangeLocale(newLocale: string) {
+    // Save selected locale to localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('preferred-locale', newLocale);
+    }
     router.push(pathname.replace(/\/[a-z]{2}/, `/${newLocale}`));
   }
 
